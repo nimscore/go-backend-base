@@ -1,0 +1,6 @@
+dependencies:
+- name: kafka
+  repository: file://../../../../infrastructure/kafka/chart
+  version: 0.1.0
+digest: sha256:d6fe1984ae0de55b15eb086acd31edf595c69d7f52ed1cb32901f3a78120b34e
+generated: "2025-10-10T14:58:56.602690465Z"

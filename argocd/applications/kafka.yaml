@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka
+  namespace: argocd
+spec:
+  project: default
+  source:
+    targetRevision: HEAD
+    repoURL: https://github.com/stormhead-org/backend
+    path: argocd/delivery/infrastructure/kafka
+    # helm:
+    #   parameters:
+    #     - name: "checker.fqdn"
+    #       value: "stormhead.org"
+  destination:
+    namespace: kafka
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
