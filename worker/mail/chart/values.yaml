@@ -1,0 +1,14 @@
+image:
+  tag: "0.1.0"
+
+kafka:
+  host: "kafka.kafka.svc.cluster.local:9092"
+  port: "9092"
+  topic: "mail"
+  group: "mail"
+
+smtp:
+  host:
+  port:
+  user:
+  password:

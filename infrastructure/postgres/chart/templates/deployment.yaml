@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    application: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: postgres
+  template:
+    metadata:
+      labels:
+        application: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: gdemojkod/stormic-postgres:{{ $.Values.image.postgres }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: VERSION
+              value: "0.1.0"
+            
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "trust"
+            
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgres.user }}"
+            
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+          resources:
+            limits:
+              cpu: "0.1"
+              memory: "500Mi"
+            requests:
+              cpu: "0.1"
+              memory: "500Mi"
