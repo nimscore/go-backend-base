@@ -6,7 +6,6 @@ const KIND_MAIL_CONFIRM = "mail_confirm"
 const KIND_MAIL_RECOVER = "mail_recover"
 
 type Message struct {
-	Kind      string            `json:"kind"`
 	From      string            `json:"from"`
 	To        string            `json:"to"`
 	Subject   string            `json:"subject"`
@@ -15,7 +14,6 @@ type Message struct {
 
 func NewMessageMailConfirm(from string, to string, subject string, user string, time string, url string) *Message {
 	return &Message{
-		Kind:    KIND_MAIL_CONFIRM,
 		From:    from,
 		To:      to,
 		Subject: subject,
@@ -29,7 +27,6 @@ func NewMessageMailConfirm(from string, to string, subject string, user string, 
 
 func NewMessageMailRecover(from string, to string, subject string, user string, time string, url string) *Message {
 	return &Message{
-		Kind:    KIND_MAIL_RECOVER,
 		From:    from,
 		To:      to,
 		Subject: subject,

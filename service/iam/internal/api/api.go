@@ -95,24 +95,32 @@ func (this *API) Stop() error {
 
 func (this *API) startupHandler() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusOK)
 	}
 }
 
 func (this *API) readinessHandler() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusOK)
 	}
 }
 
 func (this *API) livenessHandler() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusOK)
 	}
 }
 
 func (this *API) debugHandler() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		kafkaServer := os.Getenv("KAFKA_SERVER")
-		if kafkaServer == "" {
-			kafkaServer = "localhost:9092"
+		kafkaHost := os.Getenv("KAFKA_HOST")
+		if kafkaHost == "" {
+			kafkaHost = "localhost"
+		}
+
+		kafkaPort := os.Getenv("KAFKA_PORT")
+		if kafkaPort == "" {
+			kafkaPort = "9092"
 		}
 
 		kafkaTopic := os.Getenv("KAFKA_TOPIC")
@@ -120,15 +128,20 @@ func (this *API) debugHandler() http.HandlerFunc {
 			kafkaTopic = "mail"
 		}
 
-		client := clientpkg.NewKafkaClient(kafkaServer, kafkaTopic)
+		this.logger.Error(fmt.Sprintf("%s:%s", kafkaHost, kafkaPort))
+
+		client := clientpkg.NewKafkaClient(
+			fmt.Sprintf("%s:%s", kafkaHost, kafkaPort),
+			kafkaTopic,
+		)
 
 		content, err := mailpkg.MessageToJson(
 			mailpkg.NewMessageMailConfirm("staff@stormhead.org", "dgemojkod@yandex.ru", "Confirm", "User", "24", "https://stormhead.org"),
 		)
 		if err != nil {
-			fmt.Println(err)
+			this.logger.Error("error", zap.Error(err))
 		}
 
-		client.Write(context.Background(), "a", content)
+		client.Write(context.Background(), mailpkg.KIND_MAIL_CONFIRM, content)
 	}
 }

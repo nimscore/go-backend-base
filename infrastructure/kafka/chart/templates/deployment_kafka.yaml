@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-broker
+  name: kafka-broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-broker
+  template:
+    metadata:
+      labels:
+        app: kafka-broker
+    spec:
+      containers:
+        - name: kafka
+          image: wurstmeister/kafka
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "$(ZOOKEEPER_SERVICE_HOST):2181"
+
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://:9092
+
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://kafka-broker.kafka.svc.cluster.local:9092

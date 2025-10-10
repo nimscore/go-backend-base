@@ -1,7 +1,7 @@
 fqdn: "api.stormhead.org"
 
 image:
-  iam: "latest"
+  iam: "0.1.1"
   migration: "latest"
 
 postgres:
@@ -10,3 +10,7 @@ postgres:
   user: "postgres"
   password: ""
   database: "iam"
+
+kafka:
+  host: kafka-broker.kafka.svc.cluster.local
+  port: 9092

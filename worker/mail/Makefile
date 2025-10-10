@@ -13,3 +13,11 @@ image-worker-build:
 image-worker-push: version ?= latest
 image-worker-push:
 	docker push gdemojkod/stormic-mail-worker:${version}
+
+chart-build: version ?= 0.1.0
+chart-build:
+	helm package chart --version ${version}
+
+chart-install: version ?= 0.1.0
+chart-install:
+	helm -n mail install --create-namespace mail mail-${version}.tgz

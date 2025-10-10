@@ -23,9 +23,6 @@ spec:
         - name: iam
           image: gdemojkod/stormic-iam-microservice:{{ $.Values.image.iam }}
           imagePullPolicy: IfNotPresent
-          command: ["iam"]
-          args:
-            - "server"
           ports:
             - containerPort: 8080
           env:
@@ -46,12 +43,18 @@ spec:
 
             - name: POSTGRES_USER
               value: "{{ $.Values.postgres.user }}"
-            
+
             - name: POSTGRES_PASSWORD
               value: "{{ $.Values.postgres.password }}"
-            
+
             - name: POSTGRES_DATABASE
               value: "{{ $.Values.postgres.database }}"
+
+            - name: KAFKA_HOST
+              value: "{{ $.Values.kafka.host }}"
+
+            - name: KAFKA_PORT
+              value: "{{ $.Values.kafka.port }}"
 
           resources:
             limits:

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -52,7 +53,13 @@ func (this *Worker) worker() {
 	defer this.waitGroup.Done()
 
 	for {
-		_, value, err := this.kafkaClient.Read(this.context)
+		select {
+		case <-this.context.Done():
+			return
+		case <-time.After(1 * time.Millisecond):
+		}
+
+		kind, value, err := this.kafkaClient.Read(this.context)
 		if err != nil {
 			this.logger.Error("error receiving kafka message", zap.Error(err))
 			continue
@@ -64,12 +71,17 @@ func (this *Worker) worker() {
 			continue
 		}
 
-		path := "mail_stub.html"
-		switch message.Kind {
+		path := ""
+		switch kind {
 		case mailpkg.KIND_MAIL_CONFIRM:
 			path = "mail_confirm.html"
 		case mailpkg.KIND_MAIL_RECOVER:
 			path = "mail_recover.html"
+		}
+
+		if path == "" {
+			this.logger.Error("unknown message kind")
+			continue
 		}
 
 		content, err := templatepkg.Render(fmt.Sprintf("template/%s", path), message.Arguments)
@@ -91,7 +103,7 @@ func (this *Worker) worker() {
 
 		this.logger.Info(
 			"mail sent to recipient",
-			zap.String("kind", message.Kind),
+			zap.String("kind", kind),
 			zap.String("from", message.From),
 			zap.String("to", message.To),
 		)

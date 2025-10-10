@@ -1,6 +1,6 @@
 image:
   postgres: "latest"
-  
+
 postgres:
   user: "postgres"
   password: ""

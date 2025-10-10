@@ -8,9 +8,9 @@ import (
 )
 
 var rootCommand = &cobra.Command{
-	Use:   "media",
-	Short: "media",
-	Long:  "media",
+	Use:   "mail",
+	Short: "mail",
+	Long:  "mail",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return rootCommandImplementation()
 	},
