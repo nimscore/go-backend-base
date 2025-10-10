@@ -1,6 +1,6 @@
 dependencies:
 - name: postgres
-  repository: file://../../infrastructure/postgres
+  repository: file://../../../../infrastructure/postgres/chart
   version: 0.1.0
-digest: sha256:06463500820988dd428f28c42762d342e91909d6cbb010baed0bdd1fbc00968e
-generated: "2025-10-10T13:58:07.275631095Z"
+digest: sha256:132237f3bb96192d0abad37e7afcb5954d09268086e72dbdbd54f780ff899869
+generated: "2025-10-10T14:31:39.772486715Z"
