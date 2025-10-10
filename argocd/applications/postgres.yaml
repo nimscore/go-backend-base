@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/stormhead-org/backend.git
+    path: "argocd/delivery/infrastructure/postgres"
+    # helm:
+    #   parameters:
+    #     - name: "checker.fqdn"
+    #       value: "api.playground.hardcode.su"
+  destination:
+    namespace: postgres
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
