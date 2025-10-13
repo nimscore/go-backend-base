@@ -20,3 +20,10 @@ Expose service
 ```
 minikube service -n iam iam --url
 ```
+
+# GRPCurl
+
+```
+grpcurl -plaintext 127.0.0.1:8080 list
+grpcurl -plaintext -d '{"login": "user", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Login
+```

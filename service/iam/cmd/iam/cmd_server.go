@@ -8,7 +8,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	apipkg "github.com/stormhead-org/service/iam/internal/api"
+	grpcpkg "github.com/stormhead-org/service/iam/internal/grpc"
 )
 
 var serverCommand = &cobra.Command{
@@ -28,16 +28,6 @@ func serverCommandImpl() error {
 		logger = zap.NewProduction
 	}
 
-	gqlHost := os.Getenv("GQL_HOST")
-	if gqlHost == "" {
-		gqlHost = "127.0.0.1"
-	}
-
-	gqlPort := os.Getenv("GQL_PORT")
-	if gqlPort == "" {
-		gqlPort = "8080"
-	}
-
 	// Application
 	application := fx.New(
 		fx.NopLogger,
@@ -45,26 +35,36 @@ func serverCommandImpl() error {
 			logger,
 
 			// Application
-			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger) (*apipkg.API, error) {
-				gql := apipkg.NewAPI(
+			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger) (*grpcpkg.GRPC, error) {
+				grpcHost := os.Getenv("GQL_HOST")
+				if grpcHost == "" {
+					grpcHost = "127.0.0.1"
+				}
+
+				grpcPort := os.Getenv("GQL_PORT")
+				if grpcPort == "" {
+					grpcPort = "8080"
+				}
+
+				grpc := grpcpkg.NewGRPC(
 					logger,
-					gqlHost,
-					gqlPort,
+					grpcHost,
+					grpcPort,
 				)
 				lifecycle.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
-						return gql.Start()
+						return grpc.Start()
 					},
 					OnStop: func(ctx context.Context) error {
-						return gql.Stop()
+						return grpc.Stop()
 					},
 				})
 
-				return gql, nil
+				return grpc, nil
 			},
 		),
 		fx.Invoke(
-			func(*apipkg.API) {
+			func(*grpcpkg.GRPC) {
 				// TODO:
 			},
 		),
