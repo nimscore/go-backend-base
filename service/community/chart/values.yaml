@@ -1,0 +1,12 @@
+fqdn: "api.stormhead.org"
+
+image:
+  community: "0.1.1"
+  migration: "latest"
+
+postgres:
+  host: "postgres.postgres.svc.cluster.local"
+  port: 5432
+  user: "postgres"
+  password: ""
+  database: "community"

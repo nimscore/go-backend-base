@@ -1,0 +1,11 @@
+apiVersion: v2
+name: community
+description: community
+type: application
+version: "0.1.0"
+appVersion: "0.1.0"
+
+dependencies:
+  - name: community
+    version: 0.1.0
+    repository: file://../../../../service/community/chart

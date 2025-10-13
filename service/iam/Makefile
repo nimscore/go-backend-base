@@ -10,13 +10,6 @@ generate-proto:
 		--go-grpc_opt=paths=source_relative \
 		iam.proto
 
-
-run:
-	go build -o iam ./cmd/iam
-	while inotifywait -r . -e create,delete,modify cmd/iam/main.go; do \
-		go build -o iam ./cmd/iam; \
-	done
-
 binary-build:
 	go build -o iam ./cmd/iam
 	strip iam
