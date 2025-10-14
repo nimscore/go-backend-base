@@ -1,6 +1,15 @@
 env-setup:
 	curl -sSf https://atlasgo.sh | sh
 
+generate-proto:
+	protoc \
+		--proto_path=proto \
+		--go_out=./internal/proto \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=./internal/proto \
+		--go-grpc_opt=paths=source_relative \
+		iam.proto
+
 binary-build:
 	go build -o community ./cmd/community
 	strip community
@@ -29,12 +38,20 @@ image-migration-push: version ?= latest
 image-migration-push:
 	docker push gdemojkod/stormic-community-migration:${version}
 
+chart-build: version ?= 0.1.0
+chart-build:
+	helm package chart --version ${version}
+
+chart-install: version ?= 0.1.0
+chart-install:
+	helm -n community install --create-namespace community community-${version}.tgz
+
 ent-add-orm: name ?= User
 ent-add-orm:
-	go run -mod=mod entgo.io/ent/cmd/ent new ${name} --target ./internal/ent/schema
+	go run -mod=mod entgo.io/ent/cmd/ent new ${name}
 
 ent-generate:
-	go generate ./internal/ent
+	go generate ./ent
 
 database-create-migration: name ?= initial
 database-create-migration:
@@ -47,6 +64,10 @@ database-apply-migrations:
 	atlas migrate apply \
 		--dir "file://migrations" \
 		--url "postgres://postgres:@127.0.0.1:5432/postgres?sslmode=disable" --dry-run
+
+graphql-init:
+	go get github.com/99designs/gqlgen@latest
+	go run github.com/99designs/gqlgen init
 
 graphql-generate:
 	go get github.com/99designs/gqlgen@latest

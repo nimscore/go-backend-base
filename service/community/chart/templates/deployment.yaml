@@ -50,6 +50,12 @@ spec:
             - name: POSTGRES_DATABASE
               value: "{{ $.Values.postgres.database }}"
 
+            - name: KAFKA_HOST
+              value: "{{ $.Values.kafka.host }}"
+
+            - name: KAFKA_PORT
+              value: "{{ $.Values.kafka.port }}"
+
           resources:
             limits:
               cpu: "1"

@@ -8,9 +8,9 @@ import (
 )
 
 var rootCommand = &cobra.Command{
-	Use:   "community",
-	Short: "community",
-	Long:  "community",
+	Use:   "iam",
+	Short: "iam",
+	Long:  "iam",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return rootCommandImplementation()
 	},
@@ -18,7 +18,7 @@ var rootCommand = &cobra.Command{
 
 func rootCommandImplementation() error {
 	var logo []string = []string{
-		"Stormic community microservice",
+		"Stormic IAM microservice",
 	}
 	for _, l := range logo {
 		fmt.Println(l)

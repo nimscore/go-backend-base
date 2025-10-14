@@ -10,3 +10,7 @@ postgres:
   user: "postgres"
   password: ""
   database: "community"
+
+kafka:
+  host: kafka-broker.kafka.svc.cluster.local
+  port: 9092
