@@ -10,7 +10,7 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	iampb "github.com/stormhead-org/service/iam/internal/proto"
+	iampb "github.com/stormhead-org/service/community/internal/proto"
 )
 
 type GRPC struct {

@@ -55,15 +55,10 @@ ent-generate:
 
 database-create-migration: name ?= initial
 database-create-migration:
-	atlas migrate diff ${name} \
-		--dir "file://migrations" \
-		--to "ent://internal/ent/schema" \
-		--dev-url "postgres://postgres:@127.0.0.1:5432/postgres?sslmode=disable"
+	migrate create -ext sql -dir migration -seq ${name}
 
 database-apply-migrations:
-	atlas migrate apply \
-		--dir "file://migrations" \
-		--url "postgres://postgres:@127.0.0.1:5432/postgres?sslmode=disable" --dry-run
+	migrate -database 'postgres://postgres:postgres@127.0.0.1:5432?sslmode=disable' -path migration up
 
 graphql-init:
 	go get github.com/99designs/gqlgen@latest

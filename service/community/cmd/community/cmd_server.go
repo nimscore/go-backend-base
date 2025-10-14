@@ -8,7 +8,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	grpcpkg "github.com/stormhead-org/service/iam/internal/grpc"
+	grpcpkg "github.com/stormhead-org/service/community/internal/grpc"
 )
 
 var serverCommand = &cobra.Command{

@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	iampb "github.com/stormhead-org/service/iam/internal/proto"
+	ormpkg "github.com/stormhead-org/service/community/internal/orm"
+	iampb "github.com/stormhead-org/service/community/internal/proto"
 )
 
 type IAMServer struct {
@@ -20,6 +21,7 @@ func (this *IAMServer) Register(context context.Context, request *iampb.Register
 }
 
 func (this *IAMServer) Login(context context.Context, request *iampb.LoginRequest) (*iampb.LoginResponse, error) {
+	ormpkg.Debug()
 	fmt.Println(request.Login, request.Password)
 	return &iampb.LoginResponse{Token: "hello"}, nil
 }
