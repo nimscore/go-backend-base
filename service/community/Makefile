@@ -60,6 +60,9 @@ database-create-migration:
 database-apply-migrations:
 	migrate -database 'postgres://postgres:postgres@127.0.0.1:5432?sslmode=disable' -path migration up
 
+database-delete-migrations:
+	migrate -database 'postgres://postgres:postgres@127.0.0.1:5432?sslmode=disable' -path migration down
+
 graphql-init:
 	go get github.com/99designs/gqlgen@latest
 	go run github.com/99designs/gqlgen init

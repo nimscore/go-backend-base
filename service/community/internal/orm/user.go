@@ -2,15 +2,31 @@ package orm
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 type User struct {
 	ID        uuid.UUID `gorm:"primaryKey,type:uuid;default:uuid_generate_v4()"`
-	CreatedAt time.Time `gorm:"not null"`
-	UpdatedAt time.Time `gorm:"not null"`
+	Name      string
+	Companies []Company
+	// CreatedAt time.Time `gorm:"not null"`
+	// UpdatedAt time.Time `gorm:"not null"`
+}
+
+func (User) TableName() string {
+	return "users"
+}
+
+type Company struct {
+	ID     uuid.UUID `gorm:"primaryKey,type:uuid;default:uuid_generate_v4()"`
+	Name   string
+	UserID uuid.UUID
+	User   User
+}
+
+func (Company) TableName() string {
+	return "companies"
 }
 
 func Debug() {
@@ -20,6 +36,6 @@ func Debug() {
 	}
 
 	var user User
-	database.db.First(&user)
-	fmt.Println(user)
+	database.db.Preload("Companies").First(&user)
+	fmt.Println(user.Companies[0].Name)
 }
