@@ -25,5 +25,12 @@ minikube service -n community community --url
 
 ```
 grpcurl -plaintext 127.0.0.1:8080 list
-grpcurl -plaintext -d '{"login": "user", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Login
+grpcurl -plaintext -d '{"slug": "user", "email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Register
+grpcurl -plaintext -d '{"email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Login
+```
+
+# Schema
+
+```
+https://www.drawdb.app/editor?shareId=9febfe9a7f9bce4b6f7be0b63061475f
 ```

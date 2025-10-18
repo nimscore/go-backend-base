@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	IAMService_Register_FullMethodName = "/iam.IAMService/Register"
-	IAMService_Login_FullMethodName    = "/iam.IAMService/Login"
-	IAMService_Validate_FullMethodName = "/iam.IAMService/Validate"
-	IAMService_Refresh_FullMethodName  = "/iam.IAMService/Refresh"
+	IAMService_Register_FullMethodName      = "/iam.IAMService/Register"
+	IAMService_Login_FullMethodName         = "/iam.IAMService/Login"
+	IAMService_Logout_FullMethodName        = "/iam.IAMService/Logout"
+	IAMService_RefreshToken_FullMethodName  = "/iam.IAMService/RefreshToken"
+	IAMService_ValidateToken_FullMethodName = "/iam.IAMService/ValidateToken"
 )
 
 // IAMServiceClient is the client API for IAMService service.
@@ -31,8 +33,9 @@ const (
 type IAMServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	Validate(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error)
-	Refresh(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RefreshToken(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
+	ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error)
 }
 
 type iAMServiceClient struct {
@@ -63,20 +66,30 @@ func (c *iAMServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...
 	return out, nil
 }
 
-func (c *iAMServiceClient) Validate(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error) {
+func (c *iAMServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateResponse)
-	err := c.cc.Invoke(ctx, IAMService_Validate_FullMethodName, in, out, cOpts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, IAMService_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *iAMServiceClient) Refresh(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error) {
+func (c *iAMServiceClient) RefreshToken(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RefreshResponse)
-	err := c.cc.Invoke(ctx, IAMService_Refresh_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, IAMService_RefreshToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *iAMServiceClient) ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateResponse)
+	err := c.cc.Invoke(ctx, IAMService_ValidateToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,8 +102,9 @@ func (c *iAMServiceClient) Refresh(ctx context.Context, in *RefreshRequest, opts
 type IAMServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	Validate(context.Context, *ValidateRequest) (*ValidateResponse, error)
-	Refresh(context.Context, *RefreshRequest) (*RefreshResponse, error)
+	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
+	RefreshToken(context.Context, *RefreshRequest) (*RefreshResponse, error)
+	ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error)
 	mustEmbedUnimplementedIAMServiceServer()
 }
 
@@ -107,11 +121,14 @@ func (UnimplementedIAMServiceServer) Register(context.Context, *RegisterRequest)
 func (UnimplementedIAMServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedIAMServiceServer) Validate(context.Context, *ValidateRequest) (*ValidateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Validate not implemented")
+func (UnimplementedIAMServiceServer) Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
-func (UnimplementedIAMServiceServer) Refresh(context.Context, *RefreshRequest) (*RefreshResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Refresh not implemented")
+func (UnimplementedIAMServiceServer) RefreshToken(context.Context, *RefreshRequest) (*RefreshResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedIAMServiceServer) ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 func (UnimplementedIAMServiceServer) mustEmbedUnimplementedIAMServiceServer() {}
 func (UnimplementedIAMServiceServer) testEmbeddedByValue()                    {}
@@ -170,38 +187,56 @@ func _IAMService_Login_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMService_Validate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateRequest)
+func _IAMService_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IAMServiceServer).Validate(ctx, in)
+		return srv.(IAMServiceServer).Logout(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IAMService_Validate_FullMethodName,
+		FullMethod: IAMService_Logout_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMServiceServer).Validate(ctx, req.(*ValidateRequest))
+		return srv.(IAMServiceServer).Logout(ctx, req.(*LogoutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _IAMService_Refresh_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _IAMService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RefreshRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(IAMServiceServer).Refresh(ctx, in)
+		return srv.(IAMServiceServer).RefreshToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: IAMService_Refresh_FullMethodName,
+		FullMethod: IAMService_RefreshToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(IAMServiceServer).Refresh(ctx, req.(*RefreshRequest))
+		return srv.(IAMServiceServer).RefreshToken(ctx, req.(*RefreshRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IAMService_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IAMServiceServer).ValidateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IAMService_ValidateToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IAMServiceServer).ValidateToken(ctx, req.(*ValidateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -222,12 +257,16 @@ var IAMService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _IAMService_Login_Handler,
 		},
 		{
-			MethodName: "Validate",
-			Handler:    _IAMService_Validate_Handler,
+			MethodName: "Logout",
+			Handler:    _IAMService_Logout_Handler,
 		},
 		{
-			MethodName: "Refresh",
-			Handler:    _IAMService_Refresh_Handler,
+			MethodName: "RefreshToken",
+			Handler:    _IAMService_RefreshToken_Handler,
+		},
+		{
+			MethodName: "ValidateToken",
+			Handler:    _IAMService_ValidateToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

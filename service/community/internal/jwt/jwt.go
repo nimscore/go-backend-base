@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -29,11 +28,11 @@ func NewJWT(secret string) *JWT {
 	}
 }
 
-func (this *JWT) GenerateAccessToken(userID int) (string, error) {
+func (this *JWT) GenerateAccessToken(userID string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":    strconv.Itoa(userID),
+			"user_id":    userID,
 			"expiration": time.Now().Add(ACCESS_TOKEN_EXPIRATION).Unix(),
 			"kind":       KIND_ACCESS,
 		},
@@ -41,11 +40,11 @@ func (this *JWT) GenerateAccessToken(userID int) (string, error) {
 	return token.SignedString(this.secret)
 }
 
-func (this *JWT) GenerateRefreshToken(userID int) (string, error) {
+func (this *JWT) GenerateRefreshToken(userID string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":    strconv.Itoa(userID),
+			"user_id":    userID,
 			"expiration": time.Now().Add(REFRESH_TOKEN_EXPIRATION).Unix(),
 			"kind":       KIND_REFRESH,
 		},
@@ -53,49 +52,39 @@ func (this *JWT) GenerateRefreshToken(userID int) (string, error) {
 	return token.SignedString(this.secret)
 }
 
-func (this *JWT) ParseAccessToken(token string) (int, error) {
+func (this *JWT) ParseAccessToken(token string) (string, error) {
 	claims, err := this.parseToken(token)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	kind, ok := claims["kind"].(string)
 	if !ok || kind != "access" {
-		return 0, ErrTokenKindInvalid
+		return "", ErrTokenKindInvalid
 	}
 
-	uid, ok := claims["user_id"].(string)
+	id, ok := claims["user_id"].(string)
 	if !ok {
-		return 0, ErrTokenSchemaMalformed
-	}
-
-	id, err := strconv.Atoi(uid)
-	if err != nil {
-		return 0, ErrTokenSchemaMalformed
+		return "", ErrTokenSchemaMalformed
 	}
 
 	return id, nil
 }
 
-func (this *JWT) ParseRefreshToken(token string) (int, error) {
+func (this *JWT) ParseRefreshToken(token string) (string, error) {
 	claims, err := this.parseToken(token)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	kind, ok := claims["kind"].(string)
 	if !ok || kind != "refresh" {
-		return 0, ErrTokenKindInvalid
+		return "", ErrTokenKindInvalid
 	}
 
-	uid, ok := claims["user_id"].(string)
+	id, ok := claims["user_id"].(string)
 	if !ok {
-		return 0, ErrTokenSchemaMalformed
-	}
-
-	id, err := strconv.Atoi(uid)
-	if err != nil {
-		return 0, ErrTokenSchemaMalformed
+		return "", ErrTokenSchemaMalformed
 	}
 
 	return id, nil

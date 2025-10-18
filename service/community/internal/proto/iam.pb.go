@@ -9,6 +9,8 @@ package iam
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -75,8 +77,9 @@ func (x *Message) GetValue() []int64 {
 
 type RegisterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Slug          string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -111,9 +114,16 @@ func (*RegisterRequest) Descriptor() ([]byte, []int) {
 	return file_iam_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RegisterRequest) GetLogin() string {
+func (x *RegisterRequest) GetSlug() string {
 	if x != nil {
-		return x.Login
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -163,7 +173,7 @@ func (*RegisterResponse) Descriptor() ([]byte, []int) {
 
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -199,9 +209,9 @@ func (*LoginRequest) Descriptor() ([]byte, []int) {
 	return file_iam_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *LoginRequest) GetLogin() string {
+func (x *LoginRequest) GetEmail() string {
 	if x != nil {
-		return x.Login
+		return x.Email
 	}
 	return ""
 }
@@ -215,7 +225,9 @@ func (x *LoginRequest) GetPassword() string {
 
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	AccessToken   string                 `protobuf:"bytes,2,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -250,34 +262,48 @@ func (*LoginResponse) Descriptor() ([]byte, []int) {
 	return file_iam_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *LoginResponse) GetToken() string {
+func (x *LoginResponse) GetUser() *User {
 	if x != nil {
-		return x.Token
+		return x.User
+	}
+	return nil
+}
+
+func (x *LoginResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
 	}
 	return ""
 }
 
-type ValidateRequest struct {
+func (x *LoginResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type LogoutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ValidateRequest) Reset() {
-	*x = ValidateRequest{}
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
 	mi := &file_iam_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ValidateRequest) String() string {
+func (x *LogoutRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ValidateRequest) ProtoMessage() {}
+func (*LogoutRequest) ProtoMessage() {}
 
-func (x *ValidateRequest) ProtoReflect() protoreflect.Message {
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_iam_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -289,72 +315,28 @@ func (x *ValidateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ValidateRequest.ProtoReflect.Descriptor instead.
-func (*ValidateRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
 	return file_iam_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ValidateRequest) GetToken() string {
+func (x *LogoutRequest) GetRefreshToken() string {
 	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-type ValidateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ValidateResponse) Reset() {
-	*x = ValidateResponse{}
-	mi := &file_iam_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ValidateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ValidateResponse) ProtoMessage() {}
-
-func (x *ValidateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ValidateResponse.ProtoReflect.Descriptor instead.
-func (*ValidateResponse) Descriptor() ([]byte, []int) {
-	return file_iam_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ValidateResponse) GetToken() string {
-	if x != nil {
-		return x.Token
+		return x.RefreshToken
 	}
 	return ""
 }
 
 type RefreshRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RefreshRequest) Reset() {
 	*x = RefreshRequest{}
-	mi := &file_iam_proto_msgTypes[7]
+	mi := &file_iam_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +348,7 @@ func (x *RefreshRequest) String() string {
 func (*RefreshRequest) ProtoMessage() {}
 
 func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_proto_msgTypes[7]
+	mi := &file_iam_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,26 +361,27 @@ func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshRequest.ProtoReflect.Descriptor instead.
 func (*RefreshRequest) Descriptor() ([]byte, []int) {
-	return file_iam_proto_rawDescGZIP(), []int{7}
+	return file_iam_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *RefreshRequest) GetToken() string {
+func (x *RefreshRequest) GetRefreshToken() string {
 	if x != nil {
-		return x.Token
+		return x.RefreshToken
 	}
 	return ""
 }
 
 type RefreshResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RefreshResponse) Reset() {
 	*x = RefreshResponse{}
-	mi := &file_iam_proto_msgTypes[8]
+	mi := &file_iam_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +393,7 @@ func (x *RefreshResponse) String() string {
 func (*RefreshResponse) ProtoMessage() {}
 
 func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_iam_proto_msgTypes[8]
+	mi := &file_iam_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,47 +406,252 @@ func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshResponse.ProtoReflect.Descriptor instead.
 func (*RefreshResponse) Descriptor() ([]byte, []int) {
+	return file_iam_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RefreshResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *RefreshResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type ValidateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateRequest) Reset() {
+	*x = ValidateRequest{}
+	mi := &file_iam_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateRequest) ProtoMessage() {}
+
+func (x *ValidateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateRequest.ProtoReflect.Descriptor instead.
+func (*ValidateRequest) Descriptor() ([]byte, []int) {
 	return file_iam_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *RefreshResponse) GetToken() string {
+func (x *ValidateRequest) GetAccessToken() string {
 	if x != nil {
-		return x.Token
+		return x.AccessToken
 	}
 	return ""
+}
+
+type ValidateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Valid         bool                   `protobuf:"varint,2,opt,name=valid,proto3" json:"valid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateResponse) Reset() {
+	*x = ValidateResponse{}
+	mi := &file_iam_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateResponse) ProtoMessage() {}
+
+func (x *ValidateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateResponse.ProtoReflect.Descriptor instead.
+func (*ValidateResponse) Descriptor() ([]byte, []int) {
+	return file_iam_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ValidateResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ValidateResponse) GetValid() bool {
+	if x != nil {
+		return x.Valid
+	}
+	return false
+}
+
+type User struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Slug          string                 `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
+	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	IsVerified    bool                   `protobuf:"varint,4,opt,name=is_verified,json=isVerified,proto3" json:"is_verified,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *User) Reset() {
+	*x = User{}
+	mi := &file_iam_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *User) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*User) ProtoMessage() {}
+
+func (x *User) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
+	return file_iam_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *User) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *User) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *User) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *User) GetIsVerified() bool {
+	if x != nil {
+		return x.IsVerified
+	}
+	return false
+}
+
+func (x *User) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *User) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
 }
 
 var File_iam_proto protoreflect.FileDescriptor
 
 const file_iam_proto_rawDesc = "" +
 	"\n" +
-	"\tiam.proto\x12\x03iam\"1\n" +
+	"\tiam.proto\x12\x03iam\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"1\n" +
 	"\aMessage\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x03(\x03R\x05value\"C\n" +
-	"\x0fRegisterRequest\x12\x14\n" +
-	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x12\n" +
+	"\x05value\x18\x02 \x03(\x03R\x05value\"W\n" +
+	"\x0fRegisterRequest\x12\x12\n" +
+	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\"\x12\n" +
 	"\x10RegisterResponse\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
-	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
-	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"'\n" +
-	"\x0fValidateRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"(\n" +
-	"\x10ValidateResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"&\n" +
-	"\x0eRefreshRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"'\n" +
-	"\x0fRefreshResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\xe4\x01\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"v\n" +
+	"\rLoginResponse\x12\x1d\n" +
+	"\x04user\x18\x01 \x01(\v2\t.iam.UserR\x04user\x12!\n" +
+	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"4\n" +
+	"\rLogoutRequest\x12#\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"5\n" +
+	"\x0eRefreshRequest\x12#\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"Y\n" +
+	"\x0fRefreshResponse\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"4\n" +
+	"\x0fValidateRequest\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"8\n" +
+	"\x10ValidateResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05valid\x18\x02 \x01(\bR\x05valid\"\xd7\x01\n" +
+	"\x04User\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1f\n" +
+	"\vis_verified\x18\x04 \x01(\bR\n" +
+	"isVerified\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xa4\x02\n" +
 	"\n" +
 	"IAMService\x127\n" +
 	"\bRegister\x12\x14.iam.RegisterRequest\x1a\x15.iam.RegisterResponse\x12.\n" +
-	"\x05Login\x12\x11.iam.LoginRequest\x1a\x12.iam.LoginResponse\x127\n" +
-	"\bValidate\x12\x14.iam.ValidateRequest\x1a\x15.iam.ValidateResponse\x124\n" +
-	"\aRefresh\x12\x13.iam.RefreshRequest\x1a\x14.iam.RefreshResponseB\x06Z\x04/iamb\x06proto3"
+	"\x05Login\x12\x11.iam.LoginRequest\x1a\x12.iam.LoginResponse\x124\n" +
+	"\x06Logout\x12\x12.iam.LogoutRequest\x1a\x16.google.protobuf.Empty\x129\n" +
+	"\fRefreshToken\x12\x13.iam.RefreshRequest\x1a\x14.iam.RefreshResponse\x12<\n" +
+	"\rValidateToken\x12\x14.iam.ValidateRequest\x1a\x15.iam.ValidateResponseB\x06Z\x04/iamb\x06proto3"
 
 var (
 	file_iam_proto_rawDescOnce sync.Once
@@ -477,32 +665,41 @@ func file_iam_proto_rawDescGZIP() []byte {
 	return file_iam_proto_rawDescData
 }
 
-var file_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_iam_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_iam_proto_goTypes = []any{
-	(*Message)(nil),          // 0: iam.Message
-	(*RegisterRequest)(nil),  // 1: iam.RegisterRequest
-	(*RegisterResponse)(nil), // 2: iam.RegisterResponse
-	(*LoginRequest)(nil),     // 3: iam.LoginRequest
-	(*LoginResponse)(nil),    // 4: iam.LoginResponse
-	(*ValidateRequest)(nil),  // 5: iam.ValidateRequest
-	(*ValidateResponse)(nil), // 6: iam.ValidateResponse
-	(*RefreshRequest)(nil),   // 7: iam.RefreshRequest
-	(*RefreshResponse)(nil),  // 8: iam.RefreshResponse
+	(*Message)(nil),               // 0: iam.Message
+	(*RegisterRequest)(nil),       // 1: iam.RegisterRequest
+	(*RegisterResponse)(nil),      // 2: iam.RegisterResponse
+	(*LoginRequest)(nil),          // 3: iam.LoginRequest
+	(*LoginResponse)(nil),         // 4: iam.LoginResponse
+	(*LogoutRequest)(nil),         // 5: iam.LogoutRequest
+	(*RefreshRequest)(nil),        // 6: iam.RefreshRequest
+	(*RefreshResponse)(nil),       // 7: iam.RefreshResponse
+	(*ValidateRequest)(nil),       // 8: iam.ValidateRequest
+	(*ValidateResponse)(nil),      // 9: iam.ValidateResponse
+	(*User)(nil),                  // 10: iam.User
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_iam_proto_depIdxs = []int32{
-	1, // 0: iam.IAMService.Register:input_type -> iam.RegisterRequest
-	3, // 1: iam.IAMService.Login:input_type -> iam.LoginRequest
-	5, // 2: iam.IAMService.Validate:input_type -> iam.ValidateRequest
-	7, // 3: iam.IAMService.Refresh:input_type -> iam.RefreshRequest
-	2, // 4: iam.IAMService.Register:output_type -> iam.RegisterResponse
-	4, // 5: iam.IAMService.Login:output_type -> iam.LoginResponse
-	6, // 6: iam.IAMService.Validate:output_type -> iam.ValidateResponse
-	8, // 7: iam.IAMService.Refresh:output_type -> iam.RefreshResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	10, // 0: iam.LoginResponse.user:type_name -> iam.User
+	11, // 1: iam.User.created_at:type_name -> google.protobuf.Timestamp
+	11, // 2: iam.User.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: iam.IAMService.Register:input_type -> iam.RegisterRequest
+	3,  // 4: iam.IAMService.Login:input_type -> iam.LoginRequest
+	5,  // 5: iam.IAMService.Logout:input_type -> iam.LogoutRequest
+	6,  // 6: iam.IAMService.RefreshToken:input_type -> iam.RefreshRequest
+	8,  // 7: iam.IAMService.ValidateToken:input_type -> iam.ValidateRequest
+	2,  // 8: iam.IAMService.Register:output_type -> iam.RegisterResponse
+	4,  // 9: iam.IAMService.Login:output_type -> iam.LoginResponse
+	12, // 10: iam.IAMService.Logout:output_type -> google.protobuf.Empty
+	7,  // 11: iam.IAMService.RefreshToken:output_type -> iam.RefreshResponse
+	9,  // 12: iam.IAMService.ValidateToken:output_type -> iam.ValidateResponse
+	8,  // [8:13] is the sub-list for method output_type
+	3,  // [3:8] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_iam_proto_init() }
@@ -516,7 +713,7 @@ func file_iam_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_proto_rawDesc), len(file_iam_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

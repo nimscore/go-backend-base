@@ -10,17 +10,30 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
+	eventpkg "github.com/stormhead-org/service/community/internal/event"
+	jwtpkg "github.com/stormhead-org/service/community/internal/jwt"
+	ormpkg "github.com/stormhead-org/service/community/internal/orm"
 	iampb "github.com/stormhead-org/service/community/internal/proto"
 )
 
 type GRPC struct {
-	logger *zap.Logger
-	host   string
-	port   string
-	server *grpc.Server
+	logger         *zap.Logger
+	host           string
+	port           string
+	server         *grpc.Server
+	jwt            *jwtpkg.JWT
+	postgresClient *ormpkg.Database
+	kafkaClient    *eventpkg.KafkaClient
 }
 
-func NewGRPC(logger *zap.Logger, host string, port string) *GRPC {
+func NewGRPC(
+	logger *zap.Logger,
+	host string,
+	port string,
+	jwt *jwtpkg.JWT,
+	postgresClient *ormpkg.Database,
+	kafkaClient *eventpkg.KafkaClient,
+) (*GRPC, error) {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 		// middleware.GRPCAuthRateLimitMiddleware,
@@ -29,7 +42,7 @@ func NewGRPC(logger *zap.Logger, host string, port string) *GRPC {
 	)
 
 	// IAM API
-	iamServer := NewIAMServer()
+	iamServer := NewIAMServer(jwt, postgresClient)
 	iampb.RegisterIAMServiceServer(server, iamServer)
 
 	// Health API
@@ -41,11 +54,14 @@ func NewGRPC(logger *zap.Logger, host string, port string) *GRPC {
 	reflection.Register(server)
 
 	return &GRPC{
-		logger: logger,
-		host:   host,
-		port:   port,
-		server: server,
-	}
+		logger:         logger,
+		host:           host,
+		port:           port,
+		server:         server,
+		jwt:            jwt,
+		postgresClient: postgresClient,
+		kafkaClient:    kafkaClient,
+	}, nil
 }
 
 func (this *GRPC) Start() error {

@@ -36,8 +36,8 @@ func NewDatabase(host string, port string, user string, password string) (*Datab
 		return nil, err
 	}
 
-	raw.SetMaxOpenConns(10)
-	raw.SetMaxIdleConns(100)
+	raw.SetMaxOpenConns(1)
+	raw.SetMaxIdleConns(1)
 	raw.SetConnMaxIdleTime(5 * time.Second)
 
 	return &Database{
