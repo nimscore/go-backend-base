@@ -8,7 +8,7 @@ generate-proto:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=./internal/proto \
 		--go-grpc_opt=paths=source_relative \
-		iam.proto
+		authorization.proto
 
 binary-build:
 	go build -o community ./cmd/community

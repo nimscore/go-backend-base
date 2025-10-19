@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS "users" (
     id UUID PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL,
     password TEXT NOT NULL,

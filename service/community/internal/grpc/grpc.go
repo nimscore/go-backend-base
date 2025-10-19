@@ -13,7 +13,7 @@ import (
 	eventpkg "github.com/stormhead-org/service/community/internal/event"
 	jwtpkg "github.com/stormhead-org/service/community/internal/jwt"
 	ormpkg "github.com/stormhead-org/service/community/internal/orm"
-	iampb "github.com/stormhead-org/service/community/internal/proto"
+	protopb "github.com/stormhead-org/service/community/internal/proto"
 )
 
 type GRPC struct {
@@ -22,8 +22,8 @@ type GRPC struct {
 	port           string
 	server         *grpc.Server
 	jwt            *jwtpkg.JWT
-	postgresClient *ormpkg.Database
-	kafkaClient    *eventpkg.KafkaClient
+	databaseClient *ormpkg.PostgresClient
+	eventClient    *eventpkg.KafkaClient
 }
 
 func NewGRPC(
@@ -31,8 +31,8 @@ func NewGRPC(
 	host string,
 	port string,
 	jwt *jwtpkg.JWT,
-	postgresClient *ormpkg.Database,
-	kafkaClient *eventpkg.KafkaClient,
+	databaseClient *ormpkg.PostgresClient,
+	eventClient *eventpkg.KafkaClient,
 ) (*GRPC, error) {
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -42,8 +42,8 @@ func NewGRPC(
 	)
 
 	// IAM API
-	iamServer := NewIAMServer(jwt, postgresClient)
-	iampb.RegisterIAMServiceServer(server, iamServer)
+	iamServer := NewAuthorizationServer(jwt, databaseClient, eventClient)
+	protopb.RegisterAuthorizationServiceServer(server, iamServer)
 
 	// Health API
 	healthServer := health.NewServer()
@@ -59,8 +59,8 @@ func NewGRPC(
 		port:           port,
 		server:         server,
 		jwt:            jwt,
-		postgresClient: postgresClient,
-		kafkaClient:    kafkaClient,
+		databaseClient: databaseClient,
+		eventClient:    eventClient,
 	}, nil
 }
 

@@ -1,7 +1,6 @@
 package orm
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,15 +8,17 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID `gorm:"primaryKey"`
-	Slug       string
-	Email      string
-	Password   string
-	Salt       string
-	IsVerified bool
-	Companies  []Company
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID          uuid.UUID `gorm:"primaryKey"`
+	Name        string
+	Description string
+	Slug        string
+	Email       string
+	Password    string
+	Salt        string
+	IsVerified  bool
+	Companies   []Company
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (User) TableName() string {
@@ -29,12 +30,14 @@ func (this *User) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (this *Database) SelectUserBySlug(slug string) (*User, error) {
+func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
 	var user User
-	transaction := this.db.
+	transaction := this.database.
 		Select(
 			[]string{
 				"id",
+				"name",
+				"description",
 				"slug",
 				"email",
 				"password",
@@ -52,12 +55,14 @@ func (this *Database) SelectUserBySlug(slug string) (*User, error) {
 	return &user, nil
 }
 
-func (this *Database) SelectUserByEmail(slug string) (*User, error) {
+func (this *PostgresClient) SelectUserByEmail(slug string) (*User, error) {
 	var user User
-	transaction := this.db.
+	transaction := this.database.
 		Select(
 			[]string{
 				"id",
+				"name",
+				"description",
 				"slug",
 				"email",
 				"password",
@@ -75,30 +80,7 @@ func (this *Database) SelectUserByEmail(slug string) (*User, error) {
 	return &user, nil
 }
 
-func (this *Database) InsertUser(user *User) error {
-	transaction := this.db.Create(&user)
+func (this *PostgresClient) InsertUser(user *User) error {
+	transaction := this.database.Create(user)
 	return transaction.Error
-}
-
-func Debug() {
-	database, err := NewDatabase("127.0.0.1", "5432", "postgres", "postgres")
-	if err != nil {
-		panic(err)
-	}
-
-	var user User
-	tx := database.db.Preload("Companies").First(&user)
-	if tx.Error != nil {
-		fmt.Println(tx.Error)
-	}
-
-	tx = database.db.Create(&User{
-		ID:   uuid.New(),
-		Slug: "userx",
-	})
-
-	if tx.Error != nil {
-		fmt.Println(tx.Error)
-	}
-	// fmt.Println(user.Companies[0].Name)
 }

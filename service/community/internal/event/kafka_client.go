@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -26,12 +27,17 @@ func NewKafkaClient(host string, port string, topicID string) *KafkaClient {
 	}
 }
 
-func (this *KafkaClient) Write(context context.Context, key string, value string) error {
+func (this *KafkaClient) Write(context context.Context, key string, value any) error {
+	message, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+
 	return this.writer.WriteMessages(
 		context,
 		kafka.Message{
 			Key:   []byte(key),
-			Value: []byte(value),
+			Value: message,
 		},
 	)
 }

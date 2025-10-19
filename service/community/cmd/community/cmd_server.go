@@ -46,7 +46,7 @@ func serverCommandImpl() error {
 				return jwtpkg.NewJWT(jwtSecret), nil
 			},
 
-			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger) (*ormpkg.Database, error) {
+			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger) (*ormpkg.PostgresClient, error) {
 				postgresHost := os.Getenv("POSTGRES_HOST")
 				if postgresHost == "" {
 					postgresHost = "127.0.0.1"
@@ -67,7 +67,7 @@ func serverCommandImpl() error {
 					postgresPassword = "postgres"
 				}
 
-				database, err := ormpkg.NewDatabase(
+				client, err := ormpkg.NewPostgresClient(
 					postgresHost,
 					postgresPort,
 					postgresUser,
@@ -77,7 +77,7 @@ func serverCommandImpl() error {
 					return nil, err
 				}
 
-				return database, err
+				return client, err
 			},
 
 			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger) (*eventpkg.KafkaClient, error) {
@@ -101,7 +101,7 @@ func serverCommandImpl() error {
 			},
 
 			// Application
-			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger, jwt *jwtpkg.JWT, postgresClient *ormpkg.Database, kafkaClient *eventpkg.KafkaClient) (*grpcpkg.GRPC, error) {
+			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger, jwt *jwtpkg.JWT, postgresClient *ormpkg.PostgresClient, eventClient *eventpkg.KafkaClient) (*grpcpkg.GRPC, error) {
 				grpcHost := os.Getenv("GRPC_HOST")
 				if grpcHost == "" {
 					grpcHost = "127.0.0.1"
@@ -118,7 +118,7 @@ func serverCommandImpl() error {
 					grpcPort,
 					jwt,
 					postgresClient,
-					kafkaClient,
+					eventClient,
 				)
 				if err != nil {
 					return nil, err
@@ -140,7 +140,7 @@ func serverCommandImpl() error {
 			func(*jwtpkg.JWT) {
 				// TODO:
 			},
-			func(*ormpkg.Database) {
+			func(*ormpkg.PostgresClient) {
 				// TODO:
 			},
 			func(*eventpkg.KafkaClient) {

@@ -25,8 +25,8 @@ minikube service -n community community --url
 
 ```
 grpcurl -plaintext 127.0.0.1:8080 list
-grpcurl -plaintext -d '{"slug": "user", "email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Register
-grpcurl -plaintext -d '{"email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 iam.IAMService.Login
+grpcurl -plaintext -d '{"slug": "user", "email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 proto.AuthorizationService.Register
+grpcurl -plaintext -d '{"email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 proto.AuthorizationService.Login
 ```
 
 # Schema
