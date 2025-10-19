@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 
@@ -18,16 +21,18 @@ var ErrUserExist = errors.New("user exist")
 
 type AuthorizationServer struct {
 	protopb.UnimplementedAuthorizationServiceServer
+	logger         *zap.Logger
 	jwt            *jwtpkg.JWT
 	databaseClient *ormpkg.PostgresClient
-	eventClient    *eventpkg.KafkaClient
+	brokerClient   *eventpkg.KafkaClient
 }
 
-func NewAuthorizationServer(jwt *jwtpkg.JWT, databaseClient *ormpkg.PostgresClient, eventClient *eventpkg.KafkaClient) *AuthorizationServer {
+func NewAuthorizationServer(logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient *ormpkg.PostgresClient, brokerClient *eventpkg.KafkaClient) *AuthorizationServer {
 	return &AuthorizationServer{
+		logger:         logger,
 		jwt:            jwt,
 		databaseClient: databaseClient,
-		eventClient:    eventClient,
+		brokerClient:   brokerClient,
 	}
 }
 
@@ -36,14 +41,14 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		request.Slug,
 	)
 	if err != gorm.ErrRecordNotFound {
-		return nil, ErrUserExist
+		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
 	}
 
 	_, err = this.databaseClient.SelectUserByEmail(
 		request.Email,
 	)
 	if err != gorm.ErrRecordNotFound {
-		return nil, ErrUserExist
+		return nil, status.Errorf(codes.InvalidArgument, "email already exist")
 	}
 
 	salt := securitypkg.GenerateSalt()
@@ -53,7 +58,8 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		salt,
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error hashing password", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	user := &ormpkg.User{
@@ -66,10 +72,11 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 
 	err = this.databaseClient.InsertUser(user)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error inserting user", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.eventClient.Write(
+	err = this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_REGISTER,
 		eventpkg.AuthorizationRegisterMessage{
@@ -77,7 +84,8 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		},
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error writing broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return nil, nil
@@ -88,11 +96,10 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopb
 		request.Email,
 	)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "user not found")
 	}
-
 	if !user.IsVerified {
-		return nil, errors.New("user not verified")
+		return nil, status.Errorf(codes.InvalidArgument, "user not verified")
 	}
 
 	err = securitypkg.ComparePassword(
@@ -101,20 +108,22 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopb
 		user.Salt,
 	)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "password invalid")
 	}
 
 	accessToken, err := this.jwt.GenerateAccessToken(user.ID.String())
 	if err != nil {
-		return nil, err
+		this.logger.Error("error generating access token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := this.jwt.GenerateRefreshToken(user.ID.String())
 	if err != nil {
-		return nil, err
+		this.logger.Error("error generating refresh token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.eventClient.Write(
+	err = this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_LOGIN,
 		eventpkg.AuthorizationLoginMessage{
@@ -122,7 +131,8 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopb
 		},
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error writing broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return &protopb.LoginResponse{
@@ -142,10 +152,11 @@ func (this *AuthorizationServer) Logout(context context.Context, request *protop
 		request.RefreshToken,
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Debug("refresh token error", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
 	}
 
-	err = this.eventClient.Write(
+	err = this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_LOGOUT,
 		eventpkg.AuthorizationLogoutMessage{
@@ -153,7 +164,8 @@ func (this *AuthorizationServer) Logout(context context.Context, request *protop
 		},
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error writing broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return &emptypb.Empty{}, nil
@@ -164,20 +176,23 @@ func (this *AuthorizationServer) RefreshToken(context context.Context, request *
 		request.RefreshToken,
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Debug("refresh token error", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
 	}
 
 	accessToken, err := this.jwt.GenerateAccessToken(id)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error generating access token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := this.jwt.GenerateRefreshToken(id)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error generating refresh token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.eventClient.Write(
+	err = this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_REFRESH_TOKEN,
 		eventpkg.AuthorizationRefreshTokenMessage{
@@ -185,7 +200,8 @@ func (this *AuthorizationServer) RefreshToken(context context.Context, request *
 		},
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error writing broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return &protopb.RefreshResponse{
@@ -199,8 +215,11 @@ func (this *AuthorizationServer) ValidateToken(context context.Context, request 
 		request.AccessToken,
 	)
 	valid := err != nil
+	if err != nil {
+		this.logger.Debug("access token error", zap.Error(err))
+	}
 
-	err = this.eventClient.Write(
+	err = this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_VALIDATE_TOKEN,
 		eventpkg.AuthorizationValidateTokenMessage{
@@ -208,7 +227,8 @@ func (this *AuthorizationServer) ValidateToken(context context.Context, request 
 		},
 	)
 	if err != nil {
-		return nil, err
+		this.logger.Error("error writing broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return &protopb.ValidateResponse{

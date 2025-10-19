@@ -92,12 +92,12 @@ func serverCommandImpl() error {
 				}
 
 				kafkaTopic := os.Getenv("KAFKA_TOPIC")
-				if kafkaPort == "" {
-					kafkaPort = "common"
+				if kafkaTopic == "" {
+					kafkaTopic = "common"
 				}
 
-				client := eventpkg.NewKafkaClient(kafkaHost, kafkaPort, kafkaTopic)
-				return client, nil
+				client, err := eventpkg.NewKafkaClient(kafkaHost, kafkaPort, kafkaTopic)
+				return client, err
 			},
 
 			// Application

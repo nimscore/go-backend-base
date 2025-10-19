@@ -17,13 +17,10 @@ import (
 )
 
 type GRPC struct {
-	logger         *zap.Logger
-	host           string
-	port           string
-	server         *grpc.Server
-	jwt            *jwtpkg.JWT
-	databaseClient *ormpkg.PostgresClient
-	eventClient    *eventpkg.KafkaClient
+	logger *zap.Logger
+	host   string
+	port   string
+	server *grpc.Server
 }
 
 func NewGRPC(
@@ -34,33 +31,30 @@ func NewGRPC(
 	databaseClient *ormpkg.PostgresClient,
 	eventClient *eventpkg.KafkaClient,
 ) (*GRPC, error) {
-	server := grpc.NewServer(
+	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 		// middleware.GRPCAuthRateLimitMiddleware,
 		// middleware.GRPCAuthMiddleware,
 		),
 	)
 
-	// IAM API
-	iamServer := NewAuthorizationServer(jwt, databaseClient, eventClient)
-	protopb.RegisterAuthorizationServiceServer(server, iamServer)
+	// Authorization API
+	iamServer := NewAuthorizationServer(logger, jwt, databaseClient, eventClient)
+	protopb.RegisterAuthorizationServiceServer(grpcServer, iamServer)
 
 	// Health API
 	healthServer := health.NewServer()
 	healthServer.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
-	healthpb.RegisterHealthServer(server, healthServer)
+	healthpb.RegisterHealthServer(grpcServer, healthServer)
 
 	// Reflection API
-	reflection.Register(server)
+	reflection.Register(grpcServer)
 
 	return &GRPC{
-		logger:         logger,
-		host:           host,
-		port:           port,
-		server:         server,
-		jwt:            jwt,
-		databaseClient: databaseClient,
-		eventClient:    eventClient,
+		logger: logger,
+		host:   host,
+		port:   port,
+		server: grpcServer,
 	}, nil
 }
 

@@ -13,7 +13,7 @@ type PostgresClient struct {
 }
 
 func NewPostgresClient(host string, port string, user string, password string) (*PostgresClient, error) {
-	db, err := gorm.Open(
+	database, err := gorm.Open(
 		postgres.Open(
 			fmt.Sprintf(
 				"host=%s port=%s user=%s password=%s sslmode=disable",
@@ -29,16 +29,16 @@ func NewPostgresClient(host string, port string, user string, password string) (
 		return nil, err
 	}
 
-	raw, err := db.DB()
+	rawDatabase, err := database.DB()
 	if err != nil {
 		return nil, err
 	}
 
-	raw.SetMaxOpenConns(1)
-	raw.SetMaxIdleConns(1)
-	raw.SetConnMaxIdleTime(5 * time.Second)
+	rawDatabase.SetMaxOpenConns(1)
+	rawDatabase.SetMaxIdleConns(1)
+	rawDatabase.SetConnMaxIdleTime(5 * time.Second)
 
 	return &PostgresClient{
-		database: db,
+		database: database,
 	}, nil
 }
