@@ -12,8 +12,9 @@ import (
 
 	eventpkg "github.com/stormhead-org/service/community/internal/event"
 	jwtpkg "github.com/stormhead-org/service/community/internal/jwt"
+	middlewarepkg "github.com/stormhead-org/service/community/internal/middleware"
 	ormpkg "github.com/stormhead-org/service/community/internal/orm"
-	protopb "github.com/stormhead-org/service/community/internal/proto"
+	protopkg "github.com/stormhead-org/service/community/internal/proto"
 )
 
 type GRPC struct {
@@ -29,18 +30,24 @@ func NewGRPC(
 	port string,
 	jwt *jwtpkg.JWT,
 	databaseClient *ormpkg.PostgresClient,
-	eventClient *eventpkg.KafkaClient,
+	brokerClient *eventpkg.KafkaClient,
 ) (*GRPC, error) {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-		// middleware.GRPCAuthRateLimitMiddleware,
-		// middleware.GRPCAuthMiddleware,
+			middlewarepkg.NewAuthorizationMiddleware(
+				logger,
+				jwt,
+			),
 		),
 	)
 
 	// Authorization API
-	iamServer := NewAuthorizationServer(logger, jwt, databaseClient, eventClient)
-	protopb.RegisterAuthorizationServiceServer(grpcServer, iamServer)
+	iamServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
+	protopkg.RegisterAuthorizationServiceServer(grpcServer, iamServer)
+
+	// Community API
+	communityServer := NewCommunityServer(logger, databaseClient, brokerClient)
+	protopkg.RegisterCommunityServiceServer(grpcServer, communityServer)
 
 	// Health API
 	healthServer := health.NewServer()

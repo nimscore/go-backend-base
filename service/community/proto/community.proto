@@ -1,0 +1,17 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/empty.proto";
+
+message CreateRequest {
+  string owner_id = 1;
+  string slug = 2;
+  string name = 3;
+  string description = 4;
+}
+
+message CreateResponse { string id = 1; }
+
+service CommunityService { rpc Create(CreateRequest) returns (CreateResponse); }

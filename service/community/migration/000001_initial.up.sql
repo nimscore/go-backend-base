@@ -11,9 +11,12 @@ CREATE TABLE IF NOT EXISTS "users" (
     updated_at TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS "companies" (
+CREATE TABLE IF NOT EXISTS "communities" (
     id UUID PRIMARY KEY,
+    owner_id UUID REFERENCES users,
     name TEXT NOT NULL,
-    user_id UUID REFERENCES users
+    description TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
 );
-

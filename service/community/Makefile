@@ -1,6 +1,3 @@
-env-setup:
-	curl -sSf https://atlasgo.sh | sh
-
 generate-proto:
 	protoc \
 		--proto_path=proto \
@@ -8,7 +5,8 @@ generate-proto:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=./internal/proto \
 		--go-grpc_opt=paths=source_relative \
-		authorization.proto
+		authorization.proto \
+		community.proto
 
 binary-build:
 	go build -o community ./cmd/community
@@ -46,13 +44,6 @@ chart-install: version ?= 0.1.0
 chart-install:
 	helm -n community install --create-namespace community community-${version}.tgz
 
-ent-add-orm: name ?= User
-ent-add-orm:
-	go run -mod=mod entgo.io/ent/cmd/ent new ${name}
-
-ent-generate:
-	go generate ./ent
-
 database-create-migration: name ?= initial
 database-create-migration:
 	migrate create -ext sql -dir migration -seq ${name}
@@ -62,11 +53,3 @@ database-apply-migrations:
 
 database-delete-migrations:
 	migrate -database 'postgres://postgres:postgres@127.0.0.1:5432?sslmode=disable' -path migration down
-
-graphql-init:
-	go get github.com/99designs/gqlgen@latest
-	go run github.com/99designs/gqlgen init
-
-graphql-generate:
-	go get github.com/99designs/gqlgen@latest
-	go generate ./...

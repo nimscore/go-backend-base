@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net"
 	"strconv"
 	"time"
@@ -41,18 +42,18 @@ func NewKafkaClient(host string, port string, topicID string) (*KafkaClient, err
 func (this *KafkaClient) CreateTopic(topicID string) error {
 	brokerConnection, err := kafka.Dial("tcp", net.JoinHostPort(this.host, this.port))
 	if err != nil {
-		return err
+		return fmt.Errorf("can't create topic: %w", err)
 	}
 	defer brokerConnection.Close()
 
 	controller, err := brokerConnection.Controller()
 	if err != nil {
-		return err
+		return fmt.Errorf("can't create topic: %w", err)
 	}
 
 	controllerConnection, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
 	if err != nil {
-		return err
+		return fmt.Errorf("can't create topic: %w", err)
 	}
 	defer controllerConnection.Close()
 
@@ -66,7 +67,7 @@ func (this *KafkaClient) CreateTopic(topicID string) error {
 		}...,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't create topic: %w", err)
 	}
 
 	return nil
@@ -75,7 +76,7 @@ func (this *KafkaClient) CreateTopic(topicID string) error {
 func (this *KafkaClient) WriteMessage(context context.Context, key string, value any) error {
 	message, err := json.Marshal(value)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't write message: %w", err)
 	}
 
 	return this.writer.WriteMessages(

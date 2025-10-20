@@ -5,9 +5,15 @@ option go_package = "/proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-message Message {
-  string key = 1;
-  repeated int64 value = 2;
+message User {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string slug = 4;
+  string email = 5;
+  bool is_verified = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 // Register
@@ -61,13 +67,4 @@ service AuthorizationService {
   rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
   rpc RefreshToken(RefreshRequest) returns (RefreshResponse);
   rpc ValidateToken(ValidateRequest) returns (ValidateResponse);
-}
-
-message User {
-  string id = 1;
-  string slug = 2;
-  string email = 3;
-  bool is_verified = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
 }

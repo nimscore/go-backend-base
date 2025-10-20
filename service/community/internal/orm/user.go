@@ -16,7 +16,7 @@ type User struct {
 	Password    string
 	Salt        string
 	IsVerified  bool
-	Companies   []Company
+	Communities []Community `gorm:"foreignKey:OwnerID"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -55,7 +55,7 @@ func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
 	return &user, nil
 }
 
-func (this *PostgresClient) SelectUserByEmail(slug string) (*User, error) {
+func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	var user User
 	transaction := this.database.
 		Select(
@@ -70,7 +70,7 @@ func (this *PostgresClient) SelectUserByEmail(slug string) (*User, error) {
 				"is_verified",
 			},
 		).
-		Where("email = ?", slug).
+		Where("email = ?", email).
 		First(&user)
 
 	if transaction.Error != nil {

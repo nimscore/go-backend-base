@@ -13,14 +13,14 @@ import (
 	eventpkg "github.com/stormhead-org/service/community/internal/event"
 	jwtpkg "github.com/stormhead-org/service/community/internal/jwt"
 	ormpkg "github.com/stormhead-org/service/community/internal/orm"
-	protopb "github.com/stormhead-org/service/community/internal/proto"
+	protopkg "github.com/stormhead-org/service/community/internal/proto"
 	securitypkg "github.com/stormhead-org/service/community/internal/security"
 )
 
 var ErrUserExist = errors.New("user exist")
 
 type AuthorizationServer struct {
-	protopb.UnimplementedAuthorizationServiceServer
+	protopkg.UnimplementedAuthorizationServiceServer
 	logger         *zap.Logger
 	jwt            *jwtpkg.JWT
 	databaseClient *ormpkg.PostgresClient
@@ -36,7 +36,7 @@ func NewAuthorizationServer(logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient 
 	}
 }
 
-func (this *AuthorizationServer) Register(context context.Context, request *protopb.RegisterRequest) (*protopb.RegisterResponse, error) {
+func (this *AuthorizationServer) Register(context context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
 	_, err := this.databaseClient.SelectUserBySlug(
 		request.Slug,
 	)
@@ -91,7 +91,7 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 	return nil, nil
 }
 
-func (this *AuthorizationServer) Login(context context.Context, request *protopb.LoginRequest) (*protopb.LoginResponse, error) {
+func (this *AuthorizationServer) Login(context context.Context, request *protopkg.LoginRequest) (*protopkg.LoginResponse, error) {
 	user, err := this.databaseClient.SelectUserByEmail(
 		request.Email,
 	)
@@ -135,19 +135,21 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopb
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopb.LoginResponse{
-		User: &protopb.User{
-			Id:         user.ID.String(),
-			Slug:       user.Slug,
-			Email:      user.Email,
-			IsVerified: user.IsVerified,
+	return &protopkg.LoginResponse{
+		User: &protopkg.User{
+			Id:          user.ID.String(),
+			Name:        user.Name,
+			Description: user.Description,
+			Slug:        user.Slug,
+			Email:       user.Email,
+			IsVerified:  user.IsVerified,
 		},
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (this *AuthorizationServer) Logout(context context.Context, request *protopb.LogoutRequest) (*emptypb.Empty, error) {
+func (this *AuthorizationServer) Logout(context context.Context, request *protopkg.LogoutRequest) (*emptypb.Empty, error) {
 	id, err := this.jwt.ParseRefreshToken(
 		request.RefreshToken,
 	)
@@ -171,7 +173,7 @@ func (this *AuthorizationServer) Logout(context context.Context, request *protop
 	return &emptypb.Empty{}, nil
 }
 
-func (this *AuthorizationServer) RefreshToken(context context.Context, request *protopb.RefreshRequest) (*protopb.RefreshResponse, error) {
+func (this *AuthorizationServer) RefreshToken(context context.Context, request *protopkg.RefreshRequest) (*protopkg.RefreshResponse, error) {
 	id, err := this.jwt.ParseRefreshToken(
 		request.RefreshToken,
 	)
@@ -204,13 +206,13 @@ func (this *AuthorizationServer) RefreshToken(context context.Context, request *
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopb.RefreshResponse{
+	return &protopkg.RefreshResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (this *AuthorizationServer) ValidateToken(context context.Context, request *protopb.ValidateRequest) (*protopb.ValidateResponse, error) {
+func (this *AuthorizationServer) ValidateToken(context context.Context, request *protopkg.ValidateRequest) (*protopkg.ValidateResponse, error) {
 	id, err := this.jwt.ParseAccessToken(
 		request.AccessToken,
 	)
@@ -231,7 +233,7 @@ func (this *AuthorizationServer) ValidateToken(context context.Context, request 
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopb.ValidateResponse{
+	return &protopkg.ValidateResponse{
 		Id:    id,
 		Valid: valid,
 	}, nil

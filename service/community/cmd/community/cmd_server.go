@@ -101,7 +101,7 @@ func serverCommandImpl() error {
 			},
 
 			// Application
-			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger, jwt *jwtpkg.JWT, postgresClient *ormpkg.PostgresClient, eventClient *eventpkg.KafkaClient) (*grpcpkg.GRPC, error) {
+			func(lifecycle fx.Lifecycle, shutdowner fx.Shutdowner, logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient *ormpkg.PostgresClient, brokerClient *eventpkg.KafkaClient) (*grpcpkg.GRPC, error) {
 				grpcHost := os.Getenv("GRPC_HOST")
 				if grpcHost == "" {
 					grpcHost = "127.0.0.1"
@@ -117,8 +117,8 @@ func serverCommandImpl() error {
 					grpcHost,
 					grpcPort,
 					jwt,
-					postgresClient,
-					eventClient,
+					databaseClient,
+					brokerClient,
 				)
 				if err != nil {
 					return nil, err
