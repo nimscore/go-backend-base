@@ -2,9 +2,21 @@ syntax = "proto3";
 package proto;
 option go_package = "/proto";
 
-// import "google/protobuf/timestamp.proto";
-// import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
 
+// Community message
+message Community {
+  string id = 1;
+  string owner_id = 2;
+  string name = 3;
+  string description = 4;
+  string slug = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// Create Community
 message CreateRequest {
   string owner_id = 1;
   string slug = 2;
@@ -12,6 +24,54 @@ message CreateRequest {
   string description = 4;
 }
 
-message CreateResponse { string id = 1; }
+message CreateResponse { 
+  string id = 1; 
+}
 
-service CommunityService { rpc Create(CreateRequest) returns (CreateResponse); }
+// Get Community
+message GetCommunityRequest {
+  oneof identifier {
+    string id = 1;
+    string slug = 2;
+  }
+}
+
+message GetCommunityResponse {
+  Community community = 1;
+}
+
+// List Communities
+message ListCommunitiesRequest {
+  int32 limit = 1;      // По умолчанию 40
+  string cursor = 2;    // ID последнего элемента предыдущей страницы
+}
+
+message ListCommunitiesResponse {
+  repeated Community communities = 1;
+  string next_cursor = 2;  // ID для следующей страницы
+  bool has_more = 3;       // Есть ли ещё элементы
+}
+
+service CommunityService { 
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/communities"
+      body: "*"
+    };
+  }
+  
+  rpc GetCommunity(GetCommunityRequest) returns (GetCommunityResponse) {
+    option (google.api.http) = {
+      get: "/communities/{id}"
+      additional_bindings {
+        get: "/communities/slug/{slug}"
+      }
+    };
+  }
+  
+  rpc ListCommunities(ListCommunitiesRequest) returns (ListCommunitiesResponse) {
+    option (google.api.http) = {
+      get: "/communities"
+    };
+  }
+}

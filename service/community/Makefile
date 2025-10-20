@@ -1,10 +1,18 @@
 generate-proto:
 	protoc \
 		--proto_path=proto \
+		--proto_path=$(shell go list -f '{{ .Dir }}' -m github.com/grpc-ecosystem/grpc-gateway) \
+		--proto_path=$(shell go list -f '{{ .Dir }}' -m github.com/grpc-ecosystem/grpc-gateway)/third_party/googleapis \
 		--go_out=./internal/proto \
 		--go_opt=paths=source_relative \
 		--go-grpc_out=./internal/proto \
 		--go-grpc_opt=paths=source_relative \
+		--grpc-gateway_out=./internal/proto \
+		--grpc-gateway_opt=paths=source_relative \
+		--grpc-gateway_opt=generate_unbound_methods=true \
+		--openapiv2_out=./api/swagger \
+		--openapiv2_opt=allow_merge=true \
+		--openapiv2_opt=merge_file_name=api \
 		authorization.proto \
 		community.proto
 
