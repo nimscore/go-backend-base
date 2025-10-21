@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"regexp"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -18,6 +19,28 @@ import (
 )
 
 var ErrUserExist = errors.New("user exist")
+var ErrInvalid = errors.New("invalid")
+
+func ValidateUserSlug(slug string) error {
+	if len(slug) < 5 {
+		return ErrInvalid
+	}
+
+	return nil
+}
+
+func ValidateUserEmail(email string) error {
+	regex, err := regexp.Compile(`[a-z\-\_\.]+@[a-z\-\_\.]+`)
+	if err != nil {
+		return ErrInvalid
+	}
+
+	if !regex.MatchString(email) {
+		return ErrInvalid
+	}
+
+	return nil
+}
 
 type AuthorizationServer struct {
 	protopkg.UnimplementedAuthorizationServiceServer
@@ -37,7 +60,17 @@ func NewAuthorizationServer(logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient 
 }
 
 func (this *AuthorizationServer) Register(context context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
-	_, err := this.databaseClient.SelectUserBySlug(
+	err := ValidateUserSlug(request.Slug)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "slug not match conditions")
+	}
+
+	err = ValidateUserEmail(request.Email)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "email not match conditions")
+	}
+
+	_, err = this.databaseClient.SelectUserBySlug(
 		request.Slug,
 	)
 	if err != gorm.ErrRecordNotFound {

@@ -44,7 +44,7 @@ func workerCommandImpl() error {
 			func(logger *zap.Logger) (*clientpkg.KafkaClient, error) {
 				kafkaHost := os.Getenv("KAFKA_HOST")
 				if kafkaHost == "" {
-					kafkaHost = "localhost"
+					kafkaHost = "127.0.0.1"
 				}
 
 				kafkaPort := os.Getenv("KAFKA_PORT")
