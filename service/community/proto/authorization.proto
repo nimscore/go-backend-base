@@ -4,6 +4,7 @@ option go_package = "/proto";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 message User {
   string id = 1;
@@ -62,9 +63,38 @@ message ValidateResponse {
 }
 
 service AuthorizationService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
-  rpc RefreshToken(RefreshRequest) returns (RefreshResponse);
-  rpc ValidateToken(ValidateRequest) returns (ValidateResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/auth/register"
+      body: "*"
+    };
+  }
+  
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/auth/login"
+      body: "*"
+    };
+  }
+  
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/auth/logout"
+      body: "*"
+    };
+  }
+  
+  rpc RefreshToken(RefreshRequest) returns (RefreshResponse) {
+    option (google.api.http) = {
+      post: "/auth/refresh"
+      body: "*"
+    };
+  }
+  
+  rpc ValidateToken(ValidateRequest) returns (ValidateResponse) {
+    option (google.api.http) = {
+      post: "/auth/validate"
+      body: "*"
+    };
+  }
 }
