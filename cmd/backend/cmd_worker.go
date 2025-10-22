@@ -55,12 +55,12 @@ func workerCommandImpl() error {
 
 				kafkaTopic := os.Getenv("KAFKA_TOPIC")
 				if kafkaTopic == "" {
-					kafkaTopic = "mail"
+					kafkaTopic = "common"
 				}
 
 				kafkaGroup := os.Getenv("KAFKA_GROUP")
 				if kafkaGroup == "" {
-					kafkaGroup = "mail"
+					kafkaGroup = "common"
 				}
 
 				kafkaClient, err := eventpkg.NewKafkaClient(

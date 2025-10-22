@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -10,8 +9,6 @@ import (
 
 	clientpkg "github.com/stormhead-org/backend/internal/client"
 	eventpkg "github.com/stormhead-org/backend/internal/event"
-	mailpkg "github.com/stormhead-org/backend/internal/mail"
-	templatepkg "github.com/stormhead-org/backend/internal/template"
 )
 
 type Worker struct {
@@ -19,19 +16,28 @@ type Worker struct {
 	cancel       func()
 	waitGroup    sync.WaitGroup
 	logger       *zap.Logger
+	router       *Router
 	brokerClient *eventpkg.KafkaClient
 	mailClient   *clientpkg.MailClient
 }
 
 func NewWorker(logger *zap.Logger, brokerClient *eventpkg.KafkaClient, mailClient *clientpkg.MailClient) *Worker {
 	context, cancel := context.WithCancel(context.Background())
-	return &Worker{
+	this := &Worker{
 		context:      context,
 		cancel:       cancel,
 		logger:       logger,
 		brokerClient: brokerClient,
 		mailClient:   mailClient,
 	}
+	this.router = NewRouter(
+		map[string][]EventHandler{
+			eventpkg.AUTHORIZATION_LOGIN: {
+				this.AuthorizationLoginHandler,
+			},
+		},
+	)
+	return this
 }
 
 func (this *Worker) Start() error {
@@ -60,53 +66,16 @@ func (this *Worker) worker() {
 		case <-time.After(1 * time.Millisecond):
 		}
 
-		kind, value, err := this.brokerClient.ReadMessage(this.context)
+		event, data, err := this.brokerClient.ReadMessage(this.context)
 		if err != nil {
 			this.logger.Error("error receiving kafka message", zap.Error(err))
 			continue
 		}
 
-		message, err := mailpkg.MessageFromJson(value)
+		err = this.router.Handle(event, []byte(data))
 		if err != nil {
-			this.logger.Error("error unmarshalling message", zap.Error(err))
+			this.logger.Error("error handling kafka message", zap.Error(err))
 			continue
 		}
-
-		path := ""
-		switch kind {
-		case mailpkg.KIND_MAIL_CONFIRM:
-			path = "mail_confirm.html"
-		case mailpkg.KIND_MAIL_RECOVER:
-			path = "mail_recover.html"
-		}
-
-		if path == "" {
-			this.logger.Error("unknown message kind")
-			continue
-		}
-
-		content, err := templatepkg.Render(fmt.Sprintf("template/%s", path), message.Arguments)
-		if err != nil {
-			this.logger.Error("error rendering mail", zap.Error(err))
-			continue
-		}
-
-		err = this.mailClient.SendHTML(
-			message.From,
-			message.To,
-			message.Subject,
-			content,
-		)
-		if err != nil {
-			this.logger.Error("error sending mail", zap.Error(err))
-			continue
-		}
-
-		this.logger.Info(
-			"mail sent to recipient",
-			zap.String("kind", kind),
-			zap.String("from", message.From),
-			zap.String("to", message.To),
-		)
 	}
 }

@@ -106,7 +106,12 @@ func serverCommandImpl() error {
 					kafkaGroup = "common"
 				}
 
-				client, err := eventpkg.NewKafkaClient(kafkaHost, kafkaPort, kafkaTopic, kafkaGroup)
+				client, err := eventpkg.NewKafkaClient(
+					kafkaHost,
+					kafkaPort,
+					kafkaTopic,
+					kafkaGroup,
+				)
 				return client, err
 			},
 
