@@ -1,2 +1,4 @@
-arch.md
-project.md
+!.env
+!.env_production
+/backend
+/backend-*.tgz

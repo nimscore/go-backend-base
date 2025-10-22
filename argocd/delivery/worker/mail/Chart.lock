@@ -1,6 +1,0 @@
-dependencies:
-- name: mail
-  repository: file://../../../../worker/mail/chart
-  version: 0.1.0
-digest: sha256:79fd6ce282ba4f72188b41a8159c04f68e028e0edb6c3c271e22ca985a3c8a6d
-generated: "2025-10-10T14:36:12.074316371Z"

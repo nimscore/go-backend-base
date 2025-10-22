@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-migrate
+  labels:
+    application: backend
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: stormic/backend:{{ $.Values.image }}
+          command:
+            - "migrate"
+          args:
+            - "-database"
+            - "postgres://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/repeater?sslmode=disable"
+            - "-path"
+            - "migration"
+            - "up"
+      restartPolicy: Never

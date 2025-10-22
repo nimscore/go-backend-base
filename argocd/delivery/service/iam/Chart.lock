@@ -1,6 +1,0 @@
-dependencies:
-- name: iam
-  repository: file://../../../../service/iam/chart
-  version: 0.1.0
-digest: sha256:5720ac32a1291d1a3ab765313f8133bd89ad4a1e19e5bbe7fdc7cf27a9155d95
-generated: "2025-10-10T14:32:08.612877964Z"

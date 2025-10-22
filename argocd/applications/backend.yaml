@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: community
+  namespace: argocd
+spec:
+  project: default
+  source:
+    targetRevision: HEAD
+    repoURL: https://github.com/stormhead-org/backend
+    path: argocd/delivery/backend
+    # helm:
+    #   parameters:
+    #     - name: "checker.fqdn"
+    #       value: "stormhead.org"
+  destination:
+    namespace: community
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

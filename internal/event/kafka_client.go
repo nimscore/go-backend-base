@@ -1,0 +1,111 @@
+package event
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net"
+	"strconv"
+	"time"
+
+	"github.com/segmentio/kafka-go"
+)
+
+type KafkaClient struct {
+	host   string
+	port   string
+	writer *kafka.Writer
+	reader *kafka.Reader
+}
+
+func NewKafkaClient(host string, port string, topicID string, groupID string) (*KafkaClient, error) {
+	this := &KafkaClient{
+		host: host,
+		port: port,
+		writer: kafka.NewWriter(
+			kafka.WriterConfig{
+				Brokers: []string{
+					net.JoinHostPort(host, port),
+				},
+				Topic:        topicID,
+				BatchTimeout: 1 * time.Millisecond,
+			},
+		),
+		reader: kafka.NewReader(
+			kafka.ReaderConfig{
+				Brokers: []string{
+					fmt.Sprintf("%s:%s", host, port),
+				},
+				GroupID:  groupID,
+				Topic:    topicID,
+				MaxWait:  500 * time.Millisecond,
+				MinBytes: 1,
+				MaxBytes: 1024 * 1024,
+			},
+		),
+	}
+	err := this.CreateTopic(topicID)
+	if err != nil {
+		return nil, err
+	}
+
+	return this, nil
+}
+
+func (this *KafkaClient) CreateTopic(topicID string) error {
+	brokerConnection, err := kafka.Dial("tcp", net.JoinHostPort(this.host, this.port))
+	if err != nil {
+		return fmt.Errorf("can't create topic: %w", err)
+	}
+	defer brokerConnection.Close()
+
+	controller, err := brokerConnection.Controller()
+	if err != nil {
+		return fmt.Errorf("can't create topic: %w", err)
+	}
+
+	controllerConnection, err := kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		return fmt.Errorf("can't create topic: %w", err)
+	}
+	defer controllerConnection.Close()
+
+	err = controllerConnection.CreateTopics(
+		[]kafka.TopicConfig{
+			{
+				Topic:             topicID,
+				NumPartitions:     3,
+				ReplicationFactor: 1,
+			},
+		}...,
+	)
+	if err != nil {
+		return fmt.Errorf("can't create topic: %w", err)
+	}
+
+	return nil
+}
+
+func (this *KafkaClient) WriteMessage(context context.Context, key string, value any) error {
+	message, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("can't write message: %w", err)
+	}
+
+	return this.writer.WriteMessages(
+		context,
+		kafka.Message{
+			Key:   []byte(key),
+			Value: message,
+		},
+	)
+}
+
+func (this *KafkaClient) ReadMessage(context context.Context) (string, string, error) {
+	message, err := this.reader.ReadMessage(context)
+	if err != nil {
+		return "", "", err
+	}
+
+	return string(message.Key), string(message.Value), nil
+}

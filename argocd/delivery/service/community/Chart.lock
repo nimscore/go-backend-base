@@ -1,6 +1,0 @@
-dependencies:
-- name: community
-  repository: file://../../../../service/community/chart
-  version: 0.1.0
-digest: sha256:cfe274449ea1a1b4b702c88fc7b5a228be421df80c7948fb26bdcc641012e968
-generated: "2025-10-13T07:59:49.730215808Z"
