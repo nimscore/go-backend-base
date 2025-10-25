@@ -1,0 +1,288 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum RoleType {
+  ROLE_TYPE_UNSPECIFIED = 0;
+  ROLE_TYPE_PLATFORM = 1;
+  ROLE_TYPE_COMMUNITY = 2;
+}
+
+// Granular permission flags (FR-126-132)
+message Permissions {
+  // Moderation permissions (FR-127)
+  bool ban_users = 1;
+  bool mute_users = 2;
+  bool delete_any_post = 3;
+  bool delete_any_comment = 4;
+  bool unpublish_post = 5;
+  bool view_moderation_logs = 6;
+  
+  // Content permissions (FR-128)
+  bool create_post = 7;
+  bool edit_own_post = 8;
+  bool delete_own_post = 9;
+  bool create_comment = 10;
+  bool edit_own_comment = 11;
+  bool delete_own_comment = 12;
+  bool like_content = 13;
+  bool bookmark_content = 14;
+  
+  // Community permissions (FR-129)
+  bool create_community = 15;
+  bool edit_community_settings = 16;
+  bool delete_community = 17;
+  bool transfer_community_ownership = 18;
+  bool manage_community_members = 19;
+  bool assign_community_roles = 20;
+  bool create_community_roles = 21;
+  bool edit_community_roles = 22;
+  bool delete_community_roles = 23;
+  
+  // Platform permissions (FR-130)
+  bool edit_platform_settings = 24;
+  bool transfer_platform_ownership = 25;
+  bool manage_platform_users = 26;
+  bool assign_platform_roles = 27;
+  bool create_platform_roles = 28;
+  bool edit_platform_roles = 29;
+  bool delete_platform_roles = 30;
+  bool view_all_communities = 31;
+  bool view_analytics = 32;
+  
+  // Report permissions (FR-131)
+  bool report_content = 33;
+  bool view_reports = 34;
+  bool resolve_reports = 35;
+  bool dismiss_reports = 36;
+  
+  // Advanced permissions (FR-132)
+  bool pin_post = 37;
+  bool unpin_post = 38;
+  bool lock_thread = 39;
+  bool unlock_thread = 40;
+  bool feature_post = 41;
+  bool edit_any_post = 42;
+  bool edit_any_comment = 43;
+}
+
+message Role {
+  string id = 1;
+  string name = 2;
+  string color = 3;  // hex color code
+  RoleType type = 4;
+  optional string community_id = 5;  // only for community roles
+  Permissions permissions = 6;
+  int32 member_count = 7;
+  bool is_everyone = 8;  // true for @everyone roles
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message UserRoleInfo {
+  string role_id = 1;
+  string role_name = 2;
+  string role_color = 3;
+  RoleType role_type = 4;
+}
+
+// ============================================================================
+// CreatePlatformRole (FR-355, FR-357, FR-359, FR-361, FR-363-367)
+// ============================================================================
+
+message CreatePlatformRoleRequest {
+  string name = 1;       // 1-50 chars, cannot be "@everyone"
+  string color = 2;      // hex color code
+  Permissions permissions = 3;
+}
+
+message CreatePlatformRoleResponse {
+  Role role = 1;
+}
+
+// ============================================================================
+// CreateCommunityRole (FR-356, FR-358, FR-360, FR-362-367)
+// ============================================================================
+
+message CreateCommunityRoleRequest {
+  string community_id = 1;
+  string name = 2;
+  string color = 3;
+  Permissions permissions = 4;
+}
+
+message CreateCommunityRoleResponse {
+  Role role = 1;
+}
+
+// ============================================================================
+// GetRole (FR-238, FR-245)
+// ============================================================================
+
+message GetRoleRequest {
+  string role_id = 1;
+}
+
+message GetRoleResponse {
+  Role role = 1;
+}
+
+// ============================================================================
+// UpdateRole (FR-239, FR-246)
+// ============================================================================
+
+message UpdateRoleRequest {
+  string role_id = 1;
+  optional string name = 2;      // cannot rename @everyone
+  optional string color = 3;
+  optional Permissions permissions = 4;
+}
+
+message UpdateRoleResponse {
+  Role role = 1;
+}
+
+// ============================================================================
+// DeleteRole (FR-240, FR-247, FR-248)
+// ============================================================================
+
+message DeleteRoleRequest {
+  string role_id = 1;
+}
+
+message DeleteRoleResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ListPlatformRoles (FR-241, FR-251)
+// ============================================================================
+
+message ListPlatformRolesRequest {
+  string cursor = 1;
+  int32 limit = 2;
+}
+
+message ListPlatformRolesResponse {
+  repeated Role roles = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// ListCommunityRoles (FR-242, FR-252)
+// ============================================================================
+
+message ListCommunityRolesRequest {
+  string community_id = 1;
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListCommunityRolesResponse {
+  repeated Role roles = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// AssignRole (FR-243, FR-249, FR-253)
+// ============================================================================
+
+message AssignRoleRequest {
+  string role_id = 1;
+  string user_id = 2;
+}
+
+message AssignRoleResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// RemoveRole (FR-244, FR-250, FR-253)
+// ============================================================================
+
+message RemoveRoleRequest {
+  string role_id = 1;
+  string user_id = 2;
+}
+
+message RemoveRoleResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service RoleService {
+  // Create Operations
+  rpc CreatePlatformRole(CreatePlatformRoleRequest) returns (CreatePlatformRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/roles/platform"
+      body: "*"
+    };
+  }
+  
+  rpc CreateCommunityRole(CreateCommunityRoleRequest) returns (CreateCommunityRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/communities/{community_id}/roles"
+      body: "*"
+    };
+  }
+  
+  // CRUD Operations
+  rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {
+    option (google.api.http) = {
+      get: "/v1/roles/{role_id}"
+    };
+  }
+  
+  rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {
+    option (google.api.http) = {
+      patch: "/v1/roles/{role_id}"
+      body: "*"
+    };
+  }
+  
+  rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {
+    option (google.api.http) = {
+      delete: "/v1/roles/{role_id}"
+    };
+  }
+  
+  // List Operations
+  rpc ListPlatformRoles(ListPlatformRolesRequest) returns (ListPlatformRolesResponse) {
+    option (google.api.http) = {
+      get: "/v1/roles/platform"
+    };
+  }
+  
+  rpc ListCommunityRoles(ListCommunityRolesRequest) returns (ListCommunityRolesResponse) {
+    option (google.api.http) = {
+      get: "/v1/communities/{community_id}/roles"
+    };
+  }
+  
+  // Assignment Operations
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/roles/{role_id}/assign"
+      body: "*"
+    };
+  }
+  
+  rpc RemoveRole(RemoveRoleRequest) returns (RemoveRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/roles/{role_id}/remove"
+      body: "*"
+    };
+  }
+}
+

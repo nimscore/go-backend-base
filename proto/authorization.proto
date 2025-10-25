@@ -6,28 +6,50 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
+// ============================================================================
+// Messages
+// ============================================================================
+
 message User {
   string id = 1;
-  string name = 2;
-  string description = 3;
-  string slug = 4;
-  string email = 5;
-  bool is_verified = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string username = 2;
+  string email = 3;
+  string avatar_url = 4;
+  string banner_url = 5;
+  string description = 6;
+  int32 reputation = 7;
+  bool is_verified = 8;
+  bool is_banned = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
-// Register
+message Session {
+  string session_id = 1;
+  string device_info = 2;
+  string ip_address = 3;
+  google.protobuf.Timestamp last_activity = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+// ============================================================================
+// Register (FR-280, FR-291, FR-292)
+// ============================================================================
 
 message RegisterRequest {
-  string slug = 1;
+  string username = 1;
   string email = 2;
-  string password = 3;
+  string password = 3;  // min 12 chars, checked against Have I Been Pwned
 }
 
-message RegisterResponse {}
+message RegisterResponse {
+  string user_id = 1;
+  string message = 2;  // "Verification email sent"
+}
 
-// Login
+// ============================================================================
+// Login (FR-281, FR-293, FR-294)
+// ============================================================================
 
 message LoginRequest {
   string email = 1;
@@ -36,65 +58,200 @@ message LoginRequest {
 
 message LoginResponse {
   User user = 1;
-  string access_token = 2;
-  string refresh_token = 3;
+  string access_token = 2;   // 15 min expiration
+  string refresh_token = 3;  // 7 days expiration
 }
 
-// Logout
+// ============================================================================
+// Logout (FR-282, FR-302)
+// ============================================================================
 
-message LogoutRequest { string refresh_token = 1; }
+message LogoutRequest {}
 
-// Refresh
-
-message RefreshRequest { string refresh_token = 1; }
-
-message RefreshResponse {
-  string access_token = 1;
-  string refresh_token = 2;
+message LogoutResponse {
+  string message = 1;
 }
 
-// Validate
+// ============================================================================
+// RefreshToken (FR-283, FR-295, FR-296)
+// ============================================================================
 
-message ValidateRequest { string access_token = 1; }
-
-message ValidateResponse {
-  string id = 1;
-  bool valid = 2;
+message RefreshTokenRequest {
+  string refresh_token = 1;
 }
+
+message RefreshTokenResponse {
+  string access_token = 1;   // new 15 min token
+  string refresh_token = 2;  // new 7 days token
+}
+
+// ============================================================================
+// VerifyEmail (FR-284)
+// ============================================================================
+
+message VerifyEmailRequest {
+  string token = 1;
+}
+
+message VerifyEmailResponse {
+  string message = 1;
+  User user = 2;
+}
+
+// ============================================================================
+// RequestPasswordReset (FR-285)
+// ============================================================================
+
+message RequestPasswordResetRequest {
+  string email = 1;
+}
+
+message RequestPasswordResetResponse {
+  string message = 1;  // "Password reset email sent"
+}
+
+// ============================================================================
+// ResetPassword (FR-286)
+// ============================================================================
+
+message ResetPasswordRequest {
+  string token = 1;
+  string new_password = 2;  // same requirements as registration
+}
+
+message ResetPasswordResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ChangePassword (FR-287, FR-297, FR-298)
+// ============================================================================
+
+message ChangePasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// GetCurrentSession (FR-288, FR-299)
+// ============================================================================
+
+message GetCurrentSessionRequest {}
+
+message GetCurrentSessionResponse {
+  Session session = 1;
+}
+
+// ============================================================================
+// ListActiveSessions (FR-289, FR-300)
+// ============================================================================
+
+message ListActiveSessionsRequest {
+  string cursor = 1;
+  int32 limit = 2;
+}
+
+message ListActiveSessionsResponse {
+  repeated Session sessions = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// RevokeSession (FR-290, FR-301)
+// ============================================================================
+
+message RevokeSessionRequest {
+  string session_id = 1;
+}
+
+message RevokeSessionResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
 
 service AuthorizationService {
+  // Registration and Login
   rpc Register(RegisterRequest) returns (RegisterResponse) {
     option (google.api.http) = {
-      post: "/auth/register"
+      post: "/v1/auth/register"
       body: "*"
     };
   }
   
   rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/auth/login"
+      post: "/v1/auth/login"
       body: "*"
     };
   }
   
-  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
     option (google.api.http) = {
-      post: "/auth/logout"
+      post: "/v1/auth/logout"
+    };
+  }
+  
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
       body: "*"
     };
   }
   
-  rpc RefreshToken(RefreshRequest) returns (RefreshResponse) {
+  // Email Verification
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse) {
     option (google.api.http) = {
-      post: "/auth/refresh"
+      post: "/v1/auth/verify-email"
       body: "*"
     };
   }
   
-  rpc ValidateToken(ValidateRequest) returns (ValidateResponse) {
+  // Password Recovery
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse) {
     option (google.api.http) = {
-      post: "/auth/validate"
+      post: "/v1/auth/password-reset/request"
       body: "*"
+    };
+  }
+  
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/password-reset/confirm"
+      body: "*"
+    };
+  }
+  
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/change-password"
+      body: "*"
+    };
+  }
+  
+  // Session Management
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse) {
+    option (google.api.http) = {
+      get: "/v1/auth/session"
+    };
+  }
+  
+  rpc ListActiveSessions(ListActiveSessionsRequest) returns (ListActiveSessionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/auth/sessions"
+    };
+  }
+  
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse) {
+    option (google.api.http) = {
+      delete: "/v1/auth/sessions/{session_id}"
     };
   }
 }

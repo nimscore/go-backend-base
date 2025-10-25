@@ -1,0 +1,234 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+message MediaAttachment {
+  string url = 1;
+  string type = 2;  // image, video, audio, gif
+  int64 size_bytes = 3;
+}
+
+message Comment {
+  string id = 1;
+  string post_id = 2;
+  string author_id = 3;
+  string author_username = 4;
+  string author_avatar = 5;
+  string text = 6;
+  optional string parent_comment_id = 7;
+  repeated MediaAttachment attachments = 8;
+  int32 like_count = 9;
+  bool is_liked_by_me = 10;
+  bool is_edited = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+enum CommentEventType {
+  COMMENT_EVENT_TYPE_UNSPECIFIED = 0;
+  COMMENT_EVENT_TYPE_CREATED = 1;
+  COMMENT_EVENT_TYPE_UPDATED = 2;
+  COMMENT_EVENT_TYPE_DELETED = 3;
+}
+
+message CommentEvent {
+  CommentEventType event_type = 1;
+  Comment comment = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// ============================================================================
+// CreateComment (FR-335-344)
+// ============================================================================
+
+message CreateCommentRequest {
+  string post_id = 1;
+  string text = 2;  // 1-10000 chars
+  optional string parent_comment_id = 3;  // for nested replies
+  repeated string attachment_urls = 4;  // S3 URLs from presigned upload
+}
+
+message CreateCommentResponse {
+  Comment comment = 1;
+}
+
+// ============================================================================
+// GetComment (FR-216, FR-219)
+// ============================================================================
+
+message GetCommentRequest {
+  string comment_id = 1;
+}
+
+message GetCommentResponse {
+  Comment comment = 1;
+}
+
+// ============================================================================
+// UpdateComment (FR-384-390)
+// ============================================================================
+
+message UpdateCommentRequest {
+  string comment_id = 1;
+  string text = 2;
+}
+
+message UpdateCommentResponse {
+  Comment comment = 1;
+}
+
+// ============================================================================
+// DeleteComment (FR-030)
+// ============================================================================
+
+message DeleteCommentRequest {
+  string comment_id = 1;
+}
+
+message DeleteCommentResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ListComments (FR-217, FR-220, FR-221)
+// ============================================================================
+
+message ListCommentsRequest {
+  string post_id = 1;
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListCommentsResponse {
+  repeated Comment comments = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// ListUserComments (FR-218, FR-222, FR-223)
+// ============================================================================
+
+message CommentWithPostInfo {
+  Comment comment = 1;
+  string post_id = 2;
+  string post_title = 3;
+}
+
+message ListUserCommentsRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListUserCommentsResponse {
+  repeated CommentWithPostInfo comments = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// LikeComment (FR-173, FR-175, FR-177, FR-178)
+// ============================================================================
+
+message LikeCommentRequest {
+  string comment_id = 1;
+}
+
+message LikeCommentResponse {
+  string message = 1;
+  int32 new_like_count = 2;
+}
+
+// ============================================================================
+// UnlikeComment (FR-174, FR-176)
+// ============================================================================
+
+message UnlikeCommentRequest {
+  string comment_id = 1;
+}
+
+message UnlikeCommentResponse {
+  string message = 1;
+  int32 new_like_count = 2;
+}
+
+// ============================================================================
+// StreamComments (FR-031-034, FR-081) - gRPC Server-Side Streaming
+// ============================================================================
+
+message StreamCommentsRequest {
+  optional string post_id = 1;  // if empty, stream all platform comments
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service CommentService {
+  // CRUD Operations
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {
+    option (google.api.http) = {
+      post: "/v1/comments"
+      body: "*"
+    };
+  }
+  
+  rpc GetComment(GetCommentRequest) returns (GetCommentResponse) {
+    option (google.api.http) = {
+      get: "/v1/comments/{comment_id}"
+    };
+  }
+  
+  rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse) {
+    option (google.api.http) = {
+      patch: "/v1/comments/{comment_id}"
+      body: "*"
+    };
+  }
+  
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse) {
+    option (google.api.http) = {
+      delete: "/v1/comments/{comment_id}"
+    };
+  }
+  
+  // List Operations
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/posts/{post_id}/comments"
+    };
+  }
+  
+  rpc ListUserComments(ListUserCommentsRequest) returns (ListUserCommentsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}/comments"
+    };
+  }
+  
+  // Like Operations
+  rpc LikeComment(LikeCommentRequest) returns (LikeCommentResponse) {
+    option (google.api.http) = {
+      post: "/v1/comments/{comment_id}/like"
+    };
+  }
+  
+  rpc UnlikeComment(UnlikeCommentRequest) returns (UnlikeCommentResponse) {
+    option (google.api.http) = {
+      delete: "/v1/comments/{comment_id}/like"
+    };
+  }
+  
+  // Real-time Streaming
+  rpc StreamComments(StreamCommentsRequest) returns (stream CommentEvent) {
+    // No HTTP mapping - gRPC streaming only
+  }
+}
+

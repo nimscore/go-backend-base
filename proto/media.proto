@@ -1,0 +1,87 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum MediaType {
+  MEDIA_TYPE_UNSPECIFIED = 0;
+  MEDIA_TYPE_AVATAR = 1;
+  MEDIA_TYPE_BANNER = 2;
+  MEDIA_TYPE_COMMENT_ATTACHMENT = 3;
+  MEDIA_TYPE_PLATFORM_LOGO = 4;
+  MEDIA_TYPE_PLATFORM_BANNER = 5;
+  MEDIA_TYPE_COMMUNITY_LOGO = 6;
+  MEDIA_TYPE_COMMUNITY_BANNER = 7;
+}
+
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_IMAGE = 1;    // max 10MB
+  FILE_TYPE_VIDEO = 2;    // max 100MB
+  FILE_TYPE_AUDIO = 3;    // max 20MB
+  FILE_TYPE_GIF = 4;      // max 15MB
+}
+
+message PresignedUploadURL {
+  string upload_url = 1;
+  string object_key = 2;
+  int64 max_file_size_bytes = 3;
+  google.protobuf.Timestamp expires_at = 4;  // valid for 15 minutes
+}
+
+// ============================================================================
+// GeneratePresignedUploadURL (FR-141-148)
+// ============================================================================
+
+message GeneratePresignedUploadURLRequest {
+  MediaType media_type = 1;
+  FileType file_type = 2;
+  string file_name = 3;
+  int64 file_size_bytes = 4;
+}
+
+message GeneratePresignedUploadURLResponse {
+  PresignedUploadURL presigned_url = 1;
+}
+
+// ============================================================================
+// ConfirmUpload (FR-145-146)
+// ============================================================================
+
+message ConfirmUploadRequest {
+  string object_key = 1;
+  MediaType media_type = 2;
+}
+
+message ConfirmUploadResponse {
+  string message = 1;
+  string public_url = 2;  // URL to access the uploaded file
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service MediaService {
+  // Presigned URL Operations
+  rpc GeneratePresignedUploadURL(GeneratePresignedUploadURLRequest) returns (GeneratePresignedUploadURLResponse) {
+    option (google.api.http) = {
+      post: "/v1/media/presigned-url"
+      body: "*"
+    };
+  }
+  
+  rpc ConfirmUpload(ConfirmUploadRequest) returns (ConfirmUploadResponse) {
+    option (google.api.http) = {
+      post: "/v1/media/confirm-upload"
+      body: "*"
+    };
+  }
+}
+

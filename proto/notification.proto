@@ -1,0 +1,186 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum NotificationType {
+  NOTIFICATION_TYPE_UNSPECIFIED = 0;
+  NOTIFICATION_TYPE_NEW_POST_IN_COMMUNITY = 1;
+  NOTIFICATION_TYPE_NEW_POST_FROM_FOLLOWED_USER = 2;
+  NOTIFICATION_TYPE_COMMENT_LIKED = 3;
+  NOTIFICATION_TYPE_NEW_COMMENT_IN_POST = 4;
+  NOTIFICATION_TYPE_COMMENT_REPLY = 5;
+}
+
+// Notification content structure (FR-418, FR-433-438)
+message NotificationContent {
+  string actor_username = 1;
+  string actor_avatar = 2;
+  string target_type = 3;   // post or comment
+  string target_id = 4;
+  string action_type = 5;
+  
+  // Type-specific fields
+  optional string community_name = 6;
+  optional string post_title = 7;
+  optional string post_id = 8;
+  optional string comment_id = 9;
+  optional string comment_text = 10;  // truncated to 100 chars
+  optional string original_comment_id = 11;
+  optional string reply_text = 12;
+  
+  google.protobuf.Timestamp timestamp = 13;
+}
+
+message Notification {
+  string id = 1;
+  string user_id = 2;
+  NotificationType type = 3;
+  NotificationContent content = 4;
+  bool is_read = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message NotificationPreferences {
+  bool new_post_in_community = 1;
+  bool new_post_from_followed_user = 2;
+  bool comment_liked = 3;
+  bool new_comment_in_post = 4;
+  bool comment_reply = 5;
+}
+
+// ============================================================================
+// StreamNotifications (FR-400, FR-408, FR-410, FR-430-432) - gRPC Streaming
+// ============================================================================
+
+message StreamNotificationsRequest {}
+
+// ============================================================================
+// GetNotifications (FR-411, FR-421-423)
+// ============================================================================
+
+message GetNotificationsRequest {
+  optional bool read_status_filter = 1;  // if set, filter by read status
+  optional NotificationType type_filter = 2;
+  string cursor = 3;
+  int32 limit = 4;
+}
+
+message GetNotificationsResponse {
+  repeated Notification notifications = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// MarkAsRead (FR-412, FR-424)
+// ============================================================================
+
+message MarkAsReadRequest {
+  string notification_id = 1;
+}
+
+message MarkAsReadResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// MarkAllAsRead (FR-413, FR-425)
+// ============================================================================
+
+message MarkAllAsReadRequest {}
+
+message MarkAllAsReadResponse {
+  string message = 1;
+  int32 marked_count = 2;
+}
+
+// ============================================================================
+// GetUnreadCount (FR-414, FR-426)
+// ============================================================================
+
+message GetUnreadCountRequest {}
+
+message GetUnreadCountResponse {
+  int32 unread_count = 1;
+}
+
+// ============================================================================
+// GetNotificationPreferences (FR-415, FR-428)
+// ============================================================================
+
+message GetNotificationPreferencesRequest {}
+
+message GetNotificationPreferencesResponse {
+  NotificationPreferences preferences = 1;
+}
+
+// ============================================================================
+// UpdateNotificationPreferences (FR-416, FR-427, FR-428)
+// ============================================================================
+
+message UpdateNotificationPreferencesRequest {
+  NotificationPreferences preferences = 1;
+}
+
+message UpdateNotificationPreferencesResponse {
+  NotificationPreferences preferences = 1;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service NotificationService {
+  // Real-time Streaming (gRPC Server-Side Streaming)
+  rpc StreamNotifications(StreamNotificationsRequest) returns (stream Notification) {
+    // No HTTP mapping - gRPC streaming only
+  }
+  
+  // History Operations
+  rpc GetNotifications(GetNotificationsRequest) returns (GetNotificationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications"
+    };
+  }
+  
+  rpc MarkAsRead(MarkAsReadRequest) returns (MarkAsReadResponse) {
+    option (google.api.http) = {
+      post: "/v1/notifications/{notification_id}/read"
+    };
+  }
+  
+  rpc MarkAllAsRead(MarkAllAsReadRequest) returns (MarkAllAsReadResponse) {
+    option (google.api.http) = {
+      post: "/v1/notifications/read-all"
+    };
+  }
+  
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications/unread-count"
+    };
+  }
+  
+  // Preferences Operations
+  rpc GetNotificationPreferences(GetNotificationPreferencesRequest) returns (GetNotificationPreferencesResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications/preferences"
+    };
+  }
+  
+  rpc UpdateNotificationPreferences(UpdateNotificationPreferencesRequest) returns (UpdateNotificationPreferencesResponse) {
+    option (google.api.http) = {
+      put: "/v1/notifications/preferences"
+      body: "*"
+    };
+  }
+}
+
