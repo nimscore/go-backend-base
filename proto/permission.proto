@@ -1,0 +1,96 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "role.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+message UserPermissionsInfo {
+  Permissions calculated_permissions = 1;  // union of all roles
+  repeated UserRoleInfo roles = 2;         // list of user's roles
+  google.protobuf.Timestamp calculated_at = 3;
+}
+
+enum PermissionChangeType {
+  PERMISSION_CHANGE_TYPE_UNSPECIFIED = 0;
+  PERMISSION_CHANGE_TYPE_ROLE_ASSIGNED = 1;
+  PERMISSION_CHANGE_TYPE_ROLE_REMOVED = 2;
+  PERMISSION_CHANGE_TYPE_ROLE_EDITED = 3;
+  PERMISSION_CHANGE_TYPE_COMMUNITY_JOINED = 4;
+  PERMISSION_CHANGE_TYPE_COMMUNITY_LEFT = 5;
+}
+
+message PermissionChangeEvent {
+  PermissionChangeType change_type = 1;
+  UserPermissionsInfo updated_permissions = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// ============================================================================
+// GetUserPermissions (FR-115, FR-117-121)
+// ============================================================================
+
+message GetUserPermissionsRequest {
+  optional string user_id = 1;  // if empty, get current user's permissions
+}
+
+message GetUserPermissionsResponse {
+  UserPermissionsInfo permissions_info = 1;
+}
+
+// ============================================================================
+// GetCommunityPermissions (FR-116, FR-117-121)
+// ============================================================================
+
+message GetCommunityPermissionsRequest {
+  string community_id = 1;
+  optional string user_id = 2;  // if empty, get current user's permissions
+}
+
+message GetCommunityPermissionsResponse {
+  UserPermissionsInfo permissions_info = 1;
+}
+
+// ============================================================================
+// StreamPermissions (FR-122-125) - gRPC Server-Side Streaming
+// ============================================================================
+
+message StreamPermissionsRequest {
+  optional string community_id = 1;  // if empty, stream platform permissions
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service PermissionService {
+  // Get Permissions
+  rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/permissions/platform"
+      additional_bindings {
+        get: "/v1/users/{user_id}/permissions/platform"
+      }
+    };
+  }
+  
+  rpc GetCommunityPermissions(GetCommunityPermissionsRequest) returns (GetCommunityPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/permissions/communities/{community_id}"
+      additional_bindings {
+        get: "/v1/users/{user_id}/permissions/communities/{community_id}"
+      }
+    };
+  }
+  
+  // Real-time Streaming (gRPC Server-Side Streaming)
+  rpc StreamPermissions(StreamPermissionsRequest) returns (stream PermissionChangeEvent) {
+    // No HTTP mapping - gRPC streaming only
+  }
+}
+

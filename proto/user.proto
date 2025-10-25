@@ -1,0 +1,212 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+message UserProfile {
+  string id = 1;
+  string username = 2;
+  string avatar_url = 3;
+  string banner_url = 4;
+  string description = 5;
+  int32 reputation = 6;
+  int32 follower_count = 7;
+  int32 following_count = 8;
+  bool is_banned = 9;
+  bool is_following = 10;  // if current user follows this user
+  google.protobuf.Timestamp created_at = 11;
+}
+
+message CurrentUserProfile {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  bool email_verified = 4;
+  string avatar_url = 5;
+  string banner_url = 6;
+  string description = 7;
+  int32 reputation = 8;
+  int32 follower_count = 9;
+  int32 following_count = 10;
+  int32 joined_communities_count = 11;
+  int32 active_sessions_count = 12;
+  google.protobuf.Timestamp created_at = 13;
+}
+
+message UserStatistics {
+  int32 total_posts = 1;
+  int32 total_comments = 2;
+  int32 total_likes_received = 3;
+  int32 post_likes = 4;
+  int32 comment_likes = 5;
+  int32 communities_created = 6;
+  int32 communities_joined = 7;
+}
+
+// ============================================================================
+// GetUser (FR-303, FR-307, FR-313, FR-314)
+// ============================================================================
+
+message GetUserRequest {
+  string user_id = 1;  // or username
+}
+
+message GetUserResponse {
+  UserProfile user = 1;
+}
+
+// ============================================================================
+// GetCurrentUser (FR-304, FR-308)
+// ============================================================================
+
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  CurrentUserProfile user = 1;
+}
+
+// ============================================================================
+// UpdateProfile (FR-305, FR-309, FR-310, FR-311)
+// ============================================================================
+
+message UpdateProfileRequest {
+  optional string avatar_url = 1;    // S3 URL from presigned upload
+  optional string banner_url = 2;    // S3 URL from presigned upload
+  optional string description = 3;   // max 500 chars
+}
+
+message UpdateProfileResponse {
+  CurrentUserProfile user = 1;
+}
+
+// ============================================================================
+// GetUserStatistics (FR-306, FR-312)
+// ============================================================================
+
+message GetUserStatisticsRequest {
+  string user_id = 1;
+}
+
+message GetUserStatisticsResponse {
+  UserStatistics statistics = 1;
+}
+
+// ============================================================================
+// FollowUser (FR-187, FR-191, FR-194, FR-202, FR-203)
+// ============================================================================
+
+message FollowUserRequest {
+  string user_id = 1;
+}
+
+message FollowUserResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// UnfollowUser (FR-188, FR-192, FR-204)
+// ============================================================================
+
+message UnfollowUserRequest {
+  string user_id = 1;
+}
+
+message UnfollowUserResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ListFollowers (FR-189, FR-193)
+// ============================================================================
+
+message ListFollowersRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListFollowersResponse {
+  repeated UserProfile users = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// ListFollowing (FR-190, FR-193)
+// ============================================================================
+
+message ListFollowingRequest {
+  string user_id = 1;
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListFollowingResponse {
+  repeated UserProfile users = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service UserService {
+  // Profile Operations
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}"
+    };
+  }
+  
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/me"
+    };
+  }
+  
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      patch: "/v1/users/me"
+      body: "*"
+    };
+  }
+  
+  rpc GetUserStatistics(GetUserStatisticsRequest) returns (GetUserStatisticsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}/statistics"
+    };
+  }
+  
+  // Follow Operations
+  rpc FollowUser(FollowUserRequest) returns (FollowUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/{user_id}/follow"
+    };
+  }
+  
+  rpc UnfollowUser(UnfollowUserRequest) returns (UnfollowUserResponse) {
+    option (google.api.http) = {
+      delete: "/v1/users/{user_id}/follow"
+    };
+  }
+  
+  rpc ListFollowers(ListFollowersRequest) returns (ListFollowersResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}/followers"
+    };
+  }
+  
+  rpc ListFollowing(ListFollowingRequest) returns (ListFollowingResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}/following"
+    };
+  }
+}
+

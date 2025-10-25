@@ -1,0 +1,147 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+message PlatformSettings {
+  string name = 1;
+  string description = 2;
+  string rules = 3;
+  string logo_url = 4;
+  string banner_url = 5;
+  string auth_banner_url = 6;
+  string owner_id = 7;
+  string owner_username = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message PlatformStatistics {
+  int32 total_users = 1;
+  int32 verified_users = 2;
+  int32 total_communities = 3;
+  int32 total_posts = 4;
+  int32 total_comments = 5;
+  
+  // Report statistics
+  int32 pending_reports = 6;
+  int32 resolved_reports = 7;
+  int32 dismissed_reports = 8;
+  
+  // Activity statistics
+  int32 active_users_24h = 9;
+  int32 active_users_7d = 10;
+  int32 active_users_30d = 11;
+  
+  google.protobuf.Timestamp calculated_at = 12;
+}
+
+// ============================================================================
+// GetPlatformSettings (FR-315, FR-317-319)
+// ============================================================================
+
+message GetPlatformSettingsRequest {}
+
+message GetPlatformSettingsResponse {
+  PlatformSettings settings = 1;
+}
+
+// ============================================================================
+// UpdatePlatformSettings (FR-316, FR-320-323)
+// ============================================================================
+
+message UpdatePlatformSettingsRequest {
+  optional string name = 1;          // 3-100 chars
+  optional string description = 2;   // max 1000 chars
+  optional string rules = 3;
+  optional string logo_url = 4;
+  optional string banner_url = 5;
+  optional string auth_banner_url = 6;
+}
+
+message UpdatePlatformSettingsResponse {
+  PlatformSettings settings = 1;
+}
+
+// ============================================================================
+// GetPlatformStatistics (FR-317, FR-324-326)
+// ============================================================================
+
+message GetPlatformStatisticsRequest {}
+
+message GetPlatformStatisticsResponse {
+  PlatformStatistics statistics = 1;
+}
+
+// ============================================================================
+// TransferPlatformOwnership (FR-106-108)
+// ============================================================================
+
+message TransferPlatformOwnershipRequest {
+  string new_owner_id = 1;
+}
+
+message TransferPlatformOwnershipResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ConfirmPlatformOwnership (FR-108)
+// ============================================================================
+
+message ConfirmPlatformOwnershipRequest {
+  string token = 1;
+}
+
+message ConfirmPlatformOwnershipResponse {
+  string message = 1;
+  PlatformSettings settings = 2;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service PlatformService {
+  // Settings Operations
+  rpc GetPlatformSettings(GetPlatformSettingsRequest) returns (GetPlatformSettingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/platform/settings"
+    };
+  }
+  
+  rpc UpdatePlatformSettings(UpdatePlatformSettingsRequest) returns (UpdatePlatformSettingsResponse) {
+    option (google.api.http) = {
+      patch: "/v1/platform/settings"
+      body: "*"
+    };
+  }
+  
+  // Statistics Operations
+  rpc GetPlatformStatistics(GetPlatformStatisticsRequest) returns (GetPlatformStatisticsResponse) {
+    option (google.api.http) = {
+      get: "/v1/platform/statistics"
+    };
+  }
+  
+  // Ownership Operations
+  rpc TransferPlatformOwnership(TransferPlatformOwnershipRequest) returns (TransferPlatformOwnershipResponse) {
+    option (google.api.http) = {
+      post: "/v1/platform/transfer-ownership"
+      body: "*"
+    };
+  }
+  
+  rpc ConfirmPlatformOwnership(ConfirmPlatformOwnershipRequest) returns (ConfirmPlatformOwnershipResponse) {
+    option (google.api.http) = {
+      post: "/v1/platform/confirm-ownership"
+      body: "*"
+    };
+  }
+}
+

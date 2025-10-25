@@ -1,0 +1,189 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum MuteDuration {
+  MUTE_DURATION_UNSPECIFIED = 0;
+  MUTE_DURATION_1_HOUR = 1;
+  MUTE_DURATION_24_HOURS = 2;
+  MUTE_DURATION_7_DAYS = 3;
+  MUTE_DURATION_30_DAYS = 4;
+  MUTE_DURATION_PERMANENT = 5;
+}
+
+message ModerationAction {
+  string id = 1;
+  string moderator_id = 2;
+  string moderator_username = 3;
+  string target_user_id = 4;
+  string target_username = 5;
+  string action_type = 6;  // ban, unban, mute, unmute
+  string reason = 7;
+  optional string community_id = 8;  // only for community-specific actions
+  google.protobuf.Timestamp created_at = 9;
+}
+
+// ============================================================================
+// BanUser (FR-254, FR-260-262)
+// ============================================================================
+
+message BanUserRequest {
+  string user_id = 1;
+  string reason = 2;
+}
+
+message BanUserResponse {
+  string message = 1;
+  ModerationAction action = 2;
+}
+
+// ============================================================================
+// UnbanUser (FR-255)
+// ============================================================================
+
+message UnbanUserRequest {
+  string user_id = 1;
+}
+
+message UnbanUserResponse {
+  string message = 1;
+  ModerationAction action = 2;
+}
+
+// ============================================================================
+// BanUserInCommunity (FR-256, FR-263)
+// ============================================================================
+
+message BanUserInCommunityRequest {
+  string user_id = 1;
+  string community_id = 2;
+  string reason = 3;
+}
+
+message BanUserInCommunityResponse {
+  string message = 1;
+  ModerationAction action = 2;
+}
+
+// ============================================================================
+// UnbanUserInCommunity (FR-257)
+// ============================================================================
+
+message UnbanUserInCommunityRequest {
+  string user_id = 1;
+  string community_id = 2;
+}
+
+message UnbanUserInCommunityResponse {
+  string message = 1;
+  ModerationAction action = 2;
+}
+
+// ============================================================================
+// MuteUserInCommunity (FR-258, FR-264-266)
+// ============================================================================
+
+message MuteUserInCommunityRequest {
+  string user_id = 1;
+  string community_id = 2;
+  MuteDuration duration = 3;
+  string reason = 4;
+}
+
+message MuteUserInCommunityResponse {
+  string message = 1;
+  google.protobuf.Timestamp muted_until = 2;
+  ModerationAction action = 3;
+}
+
+// ============================================================================
+// UnmuteUserInCommunity (FR-259)
+// ============================================================================
+
+message UnmuteUserInCommunityRequest {
+  string user_id = 1;
+  string community_id = 2;
+}
+
+message UnmuteUserInCommunityResponse {
+  string message = 1;
+  ModerationAction action = 2;
+}
+
+// ============================================================================
+// ListModerationLogs (FR-267)
+// ============================================================================
+
+message ListModerationLogsRequest {
+  optional string community_id = 1;  // if empty, platform-wide logs
+  string cursor = 2;
+  int32 limit = 3;
+}
+
+message ListModerationLogsResponse {
+  repeated ModerationAction actions = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service ModerationService {
+  // Platform-wide Moderation
+  rpc BanUser(BanUserRequest) returns (BanUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/users/{user_id}/ban"
+      body: "*"
+    };
+  }
+  
+  rpc UnbanUser(UnbanUserRequest) returns (UnbanUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/users/{user_id}/unban"
+    };
+  }
+  
+  // Community-specific Moderation
+  rpc BanUserInCommunity(BanUserInCommunityRequest) returns (BanUserInCommunityResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/communities/{community_id}/users/{user_id}/ban"
+      body: "*"
+    };
+  }
+  
+  rpc UnbanUserInCommunity(UnbanUserInCommunityRequest) returns (UnbanUserInCommunityResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/communities/{community_id}/users/{user_id}/unban"
+    };
+  }
+  
+  rpc MuteUserInCommunity(MuteUserInCommunityRequest) returns (MuteUserInCommunityResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/communities/{community_id}/users/{user_id}/mute"
+      body: "*"
+    };
+  }
+  
+  rpc UnmuteUserInCommunity(UnmuteUserInCommunityRequest) returns (UnmuteUserInCommunityResponse) {
+    option (google.api.http) = {
+      post: "/v1/moderation/communities/{community_id}/users/{user_id}/unmute"
+    };
+  }
+  
+  // Moderation Logs
+  rpc ListModerationLogs(ListModerationLogsRequest) returns (ListModerationLogsResponse) {
+    option (google.api.http) = {
+      get: "/v1/moderation/logs"
+    };
+  }
+}
+

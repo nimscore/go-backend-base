@@ -1,0 +1,163 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum ReportReason {
+  REPORT_REASON_UNSPECIFIED = 0;
+  REPORT_REASON_SPAM = 1;
+  REPORT_REASON_HARASSMENT = 2;
+  REPORT_REASON_MISINFORMATION = 3;
+  REPORT_REASON_EXPLICIT_CONTENT = 4;
+  REPORT_REASON_VIOLENCE = 5;
+  REPORT_REASON_HATE_SPEECH = 6;
+  REPORT_REASON_OTHER = 7;
+}
+
+enum ReportStatus {
+  REPORT_STATUS_UNSPECIFIED = 0;
+  REPORT_STATUS_PENDING = 1;
+  REPORT_STATUS_RESOLVED = 2;
+  REPORT_STATUS_DISMISSED = 3;
+}
+
+enum ReportedContentType {
+  REPORTED_CONTENT_TYPE_UNSPECIFIED = 0;
+  REPORTED_CONTENT_TYPE_POST = 1;
+  REPORTED_CONTENT_TYPE_COMMENT = 2;
+}
+
+message Report {
+  string id = 1;
+  string reporter_id = 2;
+  string reporter_username = 3;
+  ReportedContentType content_type = 4;
+  string content_id = 5;
+  ReportReason reason = 6;
+  string description = 7;
+  ReportStatus status = 8;
+  optional string resolver_id = 9;
+  optional string resolver_username = 10;
+  optional string resolution_note = 11;
+  google.protobuf.Timestamp created_at = 12;
+  optional google.protobuf.Timestamp resolved_at = 13;
+}
+
+// ============================================================================
+// CreateReport (FR-368-375, FR-496-503)
+// ============================================================================
+
+message CreateReportRequest {
+  ReportedContentType content_type = 1;
+  string content_id = 2;
+  ReportReason reason = 3;
+  string description = 4;  // 10-1000 chars
+}
+
+message CreateReportResponse {
+  Report report = 1;
+}
+
+// ============================================================================
+// GetReport (FR-151)
+// ============================================================================
+
+message GetReportRequest {
+  string report_id = 1;
+}
+
+message GetReportResponse {
+  Report report = 1;
+}
+
+// ============================================================================
+// ListReports (FR-150, FR-154, FR-155)
+// ============================================================================
+
+message ListReportsRequest {
+  optional ReportStatus status_filter = 1;
+  optional ReportedContentType content_type_filter = 2;
+  string cursor = 3;
+  int32 limit = 4;
+}
+
+message ListReportsResponse {
+  repeated Report reports = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// ResolveReport (FR-152, FR-156)
+// ============================================================================
+
+message ResolveReportRequest {
+  string report_id = 1;
+  optional string resolution_note = 2;
+}
+
+message ResolveReportResponse {
+  Report report = 1;
+}
+
+// ============================================================================
+// DismissReport (FR-153, FR-156)
+// ============================================================================
+
+message DismissReportRequest {
+  string report_id = 1;
+  optional string dismissal_reason = 2;
+}
+
+message DismissReportResponse {
+  Report report = 1;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service ReportService {
+  // Create Report
+  rpc CreateReport(CreateReportRequest) returns (CreateReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/reports"
+      body: "*"
+    };
+  }
+  
+  // View Reports
+  rpc GetReport(GetReportRequest) returns (GetReportResponse) {
+    option (google.api.http) = {
+      get: "/v1/reports/{report_id}"
+    };
+  }
+  
+  rpc ListReports(ListReportsRequest) returns (ListReportsResponse) {
+    option (google.api.http) = {
+      get: "/v1/reports"
+    };
+  }
+  
+  // Resolve Reports
+  rpc ResolveReport(ResolveReportRequest) returns (ResolveReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/reports/{report_id}/resolve"
+      body: "*"
+    };
+  }
+  
+  rpc DismissReport(DismissReportRequest) returns (DismissReportResponse) {
+    option (google.api.http) = {
+      post: "/v1/reports/{report_id}/dismiss"
+      body: "*"
+    };
+  }
+}
+

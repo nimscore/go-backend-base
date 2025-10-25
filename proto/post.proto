@@ -1,0 +1,280 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum PostStatus {
+  POST_STATUS_UNSPECIFIED = 0;
+  POST_STATUS_DRAFT = 1;
+  POST_STATUS_PUBLISHED = 2;
+}
+
+message Post {
+  string id = 1;
+  string author_id = 2;
+  string author_username = 3;
+  string community_id = 4;
+  string community_name = 5;
+  string title = 6;
+  google.protobuf.Struct content = 7;  // JSON content
+  PostStatus status = 8;
+  int32 like_count = 9;
+  int32 comment_count = 10;
+  bool is_liked_by_me = 11;
+  bool is_bookmarked_by_me = 12;
+  google.protobuf.Timestamp published_at = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
+}
+
+// ============================================================================
+// CreatePost (FR-327-334)
+// ============================================================================
+
+message CreatePostRequest {
+  string community_id = 1;
+  string title = 2;           // 3-300 chars
+  google.protobuf.Struct content = 3;  // JSON
+  PostStatus status = 4;      // draft or published
+}
+
+message CreatePostResponse {
+  Post post = 1;
+}
+
+// ============================================================================
+// GetPost (FR-208, FR-213)
+// ============================================================================
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostResponse {
+  Post post = 1;
+}
+
+// ============================================================================
+// UpdatePost (FR-376-383)
+// ============================================================================
+
+message UpdatePostRequest {
+  string post_id = 1;
+  optional string title = 2;
+  optional google.protobuf.Struct content = 3;
+}
+
+message UpdatePostResponse {
+  Post post = 1;
+}
+
+// ============================================================================
+// DeletePost (FR-209)
+// ============================================================================
+
+message DeletePostRequest {
+  string post_id = 1;
+}
+
+message DeletePostResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// PublishPost (FR-210)
+// ============================================================================
+
+message PublishPostRequest {
+  string post_id = 1;
+}
+
+message PublishPostResponse {
+  Post post = 1;
+}
+
+// ============================================================================
+// UnpublishPost (FR-211)
+// ============================================================================
+
+message UnpublishPostRequest {
+  string post_id = 1;
+}
+
+message UnpublishPostResponse {
+  Post post = 1;
+}
+
+// ============================================================================
+// ListUserPosts (FR-212, FR-214, FR-215)
+// ============================================================================
+
+message ListUserPostsRequest {
+  string user_id = 1;
+  optional PostStatus status_filter = 2;  // all, draft, published
+  string cursor = 3;
+  int32 limit = 4;
+}
+
+message ListUserPostsResponse {
+  repeated Post posts = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// LikePost (FR-171, FR-175, FR-177, FR-178)
+// ============================================================================
+
+message LikePostRequest {
+  string post_id = 1;
+}
+
+message LikePostResponse {
+  string message = 1;
+  int32 new_like_count = 2;
+}
+
+// ============================================================================
+// UnlikePost (FR-172, FR-176)
+// ============================================================================
+
+message UnlikePostRequest {
+  string post_id = 1;
+}
+
+message UnlikePostResponse {
+  string message = 1;
+  int32 new_like_count = 2;
+}
+
+// ============================================================================
+// BookmarkPost (FR-165, FR-169)
+// ============================================================================
+
+message BookmarkPostRequest {
+  string post_id = 1;
+}
+
+message BookmarkPostResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// RemoveBookmark (FR-166)
+// ============================================================================
+
+message RemoveBookmarkRequest {
+  string post_id = 1;
+}
+
+message RemoveBookmarkResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ListBookmarks (FR-167, FR-168, FR-170)
+// ============================================================================
+
+message ListBookmarksRequest {
+  string cursor = 1;
+  int32 limit = 2;
+}
+
+message ListBookmarksResponse {
+  repeated Post posts = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service PostService {
+  // CRUD Operations
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {
+    option (google.api.http) = {
+      post: "/v1/posts"
+      body: "*"
+    };
+  }
+  
+  rpc GetPost(GetPostRequest) returns (GetPostResponse) {
+    option (google.api.http) = {
+      get: "/v1/posts/{post_id}"
+    };
+  }
+  
+  rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
+    option (google.api.http) = {
+      patch: "/v1/posts/{post_id}"
+      body: "*"
+    };
+  }
+  
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse) {
+    option (google.api.http) = {
+      delete: "/v1/posts/{post_id}"
+    };
+  }
+  
+  // Status Management
+  rpc PublishPost(PublishPostRequest) returns (PublishPostResponse) {
+    option (google.api.http) = {
+      post: "/v1/posts/{post_id}/publish"
+    };
+  }
+  
+  rpc UnpublishPost(UnpublishPostRequest) returns (UnpublishPostResponse) {
+    option (google.api.http) = {
+      post: "/v1/posts/{post_id}/unpublish"
+    };
+  }
+  
+  // List Operations
+  rpc ListUserPosts(ListUserPostsRequest) returns (ListUserPostsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}/posts"
+    };
+  }
+  
+  // Like Operations
+  rpc LikePost(LikePostRequest) returns (LikePostResponse) {
+    option (google.api.http) = {
+      post: "/v1/posts/{post_id}/like"
+    };
+  }
+  
+  rpc UnlikePost(UnlikePostRequest) returns (UnlikePostResponse) {
+    option (google.api.http) = {
+      delete: "/v1/posts/{post_id}/like"
+    };
+  }
+  
+  // Bookmark Operations
+  rpc BookmarkPost(BookmarkPostRequest) returns (BookmarkPostResponse) {
+    option (google.api.http) = {
+      post: "/v1/posts/{post_id}/bookmark"
+    };
+  }
+  
+  rpc RemoveBookmark(RemoveBookmarkRequest) returns (RemoveBookmarkResponse) {
+    option (google.api.http) = {
+      delete: "/v1/posts/{post_id}/bookmark"
+    };
+  }
+  
+  rpc ListBookmarks(ListBookmarksRequest) returns (ListBookmarksResponse) {
+    option (google.api.http) = {
+      get: "/v1/bookmarks"
+    };
+  }
+}
+
