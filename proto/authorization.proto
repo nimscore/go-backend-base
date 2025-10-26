@@ -3,7 +3,6 @@ package proto;
 option go_package = "/proto";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
 // ============================================================================
@@ -11,25 +10,25 @@ import "google/api/annotations.proto";
 // ============================================================================
 
 message User {
-  string id = 1;
-  string username = 2;
-  string email = 3;
-  string avatar_url = 4;
-  string banner_url = 5;
-  string description = 6;
-  int32 reputation = 7;
-  bool is_verified = 8;
-  bool is_banned = 9;
+  string id                            = 1;
+  string username                      = 2;
+  string email                         = 3;
+  string avatar_url                    = 4;
+  string banner_url                    = 5;
+  string description                   = 6;
+  int32 reputation                     = 7;
+  bool is_verified                     = 8;
+  bool is_banned                       = 9;
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
 }
 
 message Session {
-  string session_id = 1;
-  string device_info = 2;
-  string ip_address = 3;
+  string session_id                       = 1;
+  string device_info                      = 2;
+  string ip_address                       = 3;
   google.protobuf.Timestamp last_activity = 4;
-  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp created_at    = 5;
 }
 
 // ============================================================================
@@ -38,7 +37,7 @@ message Session {
 
 message RegisterRequest {
   string username = 1;
-  string email = 2;
+  string email    = 2;
   string password = 3;  // min 12 chars, checked against Have I Been Pwned
 }
 
@@ -52,13 +51,13 @@ message RegisterResponse {
 // ============================================================================
 
 message LoginRequest {
-  string email = 1;
+  string email    = 1;
   string password = 2;
 }
 
 message LoginResponse {
-  User user = 1;
-  string access_token = 2;   // 15 min expiration
+  User user            = 1;
+  string access_token  = 2;  // 15 min expiration
   string refresh_token = 3;  // 7 days expiration
 }
 
@@ -81,7 +80,7 @@ message RefreshTokenRequest {
 }
 
 message RefreshTokenResponse {
-  string access_token = 1;   // new 15 min token
+  string access_token  = 1;  // new 15 min token
   string refresh_token = 2;  // new 7 days token
 }
 
@@ -95,7 +94,7 @@ message VerifyEmailRequest {
 
 message VerifyEmailResponse {
   string message = 1;
-  User user = 2;
+  User user      = 2;
 }
 
 // ============================================================================
@@ -111,15 +110,15 @@ message RequestPasswordResetResponse {
 }
 
 // ============================================================================
-// ResetPassword (FR-286)
+// ConfirmResetPassword (FR-286)
 // ============================================================================
 
-message ResetPasswordRequest {
-  string token = 1;
+message ConfirmResetPasswordRequest {
+  string token        = 1;
   string new_password = 2;  // same requirements as registration
 }
 
-message ResetPasswordResponse {
+message ConfirmResetPasswordResponse {
   string message = 1;
 }
 
@@ -152,13 +151,13 @@ message GetCurrentSessionResponse {
 
 message ListActiveSessionsRequest {
   string cursor = 1;
-  int32 limit = 2;
+  int32 limit   = 2;
 }
 
 message ListActiveSessionsResponse {
   repeated Session sessions = 1;
-  string next_cursor = 2;
-  bool has_more = 3;
+  string next_cursor        = 2;
+  bool has_more             = 3;
 }
 
 // ============================================================================
@@ -181,77 +180,77 @@ service AuthorizationService {
   // Registration and Login
   rpc Register(RegisterRequest) returns (RegisterResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/register"
+      post: "/auth/register"
       body: "*"
     };
   }
-  
+
   rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/login"
+      post: "/auth/login"
       body: "*"
     };
   }
-  
+
   rpc Logout(LogoutRequest) returns (LogoutResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/logout"
+      post: "/auth/logout"
     };
   }
-  
+
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/refresh"
+      post: "/auth/refresh"
       body: "*"
     };
   }
-  
+
   // Email Verification
   rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/verify-email"
+      post: "/auth/verify-email"
       body: "*"
     };
   }
-  
+
   // Password Recovery
   rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/password-reset/request"
+      post: "/auth/password-reset/request"
       body: "*"
     };
   }
-  
-  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+
+  rpc ConfirmPasswordReset(ConfirmResetPasswordRequest) returns (ConfirmResetPasswordResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/password-reset/confirm"
+      post: "/auth/password-reset/confirm"
       body: "*"
     };
   }
-  
+
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/change-password"
+      post: "/auth/change-password"
       body: "*"
     };
   }
-  
+
   // Session Management
   rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse) {
     option (google.api.http) = {
-      get: "/v1/auth/session"
+      get: "/auth/session"
     };
   }
-  
+
   rpc ListActiveSessions(ListActiveSessionsRequest) returns (ListActiveSessionsResponse) {
     option (google.api.http) = {
-      get: "/v1/auth/sessions"
+      get: "/auth/sessions"
     };
   }
-  
+
   rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse) {
     option (google.api.http) = {
-      delete: "/v1/auth/sessions/{session_id}"
+      delete: "/auth/sessions/{session_id}"
     };
   }
 }

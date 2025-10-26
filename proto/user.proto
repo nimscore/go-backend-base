@@ -2,6 +2,8 @@ syntax = "proto3";
 package proto;
 option go_package = "/proto";
 
+import "entity.proto";
+
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
@@ -10,64 +12,64 @@ import "google/api/annotations.proto";
 // ============================================================================
 
 message UserProfile {
-  string id = 1;
-  string username = 2;
-  string avatar_url = 3;
-  string banner_url = 4;
-  string description = 5;
-  int32 reputation = 6;
-  int32 follower_count = 7;
-  int32 following_count = 8;
-  bool is_banned = 9;
-  bool is_following = 10;  // if current user follows this user
+  string id                            = 1;
+  string username                      = 2;
+  string avatar_url                    = 3;
+  string banner_url                    = 4;
+  string description                   = 5;
+  int32 reputation                     = 6;
+  int32 follower_count                 = 7;
+  int32 following_count                = 8;
+  bool is_banned                       = 9;
+  bool is_following                    = 10;  // if current user follows this user
   google.protobuf.Timestamp created_at = 11;
 }
 
 message CurrentUserProfile {
-  string id = 1;
-  string username = 2;
-  string email = 3;
-  bool email_verified = 4;
-  string avatar_url = 5;
-  string banner_url = 6;
-  string description = 7;
-  int32 reputation = 8;
-  int32 follower_count = 9;
-  int32 following_count = 10;
-  int32 joined_communities_count = 11;
-  int32 active_sessions_count = 12;
+  string id                            = 1;
+  string username                      = 2;
+  string email                         = 3;
+  bool email_verified                  = 4;
+  string avatar_url                    = 5;
+  string banner_url                    = 6;
+  string description                   = 7;
+  int32 reputation                     = 8;
+  int32 follower_count                 = 9;
+  int32 following_count                = 10;
+  int32 joined_communities_count       = 11;
+  int32 active_sessions_count          = 12;
   google.protobuf.Timestamp created_at = 13;
 }
 
 message UserStatistics {
-  int32 total_posts = 1;
-  int32 total_comments = 2;
+  int32 total_posts          = 1;
+  int32 total_comments       = 2;
   int32 total_likes_received = 3;
-  int32 post_likes = 4;
-  int32 comment_likes = 5;
-  int32 communities_created = 6;
-  int32 communities_joined = 7;
+  int32 post_likes           = 4;
+  int32 comment_likes        = 5;
+  int32 communities_created  = 6;
+  int32 communities_joined   = 7;
 }
 
 // ============================================================================
-// GetUser (FR-303, FR-307, FR-313, FR-314)
+// Get (FR-303, FR-307, FR-313, FR-314)
 // ============================================================================
 
-message GetUserRequest {
+message GetRequest {
   string user_id = 1;  // or username
 }
 
-message GetUserResponse {
+message GetResponse {
   UserProfile user = 1;
 }
 
 // ============================================================================
-// GetCurrentUser (FR-304, FR-308)
+// GetCurrent (FR-304, FR-308)
 // ============================================================================
 
-message GetCurrentUserRequest {}
+message GetCurrentRequest {}
 
-message GetCurrentUserResponse {
+message GetCurrentResponse {
   CurrentUserProfile user = 1;
 }
 
@@ -76,9 +78,9 @@ message GetCurrentUserResponse {
 // ============================================================================
 
 message UpdateProfileRequest {
-  optional string avatar_url = 1;    // S3 URL from presigned upload
-  optional string banner_url = 2;    // S3 URL from presigned upload
-  optional string description = 3;   // max 500 chars
+  optional string avatar_url  = 1;  // S3 URL from presigned upload
+  optional string banner_url  = 2;  // S3 URL from presigned upload
+  optional string description = 3;  // max 500 chars
 }
 
 message UpdateProfileResponse {
@@ -86,38 +88,93 @@ message UpdateProfileResponse {
 }
 
 // ============================================================================
-// GetUserStatistics (FR-306, FR-312)
+// GetStatistics (FR-306, FR-312)
 // ============================================================================
 
-message GetUserStatisticsRequest {
+message GetStatisticsRequest {
   string user_id = 1;
 }
 
-message GetUserStatisticsResponse {
+message GetStatisticsResponse {
   UserStatistics statistics = 1;
 }
 
 // ============================================================================
-// FollowUser (FR-187, FR-191, FR-194, FR-202, FR-203)
+// ListCommunities (FR-227, FR-232)
 // ============================================================================
 
-message FollowUserRequest {
+message ListCommunitiesRequest {
+  string user_id = 1;
+  string cursor  = 2;
+  int32 limit    = 3;
+}
+
+message ListCommunitiesResponse {
+  repeated Community communities = 1;
+  string next_cursor             = 2;
+  bool has_more                  = 3;
+}
+
+// ============================================================================
+// ListPosts (FR-212, FR-214, FR-215)
+// ============================================================================
+
+message ListPostsRequest {
+  string user_id                    = 1;
+  optional PostStatus status_filter = 2;  // all, draft, published
+  string cursor                     = 3;
+  int32 limit                       = 4;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  string next_cursor  = 2;
+  bool has_more       = 3;
+}
+
+// ============================================================================
+// ListComments (FR-218, FR-222, FR-223)
+// ============================================================================
+
+message CommentWithPostInfo {
+  Comment comment   = 1;
+  string post_id    = 2;
+  string post_title = 3;
+}
+
+message ListCommentsRequest {
+  string user_id = 1;
+  string cursor  = 2;
+  int32 limit    = 3;
+}
+
+message ListCommentsResponse {
+  repeated CommentWithPostInfo comments = 1;
+  string next_cursor                    = 2;
+  bool has_more                         = 3;
+}
+
+// ============================================================================
+// Follow (FR-187, FR-191, FR-194, FR-202, FR-203)
+// ============================================================================
+
+message FollowRequest {
   string user_id = 1;
 }
 
-message FollowUserResponse {
+message FollowResponse {
   string message = 1;
 }
 
 // ============================================================================
-// UnfollowUser (FR-188, FR-192, FR-204)
+// Unfollow (FR-188, FR-192, FR-204)
 // ============================================================================
 
-message UnfollowUserRequest {
+message UnfollowRequest {
   string user_id = 1;
 }
 
-message UnfollowUserResponse {
+message UnfollowResponse {
   string message = 1;
 }
 
@@ -127,14 +184,14 @@ message UnfollowUserResponse {
 
 message ListFollowersRequest {
   string user_id = 1;
-  string cursor = 2;
-  int32 limit = 3;
+  string cursor  = 2;
+  int32 limit    = 3;
 }
 
 message ListFollowersResponse {
   repeated UserProfile users = 1;
-  string next_cursor = 2;
-  bool has_more = 3;
+  string next_cursor         = 2;
+  bool has_more              = 3;
 }
 
 // ============================================================================
@@ -143,14 +200,14 @@ message ListFollowersResponse {
 
 message ListFollowingRequest {
   string user_id = 1;
-  string cursor = 2;
-  int32 limit = 3;
+  string cursor  = 2;
+  int32 limit    = 3;
 }
 
 message ListFollowingResponse {
   repeated UserProfile users = 1;
-  string next_cursor = 2;
-  bool has_more = 3;
+  string next_cursor         = 2;
+  bool has_more              = 3;
 }
 
 // ============================================================================
@@ -159,54 +216,72 @@ message ListFollowingResponse {
 
 service UserService {
   // Profile Operations
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+  rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/v1/users/{user_id}"
+      get: "/users/{user_id}"
     };
   }
-  
-  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
+
+  rpc GetCurrent(GetCurrentRequest) returns (GetCurrentResponse) {
     option (google.api.http) = {
-      get: "/v1/users/me"
+      get: "/users/me"
     };
   }
-  
+
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
     option (google.api.http) = {
-      patch: "/v1/users/me"
+      patch: "/users/me"
       body: "*"
     };
   }
-  
-  rpc GetUserStatistics(GetUserStatisticsRequest) returns (GetUserStatisticsResponse) {
+
+  rpc GetStatistics(GetStatisticsRequest) returns (GetStatisticsResponse) {
     option (google.api.http) = {
-      get: "/v1/users/{user_id}/statistics"
+      get: "/users/{user_id}/statistics"
     };
   }
-  
+
+  // List Operations
+  rpc ListCommunities(ListCommunitiesRequest) returns (ListCommunitiesResponse) {
+    option (google.api.http) = {
+      get: "/users/{user_id}/communities"
+    };
+  }
+
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
+    option (google.api.http) = {
+      get: "/users/{user_id}/posts"
+    };
+  }
+
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+    option (google.api.http) = {
+      get: "/users/{user_id}/comments"
+    };
+  }
+
   // Follow Operations
-  rpc FollowUser(FollowUserRequest) returns (FollowUserResponse) {
+  rpc Follow(FollowRequest) returns (FollowResponse) {
     option (google.api.http) = {
-      post: "/v1/users/{user_id}/follow"
+      post: "/users/{user_id}/follow"
     };
   }
-  
-  rpc UnfollowUser(UnfollowUserRequest) returns (UnfollowUserResponse) {
+
+  rpc Unfollow(UnfollowRequest) returns (UnfollowResponse) {
     option (google.api.http) = {
-      delete: "/v1/users/{user_id}/follow"
+      delete: "/users/{user_id}/follow"
     };
   }
-  
+
   rpc ListFollowers(ListFollowersRequest) returns (ListFollowersResponse) {
     option (google.api.http) = {
-      get: "/v1/users/{user_id}/followers"
+      get: "/users/{user_id}/followers"
     };
   }
-  
+
   rpc ListFollowing(ListFollowingRequest) returns (ListFollowingResponse) {
     option (google.api.http) = {
-      get: "/v1/users/{user_id}/following"
+      get: "/users/{user_id}/following"
     };
   }
 }
-

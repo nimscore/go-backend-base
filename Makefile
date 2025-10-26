@@ -21,7 +21,10 @@ generate-proto:
 		--openapiv2_opt=allow_merge=true \
 		--openapiv2_opt=merge_file_name=api \
 		authorization.proto \
-		community.proto
+		community.proto \
+		entity.proto \
+		post.proto \
+		user.proto
 
 binary-build:
 	go build -o backend ./cmd/backend

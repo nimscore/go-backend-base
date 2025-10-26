@@ -10,6 +10,12 @@
     },
     {
       "name": "CommunityService"
+    },
+    {
+      "name": "PostService"
+    },
+    {
+      "name": "UserService"
     }
   ],
   "consumes": [
@@ -19,7 +25,39 @@
     "application/json"
   ],
   "paths": {
-    "/auth/login": {
+    "/v1/auth/change-password": {
+      "post": {
+        "operationId": "AuthorizationService_ChangePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoChangePasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoChangePasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/login": {
       "post": {
         "operationId": "AuthorizationService_Login",
         "responses": {
@@ -51,15 +89,36 @@
         ]
       }
     },
-    "/auth/logout": {
+    "/v1/auth/logout": {
       "post": {
         "operationId": "AuthorizationService_Logout",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {}
+              "$ref": "#/definitions/protoLogoutResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "AuthorizationService_ResetPassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoResetPasswordResponse"
             }
           },
           "default": {
@@ -75,7 +134,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoLogoutRequest"
+              "$ref": "#/definitions/protoResetPasswordRequest"
             }
           }
         ],
@@ -84,14 +143,47 @@
         ]
       }
     },
-    "/auth/refresh": {
+    "/v1/auth/password-reset/request": {
+      "post": {
+        "summary": "Password Recovery",
+        "operationId": "AuthorizationService_RequestPasswordReset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRequestPasswordResetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoRequestPasswordResetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
       "post": {
         "operationId": "AuthorizationService_RefreshToken",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoRefreshResponse"
+              "$ref": "#/definitions/protoRefreshTokenResponse"
             }
           },
           "default": {
@@ -107,7 +199,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoRefreshRequest"
+              "$ref": "#/definitions/protoRefreshTokenRequest"
             }
           }
         ],
@@ -116,8 +208,9 @@
         ]
       }
     },
-    "/auth/register": {
+    "/v1/auth/register": {
       "post": {
+        "summary": "Registration and Login",
         "operationId": "AuthorizationService_Register",
         "responses": {
           "200": {
@@ -148,14 +241,105 @@
         ]
       }
     },
-    "/auth/validate": {
-      "post": {
-        "operationId": "AuthorizationService_ValidateToken",
+    "/v1/auth/session": {
+      "get": {
+        "summary": "Session Management",
+        "operationId": "AuthorizationService_GetCurrentSession",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoValidateResponse"
+              "$ref": "#/definitions/protoGetCurrentSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/sessions": {
+      "get": {
+        "operationId": "AuthorizationService_ListActiveSessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListActiveSessionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "AuthorizationService_RevokeSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRevokeSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/v1/auth/verify-email": {
+      "post": {
+        "summary": "Email Verification",
+        "operationId": "AuthorizationService_VerifyEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoVerifyEmailResponse"
             }
           },
           "default": {
@@ -171,7 +355,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoValidateRequest"
+              "$ref": "#/definitions/protoVerifyEmailRequest"
             }
           }
         ],
@@ -180,8 +364,9 @@
         ]
       }
     },
-    "/communities": {
+    "/v1/communities": {
       "get": {
+        "summary": "List Operations",
         "operationId": "CommunityService_ListCommunities",
         "responses": {
           "200": {
@@ -199,19 +384,17 @@
         },
         "parameters": [
           {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "limit",
-            "description": "По умолчанию 40",
             "in": "query",
             "required": false,
             "type": "integer",
             "format": "int32"
-          },
-          {
-            "name": "cursor",
-            "description": "ID последнего элемента предыдущей страницы",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "tags": [
@@ -219,12 +402,13 @@
         ]
       },
       "post": {
-        "operationId": "CommunityService_Create",
+        "summary": "CRUD Operations",
+        "operationId": "CommunityService_CreateCommunity",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoCreateResponse"
+              "$ref": "#/definitions/protoCreateCommunityResponse"
             }
           },
           "default": {
@@ -240,7 +424,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoCreateRequest"
+              "$ref": "#/definitions/protoCreateCommunityRequest"
             }
           }
         ],
@@ -249,43 +433,7 @@
         ]
       }
     },
-    "/communities/slug/{slug}": {
-      "get": {
-        "operationId": "CommunityService_GetCommunity2",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/protoGetCommunityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "CommunityService"
-        ]
-      }
-    },
-    "/communities/{id}": {
+    "/v1/communities/{communityId}": {
       "get": {
         "operationId": "CommunityService_GetCommunity",
         "responses": {
@@ -304,15 +452,150 @@
         },
         "parameters": [
           {
-            "name": "id",
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      },
+      "delete": {
+        "operationId": "CommunityService_DeleteCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDeleteCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
-            "name": "slug",
+            "name": "confirm",
+            "description": "must be true",
             "in": "query",
             "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      },
+      "patch": {
+        "operationId": "CommunityService_UpdateCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CommunityServiceUpdateCommunityBody"
+            }
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/v1/communities/{communityId}/ban": {
+      "post": {
+        "summary": "Moderation Operations",
+        "operationId": "CommunityService_BanCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoBanCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CommunityServiceBanCommunityBody"
+            }
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/v1/communities/{communityId}/join": {
+      "post": {
+        "summary": "Membership Operations",
+        "operationId": "CommunityService_JoinCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoJoinCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
@@ -320,26 +603,969 @@
           "CommunityService"
         ]
       }
+    },
+    "/v1/communities/{communityId}/leave": {
+      "post": {
+        "operationId": "CommunityService_LeaveCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoLeaveCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/v1/communities/{communityId}/transfer-ownership": {
+      "post": {
+        "summary": "Ownership Operations",
+        "operationId": "CommunityService_TransferOwnership",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoTransferCommunityOwnershipResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CommunityServiceTransferOwnershipBody"
+            }
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/v1/communities/{communityId}/unban": {
+      "post": {
+        "operationId": "CommunityService_UnbanCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnbanCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/v1/posts": {
+      "post": {
+        "summary": "CRUD Operations",
+        "operationId": "PostService_CreatePost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreatePostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreatePostRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/bookmarks": {
+      "get": {
+        "operationId": "PostService_ListBookmarks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListBookmarksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/{postId}": {
+      "get": {
+        "operationId": "PostService_GetPost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetPostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      },
+      "delete": {
+        "operationId": "PostService_DeletePost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDeletePostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      },
+      "patch": {
+        "operationId": "PostService_UpdatePost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdatePostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostServiceUpdatePostBody"
+            }
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/bookmark": {
+      "delete": {
+        "operationId": "PostService_RemoveBookmark",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRemoveBookmarkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      },
+      "post": {
+        "summary": "Bookmark Operations",
+        "operationId": "PostService_BookmarkPost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoBookmarkPostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/like": {
+      "delete": {
+        "operationId": "PostService_UnlikePost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnlikePostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      },
+      "post": {
+        "summary": "Like Operations",
+        "operationId": "PostService_LikePost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoLikePostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/publish": {
+      "post": {
+        "summary": "Status Management",
+        "operationId": "PostService_PublishPost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoPublishPostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/posts/{postId}/unpublish": {
+      "post": {
+        "operationId": "PostService_UnpublishPost",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnpublishPostResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/v1/users/me": {
+      "get": {
+        "operationId": "UserService_GetCurrentUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetCurrentUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      },
+      "patch": {
+        "operationId": "UserService_UpdateProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoUpdateProfileRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}": {
+      "get": {
+        "summary": "Profile Operations",
+        "operationId": "UserService_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "or username",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/comments": {
+      "get": {
+        "operationId": "UserService_ListUserComments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListUserCommentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/communities": {
+      "get": {
+        "summary": "List Operations",
+        "operationId": "UserService_ListUserCommunities",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListUserCommunitiesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/follow": {
+      "delete": {
+        "operationId": "UserService_UnfollowUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnfollowUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      },
+      "post": {
+        "summary": "Follow Operations",
+        "operationId": "UserService_FollowUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoFollowUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/followers": {
+      "get": {
+        "operationId": "UserService_ListFollowers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListFollowersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/following": {
+      "get": {
+        "operationId": "UserService_ListFollowing",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListFollowingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/posts": {
+      "get": {
+        "operationId": "UserService_ListUserPosts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListUserPostsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "statusFilter",
+            "description": "all, draft, published",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "POST_STATUS_UNSPECIFIED",
+              "POST_STATUS_DRAFT",
+              "POST_STATUS_PUBLISHED"
+            ],
+            "default": "POST_STATUS_UNSPECIFIED"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/{userId}/statistics": {
+      "get": {
+        "operationId": "UserService_GetUserStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetUserStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
     }
   },
   "definitions": {
-    "protoCommunity": {
+    "CommunityServiceBanCommunityBody": {
       "type": "object",
       "properties": {
-        "id": {
+        "reason": {
           "type": "string"
-        },
-        "ownerId": {
+        }
+      }
+    },
+    "CommunityServiceTransferOwnershipBody": {
+      "type": "object",
+      "properties": {
+        "newOwnerId": {
           "type": "string"
-        },
+        }
+      }
+    },
+    "CommunityServiceUpdateCommunityBody": {
+      "type": "object",
+      "properties": {
         "name": {
           "type": "string"
         },
         "description": {
           "type": "string"
         },
-        "slug": {
+        "rules": {
           "type": "string"
+        }
+      }
+    },
+    "PostServiceUpdatePostBody": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object"
+        }
+      }
+    },
+    "protoBanCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoBookmarkPostResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoChangePasswordRequest": {
+      "type": "object",
+      "properties": {
+        "oldPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "protoChangePasswordResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoComment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "authorUsername": {
+          "type": "string"
+        },
+        "authorAvatar": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "parentCommentId": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoMediaAttachment"
+          }
+        },
+        "likeCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isLikedByMe": {
+          "type": "boolean"
+        },
+        "isEdited": {
+          "type": "boolean"
         },
         "createdAt": {
           "type": "string",
@@ -349,16 +1575,32 @@
           "type": "string",
           "format": "date-time"
         }
-      },
-      "title": "Community message"
+      }
     },
-    "protoCreateRequest": {
+    "protoCommentWithPostInfo": {
       "type": "object",
       "properties": {
+        "comment": {
+          "$ref": "#/definitions/protoComment"
+        },
+        "postId": {
+          "type": "string"
+        },
+        "postTitle": {
+          "type": "string"
+        }
+      }
+    },
+    "protoCommunity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
         "ownerId": {
           "type": "string"
         },
-        "slug": {
+        "ownerUsername": {
           "type": "string"
         },
         "name": {
@@ -366,14 +1608,153 @@
         },
         "description": {
           "type": "string"
+        },
+        "rules": {
+          "type": "string"
+        },
+        "memberCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "postCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isBanned": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
-      },
-      "title": "Create Community"
+      }
     },
-    "protoCreateResponse": {
+    "protoCreateCommunityRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "3-50 chars"
+        },
+        "description": {
+          "type": "string",
+          "title": "max 500 chars"
+        },
+        "rules": {
+          "type": "string"
+        }
+      }
+    },
+    "protoCreateCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "community": {
+          "$ref": "#/definitions/protoCommunity"
+        }
+      }
+    },
+    "protoCreatePostRequest": {
+      "type": "object",
+      "properties": {
+        "communityId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "title": "3-300 chars"
+        },
+        "content": {
+          "type": "object",
+          "title": "JSON"
+        },
+        "status": {
+          "$ref": "#/definitions/protoPostStatus",
+          "title": "draft or published"
+        }
+      }
+    },
+    "protoCreatePostResponse": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoCurrentUserProfile": {
       "type": "object",
       "properties": {
         "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "emailVerified": {
+          "type": "boolean"
+        },
+        "avatarUrl": {
+          "type": "string"
+        },
+        "bannerUrl": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "reputation": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "followerCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "followingCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "joinedCommunitiesCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "activeSessionsCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoDeleteCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoDeletePostResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoFollowUserResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
           "type": "string"
         }
       }
@@ -383,6 +1764,110 @@
       "properties": {
         "community": {
           "$ref": "#/definitions/protoCommunity"
+        }
+      }
+    },
+    "protoGetCurrentSessionResponse": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/protoSession"
+        }
+      }
+    },
+    "protoGetCurrentUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/protoCurrentUserProfile"
+        }
+      }
+    },
+    "protoGetPostResponse": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/protoUserProfile"
+        }
+      }
+    },
+    "protoGetUserStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "statistics": {
+          "$ref": "#/definitions/protoUserStatistics"
+        }
+      }
+    },
+    "protoJoinCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoLeaveCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoLikePostResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "newLikeCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protoListActiveSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "sessions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoSession"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListBookmarksResponse": {
+      "type": "object",
+      "properties": {
+        "posts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoPost"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
         }
       }
     },
@@ -397,12 +1882,100 @@
           }
         },
         "nextCursor": {
-          "type": "string",
-          "title": "ID для следующей страницы"
+          "type": "string"
         },
         "hasMore": {
-          "type": "boolean",
-          "title": "Есть ли ещё элементы"
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListFollowersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoUserProfile"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListFollowingResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoUserProfile"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListUserCommentsResponse": {
+      "type": "object",
+      "properties": {
+        "comments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoCommentWithPostInfo"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListUserCommunitiesResponse": {
+      "type": "object",
+      "properties": {
+        "communities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoCommunity"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListUserPostsResponse": {
+      "type": "object",
+      "properties": {
+        "posts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoPost"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
         }
       }
     },
@@ -424,14 +1997,113 @@
           "$ref": "#/definitions/protoUser"
         },
         "accessToken": {
-          "type": "string"
+          "type": "string",
+          "title": "15 min expiration"
         },
         "refreshToken": {
+          "type": "string",
+          "title": "7 days expiration"
+        }
+      }
+    },
+    "protoLogoutResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
           "type": "string"
         }
       }
     },
-    "protoLogoutRequest": {
+    "protoMediaAttachment": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "title": "image, video, audio, gif"
+        },
+        "sizeBytes": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "protoPost": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        },
+        "authorUsername": {
+          "type": "string"
+        },
+        "communityId": {
+          "type": "string"
+        },
+        "communityName": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object",
+          "title": "JSON content"
+        },
+        "status": {
+          "$ref": "#/definitions/protoPostStatus"
+        },
+        "likeCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "commentCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isLikedByMe": {
+          "type": "boolean"
+        },
+        "isBookmarkedByMe": {
+          "type": "boolean"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoPostStatus": {
+      "type": "string",
+      "enum": [
+        "POST_STATUS_UNSPECIFIED",
+        "POST_STATUS_DRAFT",
+        "POST_STATUS_PUBLISHED"
+      ],
+      "default": "POST_STATUS_UNSPECIFIED"
+    },
+    "protoPublishPostResponse": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoRefreshTokenRequest": {
       "type": "object",
       "properties": {
         "refreshToken": {
@@ -439,41 +2111,205 @@
         }
       }
     },
-    "protoRefreshRequest": {
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string"
-        }
-      }
-    },
-    "protoRefreshResponse": {
+    "protoRefreshTokenResponse": {
       "type": "object",
       "properties": {
         "accessToken": {
-          "type": "string"
+          "type": "string",
+          "title": "new 15 min token"
         },
         "refreshToken": {
-          "type": "string"
+          "type": "string",
+          "title": "new 7 days token"
         }
       }
     },
     "protoRegisterRequest": {
       "type": "object",
       "properties": {
-        "slug": {
+        "username": {
           "type": "string"
         },
         "email": {
           "type": "string"
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "title": "min 12 chars, checked against Have I Been Pwned"
         }
       }
     },
     "protoRegisterResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string",
+          "title": "\"Verification email sent\""
+        }
+      }
+    },
+    "protoRemoveBookmarkResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoRequestPasswordResetRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "protoRequestPasswordResetResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "\"Password reset email sent\""
+        }
+      }
+    },
+    "protoResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string",
+          "title": "same requirements as registration"
+        }
+      }
+    },
+    "protoResetPasswordResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoRevokeSessionResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoSession": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "deviceInfo": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "type": "string"
+        },
+        "lastActivity": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoTransferCommunityOwnershipResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoUnbanCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoUnfollowUserResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoUnlikePostResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "newLikeCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protoUnpublishPostResponse": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoUpdateCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "community": {
+          "$ref": "#/definitions/protoCommunity"
+        }
+      }
+    },
+    "protoUpdatePostResponse": {
+      "type": "object",
+      "properties": {
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoUpdateProfileRequest": {
+      "type": "object",
+      "properties": {
+        "avatarUrl": {
+          "type": "string",
+          "title": "S3 URL from presigned upload"
+        },
+        "bannerUrl": {
+          "type": "string",
+          "title": "S3 URL from presigned upload"
+        },
+        "description": {
+          "type": "string",
+          "title": "max 500 chars"
+        }
+      }
+    },
+    "protoUpdateProfileResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/protoCurrentUserProfile"
+        }
+      }
     },
     "protoUser": {
       "type": "object",
@@ -481,19 +2317,29 @@
         "id": {
           "type": "string"
         },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "slug": {
+        "username": {
           "type": "string"
         },
         "email": {
           "type": "string"
         },
+        "avatarUrl": {
+          "type": "string"
+        },
+        "bannerUrl": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "reputation": {
+          "type": "integer",
+          "format": "int32"
+        },
         "isVerified": {
+          "type": "boolean"
+        },
+        "isBanned": {
           "type": "boolean"
         },
         "createdAt": {
@@ -506,22 +2352,98 @@
         }
       }
     },
-    "protoValidateRequest": {
-      "type": "object",
-      "properties": {
-        "accessToken": {
-          "type": "string"
-        }
-      }
-    },
-    "protoValidateResponse": {
+    "protoUserProfile": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
-        "valid": {
+        "username": {
+          "type": "string"
+        },
+        "avatarUrl": {
+          "type": "string"
+        },
+        "bannerUrl": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "reputation": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "followerCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "followingCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isBanned": {
           "type": "boolean"
+        },
+        "isFollowing": {
+          "type": "boolean",
+          "title": "if current user follows this user"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoUserStatistics": {
+      "type": "object",
+      "properties": {
+        "totalPosts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalComments": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalLikesReceived": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "postLikes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "commentLikes": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "communitiesCreated": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "communitiesJoined": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protoVerifyEmailRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "protoVerifyEmailResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/protoUser"
         }
       }
     },
@@ -533,6 +2455,14 @@
         }
       },
       "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",

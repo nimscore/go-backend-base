@@ -2,79 +2,61 @@ syntax = "proto3";
 package proto;
 option go_package = "/proto";
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
+import "entity.proto";
+
 import "google/api/annotations.proto";
 
 // ============================================================================
-// Messages
+// Create (FR-345-354)
 // ============================================================================
 
-message Community {
-  string id = 1;
-  string owner_id = 2;
-  string owner_username = 3;
-  string name = 4;
-  string description = 5;
-  string rules = 6;
-  int32 member_count = 7;
-  int32 post_count = 8;
-  bool is_banned = 9;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
-}
-
-// ============================================================================
-// CreateCommunity (FR-345-354)
-// ============================================================================
-
-message CreateCommunityRequest {
-  string name = 1;         // 3-50 chars
+message CreateRequest {
+  string name        = 1;  // 3-50 chars
   string description = 2;  // max 500 chars
-  string rules = 3;
+  string rules       = 3;
 }
 
-message CreateCommunityResponse {
+message CreateResponse {
   Community community = 1;
 }
 
 // ============================================================================
-// GetCommunity (FR-224, FR-230)
+// Get (FR-224, FR-230)
 // ============================================================================
 
-message GetCommunityRequest {
+message GetRequest {
   string community_id = 1;
 }
 
-message GetCommunityResponse {
+message GetResponse {
   Community community = 1;
 }
 
 // ============================================================================
-// UpdateCommunity (FR-391-399)
+// Update (FR-391-399)
 // ============================================================================
 
-message UpdateCommunityRequest {
-  string community_id = 1;
-  optional string name = 2;
+message UpdateRequest {
+  string community_id         = 1;
+  optional string name        = 2;
   optional string description = 3;
-  optional string rules = 4;
+  optional string rules       = 4;
 }
 
-message UpdateCommunityResponse {
+message UpdateResponse {
   Community community = 1;
 }
 
 // ============================================================================
-// DeleteCommunity (FR-225, FR-236, FR-237)
+// Delete (FR-225, FR-236, FR-237)
 // ============================================================================
 
-message DeleteCommunityRequest {
+message DeleteRequest {
   string community_id = 1;
-  bool confirm = 2;  // must be true
+  bool confirm        = 2;  // must be true
 }
 
-message DeleteCommunityResponse {
+message DeleteResponse {
   string message = 1;
 }
 
@@ -84,77 +66,61 @@ message DeleteCommunityResponse {
 
 message ListCommunitiesRequest {
   string cursor = 1;
-  int32 limit = 2;
+  int32 limit   = 2;
 }
 
 message ListCommunitiesResponse {
   repeated Community communities = 1;
-  string next_cursor = 2;
-  bool has_more = 3;
+  string next_cursor             = 2;
+  bool has_more                  = 3;
 }
 
 // ============================================================================
-// ListUserCommunities (FR-227, FR-232)
+// Join (FR-179, FR-181, FR-183)
 // ============================================================================
 
-message ListUserCommunitiesRequest {
-  string user_id = 1;
-  string cursor = 2;
-  int32 limit = 3;
-}
-
-message ListUserCommunitiesResponse {
-  repeated Community communities = 1;
-  string next_cursor = 2;
-  bool has_more = 3;
-}
-
-// ============================================================================
-// JoinCommunity (FR-179, FR-181, FR-183)
-// ============================================================================
-
-message JoinCommunityRequest {
+message JoinRequest {
   string community_id = 1;
 }
 
-message JoinCommunityResponse {
+message JoinResponse {
   string message = 1;
 }
 
 // ============================================================================
-// LeaveCommunity (FR-180, FR-182, FR-184, FR-185)
+// Leave (FR-180, FR-182, FR-184, FR-185)
 // ============================================================================
 
-message LeaveCommunityRequest {
+message LeaveRequest {
   string community_id = 1;
 }
 
-message LeaveCommunityResponse {
+message LeaveResponse {
   string message = 1;
 }
 
 // ============================================================================
-// BanCommunity (FR-228, FR-233-235)
+// Ban (FR-228, FR-233-235)
 // ============================================================================
 
-message BanCommunityRequest {
+message BanRequest {
   string community_id = 1;
-  string reason = 2;
+  string reason       = 2;
 }
 
-message BanCommunityResponse {
+message BanResponse {
   string message = 1;
 }
 
 // ============================================================================
-// UnbanCommunity (FR-229)
+// Unban (FR-229)
 // ============================================================================
 
-message UnbanCommunityRequest {
+message UnbanRequest {
   string community_id = 1;
 }
 
-message UnbanCommunityResponse {
+message UnbanResponse {
   string message = 1;
 }
 
@@ -162,12 +128,12 @@ message UnbanCommunityResponse {
 // TransferOwnership
 // ============================================================================
 
-message TransferCommunityOwnershipRequest {
+message TransferOwnershipRequest {
   string community_id = 1;
   string new_owner_id = 2;
 }
 
-message TransferCommunityOwnershipResponse {
+message TransferOwnershipResponse {
   string message = 1;
 }
 
@@ -177,76 +143,70 @@ message TransferCommunityOwnershipResponse {
 
 service CommunityService {
   // CRUD Operations
-  rpc CreateCommunity(CreateCommunityRequest) returns (CreateCommunityResponse) {
+  rpc Create(CreateRequest) returns (CreateResponse) {
     option (google.api.http) = {
-      post: "/v1/communities"
+      post: "/communities"
       body: "*"
     };
   }
-  
-  rpc GetCommunity(GetCommunityRequest) returns (GetCommunityResponse) {
+
+  rpc Get(GetRequest) returns (GetResponse) {
     option (google.api.http) = {
-      get: "/v1/communities/{community_id}"
+      get: "/communities/{community_id}"
     };
   }
-  
-  rpc UpdateCommunity(UpdateCommunityRequest) returns (UpdateCommunityResponse) {
+
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/v1/communities/{community_id}"
+      patch: "/communities/{community_id}"
       body: "*"
     };
   }
-  
-  rpc DeleteCommunity(DeleteCommunityRequest) returns (DeleteCommunityResponse) {
+
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/v1/communities/{community_id}"
+      delete: "/communities/{community_id}"
     };
   }
-  
+
   // List Operations
   rpc ListCommunities(ListCommunitiesRequest) returns (ListCommunitiesResponse) {
     option (google.api.http) = {
-      get: "/v1/communities"
+      get: "/communities"
     };
   }
-  
-  rpc ListUserCommunities(ListUserCommunitiesRequest) returns (ListUserCommunitiesResponse) {
-    option (google.api.http) = {
-      get: "/v1/users/{user_id}/communities"
-    };
-  }
-  
+
   // Membership Operations
-  rpc JoinCommunity(JoinCommunityRequest) returns (JoinCommunityResponse) {
+  rpc Join(JoinRequest) returns (JoinResponse) {
     option (google.api.http) = {
-      post: "/v1/communities/{community_id}/join"
+      post: "/communities/{community_id}/join"
     };
   }
-  
-  rpc LeaveCommunity(LeaveCommunityRequest) returns (LeaveCommunityResponse) {
+
+  rpc Leave(LeaveRequest) returns (LeaveResponse) {
     option (google.api.http) = {
-      post: "/v1/communities/{community_id}/leave"
+      post: "/communities/{community_id}/leave"
     };
   }
-  
+
   // Moderation Operations
-  rpc BanCommunity(BanCommunityRequest) returns (BanCommunityResponse) {
+  rpc Ban(BanRequest) returns (BanResponse) {
     option (google.api.http) = {
-      post: "/v1/communities/{community_id}/ban"
+      post: "/communities/{community_id}/ban"
       body: "*"
     };
   }
-  
-  rpc UnbanCommunity(UnbanCommunityRequest) returns (UnbanCommunityResponse) {
+
+  rpc Unban(UnbanRequest) returns (UnbanResponse) {
     option (google.api.http) = {
-      post: "/v1/communities/{community_id}/unban"
+      post: "/communities/{community_id}/unban"
     };
   }
-  
+
   // Ownership Operations
-  rpc TransferOwnership(TransferCommunityOwnershipRequest) returns (TransferCommunityOwnershipResponse) {
+  rpc TransferOwnership(TransferOwnershipRequest) returns (TransferOwnershipResponse) {
     option (google.api.http) = {
-      post: "/v1/communities/{community_id}/transfer-ownership"
+      post: "/communities/{community_id}/transfer-ownership"
       body: "*"
     };
   }

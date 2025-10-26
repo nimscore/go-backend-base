@@ -1,0 +1,71 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "entity.proto";
+
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+enum TimePeriod {
+  TIME_PERIOD_UNSPECIFIED = 0;
+  TIME_PERIOD_TODAY       = 1;
+  TIME_PERIOD_WEEK        = 2;
+  TIME_PERIOD_MONTH       = 3;
+  TIME_PERIOD_YEAR        = 4;
+  TIME_PERIOD_ALL_TIME    = 5;
+}
+
+// ============================================================================
+// GetFeed (FR-158-164) - Best Posts Feed
+// ============================================================================
+
+message GetFeedRequest {
+  TimePeriod time_period       = 1;
+  optional string community_id = 2;  // if empty, global feed
+  string cursor                = 3;
+  int32 limit                  = 4;
+}
+
+message GetFeedResponse {
+  repeated Post posts = 1;
+  string next_cursor  = 2;
+  bool has_more       = 3;
+}
+
+// ============================================================================
+// GetPersonalizedFeed (FR-195-207)
+// ============================================================================
+
+message GetPersonalizedFeedRequest {
+  string cursor = 1;
+  int32 limit   = 2;
+}
+
+message GetPersonalizedFeedResponse {
+  repeated Post posts = 1;  // from followed users + joined communities
+  string next_cursor  = 2;
+  bool has_more       = 3;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service FeedService {
+  // Feed Operations
+  rpc GetFeed(GetFeedRequest) returns (GetFeedResponse) {
+    option (google.api.http) = {
+      get: "/feed"
+    };
+  }
+
+  rpc GetPersonalizedFeed(GetPersonalizedFeedRequest) returns (GetPersonalizedFeedResponse) {
+    option (google.api.http) = {
+      get: "/feed/personalized"
+    };
+  }
+}
