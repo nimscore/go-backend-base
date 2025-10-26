@@ -71,6 +71,17 @@ message Permissions {
   bool feature_post     = 41;
   bool edit_any_post    = 42;
   bool edit_any_comment = 43;
+
+  // Badge permissions (FR-523)
+  bool create_platform_badges   = 44;
+  bool edit_platform_badges     = 45;
+  bool delete_platform_badges   = 46;
+  bool award_platform_badges    = 47;
+  bool create_community_badges  = 48;
+  bool edit_community_badges    = 49;
+  bool delete_community_badges  = 50;
+  bool award_community_badges   = 51;
+  bool approve_community_badges = 52;
 }
 
 message Role {

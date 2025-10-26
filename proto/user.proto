@@ -22,7 +22,8 @@ message UserProfile {
   int32 following_count                = 8;
   bool is_banned                       = 9;
   bool is_following                    = 10;  // if current user follows this user
-  google.protobuf.Timestamp created_at = 11;
+  bool is_online                       = 11;  // online if last_activity < 5 minutes (FR-464)
+  google.protobuf.Timestamp created_at = 12;
 }
 
 message CurrentUserProfile {
@@ -211,6 +212,19 @@ message ListFollowingResponse {
 }
 
 // ============================================================================
+// Heartbeat (FR-459, FR-460, FR-461, FR-466)
+// ============================================================================
+
+message HeartbeatRequest {
+  // empty or optionally device_info
+}
+
+message HeartbeatResponse {
+  string message                           = 1;
+  google.protobuf.Timestamp last_activity  = 2;
+}
+
+// ============================================================================
 // Service Definition
 // ============================================================================
 
@@ -282,6 +296,13 @@ service UserService {
   rpc ListFollowing(ListFollowingRequest) returns (ListFollowingResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/following"
+    };
+  }
+
+  // Online Status
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {
+    option (google.api.http) = {
+      post: "/users/heartbeat"
     };
   }
 }

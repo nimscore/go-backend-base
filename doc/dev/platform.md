@@ -13,6 +13,11 @@ Proto файл: `proto/platform.proto`
 ### PlatformSettings
 
 ```protobuf
+message AutomaticBadgeSetting {
+  string badge_id
+  bool enabled
+}
+
 message PlatformSettings {
   string name
   string description
@@ -23,8 +28,15 @@ message PlatformSettings {
   string owner_id
   string owner_username
   google.protobuf.Timestamp created_at
+  repeated AutomaticBadgeSetting badge_settings  // FR-539: настройки автоматических наград
 }
 ```
+
+**Automatic Badge Settings** (FR-539):
+
+- Список всех автоматических наград платформы с их статусом (enabled/disabled)
+- Владелец платформы может включать/выключать каждую награду индивидуально
+- По умолчанию все автоматические награды включены при инициализации
 
 ### PlatformStatistics
 
@@ -80,6 +92,7 @@ message GetSettingsResponse {
   - logo URL, banner URL, auth banner URL
   - owner info (id, username)
   - created_at timestamp
+  - automatic badge settings (FR-539): список badge_id с enabled/disabled статусом
 
 ---
 
@@ -95,12 +108,13 @@ message GetSettingsResponse {
 
 ```protobuf
 message UpdateSettingsRequest {
-  optional string name             // 3-100 символов
-  optional string description      // max 1000 символов
+  optional string name                                 // 3-100 символов
+  optional string description                          // max 1000 символов
   optional string rules
   optional string logo_url
   optional string banner_url
   optional string auth_banner_url
+  repeated AutomaticBadgeSetting automatic_badge_settings  // FR-540: обновление настроек наград
 }
 ```
 
@@ -119,6 +133,10 @@ message UpdateSettingsResponse {
 - Name 3-100 символов если указано (FR-322)
 - Description максимум 1000 символов если указано (FR-323)
 - URLs должны быть валидными S3 URLs из MediaService
+- Automatic badge settings (FR-540):
+  - Можно обновить enabled/disabled статус для любой автоматической награды
+  - Отключенные награды пропускаются daily cron job (FR-535)
+  - Уже выданные награды остаются у пользователей при отключении (FR-536)
 - Возврат обновленных настроек
 
 **Ошибки:**

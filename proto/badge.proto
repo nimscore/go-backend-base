@@ -1,0 +1,371 @@
+syntax = "proto3";
+package proto;
+option go_package = "/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum RarityLevel {
+  RARITY_LEVEL_UNSPECIFIED = 0;
+  COMMON                   = 1;
+  RARE                     = 2;
+  EPIC                     = 3;
+  LEGENDARY                = 4;
+}
+
+enum BadgeType {
+  BADGE_TYPE_UNSPECIFIED = 0;
+  PLATFORM               = 1;
+  COMMUNITY              = 2;
+}
+
+enum BadgeStatus {
+  BADGE_STATUS_UNSPECIFIED = 0;
+  ACTIVE                   = 1;
+  PENDING_APPROVAL         = 2;
+  REJECTED                 = 3;
+}
+
+enum RecipientType {
+  RECIPIENT_TYPE_UNSPECIFIED = 0;
+  USER                       = 1;
+  COMMUNITY                  = 2;
+}
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+message Badge {
+  string id                            = 1;
+  string name                          = 2;
+  string description                   = 3;
+  string icon_url                      = 4;
+  RarityLevel rarity                   = 5;
+  BadgeType type                       = 6;
+  BadgeStatus status                   = 7;
+  optional string community_id         = 8;  // only for community badges
+  string created_by                    = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  bool is_automatic                    = 12;  // FR-529: automatic platform badges
+}
+
+message BadgeAward {
+  string id                                 = 1;
+  string badge_id                           = 2;
+  Badge badge                               = 3;
+  string recipient_id                       = 4;  // user_id or community_id
+  RecipientType recipient_type              = 5;
+  string awarded_by                         = 6;
+  string awarded_by_username                = 7;
+  optional string reason                    = 8;
+  google.protobuf.Timestamp awarded_at      = 9;
+  optional string awarded_by_community_id   = 10;  // FR-498: source community (null = platform)
+  optional string awarded_by_community_name = 11;  // FR-498: for UI display
+}
+
+// ============================================================================
+// CreatePlatformBadge (FR-473, FR-475, FR-477, FR-479, FR-481-483)
+// ============================================================================
+
+message CreatePlatformBadgeRequest {
+  string name             = 1;  // 3-100 chars
+  string description      = 2;  // 10-500 chars
+  string icon_url         = 3;
+  RarityLevel rarity      = 4;
+}
+
+message CreatePlatformBadgeResponse {
+  Badge badge = 1;
+}
+
+// ============================================================================
+// CreateCommunityBadge (FR-474, FR-476, FR-478, FR-480, FR-481-483)
+// ============================================================================
+
+message CreateCommunityBadgeRequest {
+  string community_id     = 1;
+  string name             = 2;  // 3-100 chars
+  string description      = 3;  // 10-500 chars
+  string icon_url         = 4;
+  RarityLevel rarity      = 5;
+}
+
+message CreateCommunityBadgeResponse {
+  Badge badge = 1;
+}
+
+// ============================================================================
+// ApproveCommunityBadge (FR-484, FR-486, FR-489)
+// ============================================================================
+
+message ApproveCommunityBadgeRequest {
+  string badge_id = 1;
+}
+
+message ApproveCommunityBadgeResponse {
+  Badge badge = 1;
+}
+
+// ============================================================================
+// RejectCommunityBadge (FR-485, FR-487, FR-488, FR-490)
+// ============================================================================
+
+message RejectCommunityBadgeRequest {
+  string badge_id = 1;
+  string reason   = 2;  // mandatory rejection reason
+}
+
+message RejectCommunityBadgeResponse {
+  Badge badge = 1;
+}
+
+// ============================================================================
+// AwardBadgeToUser (FR-491, FR-493-495, FR-497-498)
+// ============================================================================
+
+message AwardBadgeToUserRequest {
+  string badge_id         = 1;
+  string user_id          = 2;
+  optional string reason  = 3;
+}
+
+message AwardBadgeToUserResponse {
+  BadgeAward award = 1;
+}
+
+// ============================================================================
+// AwardBadgeToCommunity (FR-492, FR-496, FR-497-498)
+// ============================================================================
+
+message AwardBadgeToCommunityRequest {
+  string badge_id         = 1;
+  string community_id     = 2;
+  optional string reason  = 3;
+}
+
+message AwardBadgeToCommunityResponse {
+  BadgeAward award = 1;
+}
+
+// ============================================================================
+// RevokeBadgeFromUser (FR-499, FR-501, FR-503)
+// ============================================================================
+
+message RevokeBadgeFromUserRequest {
+  string badge_id         = 1;
+  string user_id          = 2;
+  optional string reason  = 3;
+}
+
+message RevokeBadgeFromUserResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// RevokeBadgeFromCommunity (FR-500, FR-502, FR-503)
+// ============================================================================
+
+message RevokeBadgeFromCommunityRequest {
+  string badge_id         = 1;
+  string community_id     = 2;
+  optional string reason  = 3;
+}
+
+message RevokeBadgeFromCommunityResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// ListUserBadges (FR-504, FR-507, FR-510-511)
+// ============================================================================
+
+message ListUserBadgesRequest {
+  string user_id = 1;
+  string cursor  = 2;
+  int32 limit    = 3;
+}
+
+message ListUserBadgesResponse {
+  repeated BadgeAward awards = 1;
+  string next_cursor         = 2;
+  bool has_more              = 3;
+}
+
+// ============================================================================
+// ListCommunityBadges (FR-505, FR-508, FR-510, FR-512)
+// ============================================================================
+
+message ListCommunityBadgesRequest {
+  string community_id = 1;
+  string cursor       = 2;
+  int32 limit         = 3;
+}
+
+message ListCommunityBadgesResponse {
+  repeated BadgeAward awards = 1;
+  string next_cursor         = 2;
+  bool has_more              = 3;
+}
+
+// ============================================================================
+// ListPendingBadges (FR-506, FR-509)
+// ============================================================================
+
+message ListPendingBadgesRequest {
+  string cursor = 1;
+  int32 limit   = 2;
+}
+
+message ListPendingBadgesResponse {
+  repeated Badge badges = 1;
+  string next_cursor    = 2;
+  bool has_more         = 3;
+}
+
+// ============================================================================
+// GetBadge (FR-513)
+// ============================================================================
+
+message GetBadgeRequest {
+  string badge_id = 1;
+}
+
+message GetBadgeResponse {
+  Badge badge         = 1;
+  int32 awarded_count = 2;  // how many times awarded
+}
+
+// ============================================================================
+// UpdateBadge (FR-514-517)
+// ============================================================================
+
+message UpdateBadgeRequest {
+  string badge_id                = 1;
+  optional string name           = 2;
+  optional string description    = 3;
+  optional string icon_url       = 4;
+  optional RarityLevel rarity    = 5;
+}
+
+message UpdateBadgeResponse {
+  Badge badge = 1;
+}
+
+// ============================================================================
+// DeleteBadge (FR-518-520)
+// ============================================================================
+
+message DeleteBadgeRequest {
+  string badge_id = 1;
+}
+
+message DeleteBadgeResponse {
+  string message = 1;
+}
+
+// ============================================================================
+// Service Definition
+// ============================================================================
+
+service BadgeService {
+  // Badge Management
+  rpc CreatePlatformBadge(CreatePlatformBadgeRequest) returns (CreatePlatformBadgeResponse) {
+    option (google.api.http) = {
+      post: "/badges/platform"
+      body: "*"
+    };
+  }
+
+  rpc CreateCommunityBadge(CreateCommunityBadgeRequest) returns (CreateCommunityBadgeResponse) {
+    option (google.api.http) = {
+      post: "/badges/community"
+      body: "*"
+    };
+  }
+
+  rpc GetBadge(GetBadgeRequest) returns (GetBadgeResponse) {
+    option (google.api.http) = {
+      get: "/badges/{badge_id}"
+    };
+  }
+
+  rpc UpdateBadge(UpdateBadgeRequest) returns (UpdateBadgeResponse) {
+    option (google.api.http) = {
+      patch: "/badges/{badge_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteBadge(DeleteBadgeRequest) returns (DeleteBadgeResponse) {
+    option (google.api.http) = {
+      delete: "/badges/{badge_id}"
+    };
+  }
+
+  // Badge Moderation (Community Badges)
+  rpc ApproveCommunityBadge(ApproveCommunityBadgeRequest) returns (ApproveCommunityBadgeResponse) {
+    option (google.api.http) = {
+      post: "/badges/community/{badge_id}/approve"
+    };
+  }
+
+  rpc RejectCommunityBadge(RejectCommunityBadgeRequest) returns (RejectCommunityBadgeResponse) {
+    option (google.api.http) = {
+      post: "/badges/community/{badge_id}/reject"
+      body: "*"
+    };
+  }
+
+  // Badge Awards
+  rpc AwardBadgeToUser(AwardBadgeToUserRequest) returns (AwardBadgeToUserResponse) {
+    option (google.api.http) = {
+      post: "/badges/{badge_id}/award/user"
+      body: "*"
+    };
+  }
+
+  rpc AwardBadgeToCommunity(AwardBadgeToCommunityRequest) returns (AwardBadgeToCommunityResponse) {
+    option (google.api.http) = {
+      post: "/badges/{badge_id}/award/community"
+      body: "*"
+    };
+  }
+
+  rpc RevokeBadgeFromUser(RevokeBadgeFromUserRequest) returns (RevokeBadgeFromUserResponse) {
+    option (google.api.http) = {
+      delete: "/badges/{badge_id}/award/user/{user_id}"
+    };
+  }
+
+  rpc RevokeBadgeFromCommunity(RevokeBadgeFromCommunityRequest) returns (RevokeBadgeFromCommunityResponse) {
+    option (google.api.http) = {
+      delete: "/badges/{badge_id}/award/community/{community_id}"
+    };
+  }
+
+  // Badge Listings
+  rpc ListUserBadges(ListUserBadgesRequest) returns (ListUserBadgesResponse) {
+    option (google.api.http) = {
+      get: "/users/{user_id}/badges"
+    };
+  }
+
+  rpc ListCommunityBadges(ListCommunityBadgesRequest) returns (ListCommunityBadgesResponse) {
+    option (google.api.http) = {
+      get: "/communities/{community_id}/badges"
+    };
+  }
+
+  rpc ListPendingBadges(ListPendingBadgesRequest) returns (ListPendingBadgesResponse) {
+    option (google.api.http) = {
+      get: "/badges/pending"
+    };
+  }
+}
+

@@ -14,9 +14,10 @@ message Community {
   string rules                         = 6;
   int32 member_count                   = 7;
   int32 post_count                     = 8;
-  bool is_banned                       = 9;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  int32 reputation                     = 9;  // FR-455-458: sum(post_likes) + (sum(comments) × 0.1)
+  bool is_banned                       = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
 }
 
 enum PostStatus {

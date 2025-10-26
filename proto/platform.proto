@@ -9,16 +9,23 @@ import "google/api/annotations.proto";
 // Messages
 // ============================================================================
 
+// FR-539: Automatic badge setting
+message AutomaticBadgeSetting {
+  string badge_id = 1;
+  bool enabled    = 2;
+}
+
 message PlatformSettings {
-  string name                          = 1;
-  string description                   = 2;
-  string rules                         = 3;
-  string logo_url                      = 4;
-  string banner_url                    = 5;
-  string auth_banner_url               = 6;
-  string owner_id                      = 7;
-  string owner_username                = 8;
-  google.protobuf.Timestamp created_at = 9;
+  string name                                  = 1;
+  string description                           = 2;
+  string rules                                 = 3;
+  string logo_url                              = 4;
+  string banner_url                            = 5;
+  string auth_banner_url                       = 6;
+  string owner_id                              = 7;
+  string owner_username                        = 8;
+  google.protobuf.Timestamp created_at         = 9;
+  repeated AutomaticBadgeSetting badge_settings = 10;  // FR-539: automatic badge enable/disable
 }
 
 message PlatformStatistics {
@@ -56,12 +63,13 @@ message GetSettingsResponse {
 // ============================================================================
 
 message UpdateSettingsRequest {
-  optional string name            = 1;  // 3-100 chars
-  optional string description     = 2;  // max 1000 chars
-  optional string rules           = 3;
-  optional string logo_url        = 4;
-  optional string banner_url      = 5;
-  optional string auth_banner_url = 6;
+  optional string name                                 = 1;  // 3-100 chars
+  optional string description                          = 2;  // max 1000 chars
+  optional string rules                                = 3;
+  optional string logo_url                             = 4;
+  optional string banner_url                           = 5;
+  optional string auth_banner_url                      = 6;
+  repeated AutomaticBadgeSetting automatic_badge_settings = 7;  // FR-540: update badge enable/disable
 }
 
 message UpdateSettingsResponse {
