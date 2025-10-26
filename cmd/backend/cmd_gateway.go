@@ -1,19 +1,15 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
-	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
-	protopkg "github.com/stormhead-org/backend/internal/proto"
+	gatewaypkg "github.com/stormhead-org/backend/internal/gateway"
 )
 
 var gatewayCommand = &cobra.Command{
@@ -39,10 +35,6 @@ func gatewayCommandImpl() error {
 	}
 	defer logger.Sync()
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
 	// HTTP gateway настройки
 	gatewayHost := os.Getenv("GATEWAY_HOST")
 	if gatewayHost == "" {
@@ -67,71 +59,36 @@ func gatewayCommandImpl() error {
 
 	grpcEndpoint := fmt.Sprintf("%s:%s", grpcHost, grpcPort)
 
-	// Создание gRPC-gateway mux
-	mux := runtime.NewServeMux(
-		runtime.WithHealthzEndpoint(nil),
+	// Создание Gateway модуля
+	gateway, err := gatewaypkg.NewGateway(
+		logger,
+		gatewayHost,
+		gatewayPort,
+		grpcEndpoint,
 	)
-
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	// Регистрация Authorization Service
-	err = protopkg.RegisterAuthorizationServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, opts)
 	if err != nil {
-		logger.Fatal("failed to register authorization service handler", zap.Error(err))
+		return fmt.Errorf("failed to create gateway: %w", err)
 	}
 
-	// Регистрация Community Service
-	err = protopkg.RegisterCommunityServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, opts)
+	// Запуск Gateway
+	err = gateway.Start()
 	if err != nil {
-		logger.Fatal("failed to register community service handler", zap.Error(err))
+		return fmt.Errorf("failed to start gateway: %w", err)
 	}
 
-	// Создание HTTP сервера с Swagger UI
-	httpMux := http.NewServeMux()
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 
-	// API endpoints
-	httpMux.Handle("/", mux)
+	logger.Info("Shutting down gateway server...")
 
-	// Swagger UI - интерактивная документация
-	httpMux.HandleFunc("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("/swagger/api.swagger.json"),
-	))
-
-	// Swagger JSON спецификация
-	httpMux.HandleFunc("/swagger/api.swagger.json", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		http.ServeFile(w, r, "api/swagger/api.swagger.json")
-	})
-
-	// Health check
-	httpMux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"healthy"}`))
-	})
-
-	// Корневой маршрут - редирект на Swagger UI
-	httpMux.HandleFunc("/docs", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/swagger/", http.StatusMovedPermanently)
-	})
-
-	gatewayAddr := fmt.Sprintf("%s:%s", gatewayHost, gatewayPort)
-	logger.Info("Starting HTTP gateway server",
-		zap.String("address", gatewayAddr),
-		zap.String("grpc_endpoint", grpcEndpoint),
-	)
-
-	server := &http.Server{
-		Addr:    gatewayAddr,
-		Handler: httpMux,
+	if err := gateway.Stop(); err != nil {
+		logger.Error("Gateway shutdown failed", zap.Error(err))
+		return err
 	}
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Fatal("gateway server failed", zap.Error(err))
-	}
-
+	logger.Info("Gateway server stopped")
 	return nil
 }
 
