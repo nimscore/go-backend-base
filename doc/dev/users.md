@@ -24,6 +24,7 @@ message UserProfile {
   int32 following_count
   bool is_banned
   bool is_following         // следует ли текущий пользователь за этим
+  bool is_online            // онлайн ли пользователь (last_activity < 5 минут)
   google.protobuf.Timestamp created_at
 }
 ```
@@ -94,8 +95,9 @@ message GetResponse {
 - Возврат публичного профиля (FR-307):
   - username, avatar, banner, description
   - reputation, follower_count, following_count
-  - created_at, banned status
+  - created_at, banned status, online status
 - Поле is_following указывает следует ли текущий пользователь (требует auth)
+- Поле is_online рассчитывается на основе last_activity (FR-464)
 - Для забаненных пользователей включается banned status, скрываются приватные данные (FR-314)
 
 **Ошибки:**
@@ -558,6 +560,7 @@ message ListFollowingResponse {
 - Счетчики (followers, following)
 - Created_at
 - Banned status
+- Online status (is_online)
 
 ### Приватные данные
 
@@ -568,6 +571,87 @@ message ListFollowingResponse {
 - Количество вступленных сообществ
 - Количество активных сессий
 - Черновики постов
+
+## Онлайн-статус пользователей
+
+### Heartbeat
+
+**RPC:** `Heartbeat(HeartbeatRequest) returns (HeartbeatResponse)`  
+**HTTP:** `POST /users/heartbeat`  
+**FR:** FR-459, FR-460, FR-461, FR-466
+
+Обновление метки активности пользователя для поддержания онлайн-статуса.
+
+**Request:**
+
+```protobuf
+message HeartbeatRequest {
+  // пустой или опционально можно передать device_info
+}
+```
+
+**Response:**
+
+```protobuf
+message HeartbeatResponse {
+  string message
+  google.protobuf.Timestamp last_activity
+}
+```
+
+**Требования:**
+
+- Клиент должен вызывать каждые 30-60 секунд (FR-461)
+- Обновляет last_activity timestamp текущего времени (FR-460)
+- НЕ учитывается в rate limiting квотах (FR-466)
+- Требуется аутентификация
+- Легковесный endpoint для минимизации нагрузки
+
+### Определение онлайн-статуса
+
+**Расчет (FR-459-465):**
+
+```
+is_online = (current_time - last_activity) < 5 minutes
+```
+
+**Компоненты:**
+
+- **Онлайн (is_online = true)**: last_activity < 5 минут назад (FR-462)
+- **Оффлайн (is_online = false)**: last_activity >= 5 минут назад (FR-463)
+- **last_activity**: обновляется автоматически при любом authenticated API запросе (FR-465)
+
+### Отображение
+
+- Поле `is_online` включено в UserProfile (FR-464)
+- Доступно в GetUser endpoint
+- Видно всем пользователям (публичная информация)
+- Real-time точность в пределах интервала heartbeat (30-60 сек)
+
+### Использование
+
+- Отображение онлайн-индикатора в UI
+- Фильтрация онлайн-пользователей в списках
+- Сортировка по активности
+- Аналитика активности платформы
+
+### Реализация
+
+**База данных:**
+
+- Индекс на `last_activity` для быстрого расчета
+- Timestamp поле в таблице users
+
+**Кэширование:**
+
+- Рекомендуется кэшировать is_online статус на 30-60 секунд
+- TTL синхронизирован с heartbeat интервалом
+
+**Оптимизация:**
+
+- Heartbeat запросы исключены из rate limiting (FR-466)
+- Минимальная бизнес-логика в endpoint
+- Bulk проверка статуса при отображении списков
 
 ## Удаление аккаунта
 
