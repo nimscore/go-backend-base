@@ -2,3 +2,7 @@
 !.env_production
 /backend
 /backend-*.tgz
+.specify/
+.cursor/
+specs/
+project.md
