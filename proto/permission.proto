@@ -11,24 +11,24 @@ import "role.proto";
 // ============================================================================
 
 message UserPermissionsInfo {
-  Permissions calculated_permissions = 1;  // union of all roles
-  repeated UserRoleInfo roles = 2;         // list of user's roles
+  Permissions calculated_permissions      = 1;  // union of all roles
+  repeated UserRoleInfo roles             = 2;  // list of user's roles
   google.protobuf.Timestamp calculated_at = 3;
 }
 
 enum PermissionChangeType {
-  PERMISSION_CHANGE_TYPE_UNSPECIFIED = 0;
-  PERMISSION_CHANGE_TYPE_ROLE_ASSIGNED = 1;
-  PERMISSION_CHANGE_TYPE_ROLE_REMOVED = 2;
-  PERMISSION_CHANGE_TYPE_ROLE_EDITED = 3;
+  PERMISSION_CHANGE_TYPE_UNSPECIFIED      = 0;
+  PERMISSION_CHANGE_TYPE_ROLE_ASSIGNED    = 1;
+  PERMISSION_CHANGE_TYPE_ROLE_REMOVED     = 2;
+  PERMISSION_CHANGE_TYPE_ROLE_EDITED      = 3;
   PERMISSION_CHANGE_TYPE_COMMUNITY_JOINED = 4;
-  PERMISSION_CHANGE_TYPE_COMMUNITY_LEFT = 5;
+  PERMISSION_CHANGE_TYPE_COMMUNITY_LEFT   = 5;
 }
 
 message PermissionChangeEvent {
-  PermissionChangeType change_type = 1;
+  PermissionChangeType change_type        = 1;
   UserPermissionsInfo updated_permissions = 2;
-  google.protobuf.Timestamp timestamp = 3;
+  google.protobuf.Timestamp timestamp     = 3;
 }
 
 // ============================================================================
@@ -48,7 +48,7 @@ message GetUserPermissionsResponse {
 // ============================================================================
 
 message GetCommunityPermissionsRequest {
-  string community_id = 1;
+  string community_id     = 1;
   optional string user_id = 2;  // if empty, get current user's permissions
 }
 
@@ -72,25 +72,20 @@ service PermissionService {
   // Get Permissions
   rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse) {
     option (google.api.http) = {
-      get: "/v1/permissions/platform"
-      additional_bindings {
-        get: "/v1/users/{user_id}/permissions/platform"
-      }
+      get: "/permissions/platform"
+      additional_bindings { get: "/users/{user_id}/permissions/platform" }
     };
   }
-  
+
   rpc GetCommunityPermissions(GetCommunityPermissionsRequest) returns (GetCommunityPermissionsResponse) {
     option (google.api.http) = {
-      get: "/v1/permissions/communities/{community_id}"
-      additional_bindings {
-        get: "/v1/users/{user_id}/permissions/communities/{community_id}"
-      }
+      get: "/permissions/communities/{community_id}"
+      additional_bindings { get: "/users/{user_id}/permissions/communities/{community_id}" }
     };
   }
-  
+
   // Real-time Streaming (gRPC Server-Side Streaming)
   rpc StreamPermissions(StreamPermissionsRequest) returns (stream PermissionChangeEvent) {
     // No HTTP mapping - gRPC streaming only
   }
 }
-
