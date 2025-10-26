@@ -79,6 +79,17 @@ message Permissions {
   bool feature_post
   bool edit_any_post
   bool edit_any_comment
+
+  // Badges (FR-523)
+  bool create_platform_badges
+  bool edit_platform_badges
+  bool delete_platform_badges
+  bool award_platform_badges
+  bool create_community_badges
+  bool edit_community_badges
+  bool delete_community_badges
+  bool award_community_badges
+  bool approve_community_badges
 }
 ```
 
@@ -562,6 +573,22 @@ func ValidatePermission(ctx, action) error {
 ### Advanced (7 флагов) - FR-132
 
 Расширенные возможности модерации контента.
+
+### Badges (9 флагов) - FR-523
+
+Управление системой наград для пользователей и сообществ:
+
+- **create_platform_badges**: Создание платформенных наград
+- **edit_platform_badges**: Редактирование платформенных наград
+- **delete_platform_badges**: Удаление платформенных наград
+- **award_platform_badges**: Выдача платформенных наград пользователям/сообществам
+- **create_community_badges**: Создание наград сообщества
+- **edit_community_badges**: Редактирование наград сообщества
+- **delete_community_badges**: Удаление наград сообщества
+- **award_community_badges**: Выдача наград сообщества участникам
+- **approve_community_badges**: Модерация наград сообществ (одобрение/отклонение)
+
+**Особенность:** Владелец сообщества автоматически имеет все community badge permissions для своего сообщества (FR-522).
 
 ---
 
