@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,22 +19,38 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthorizationService_Register_FullMethodName      = "/proto.AuthorizationService/Register"
-	AuthorizationService_Login_FullMethodName         = "/proto.AuthorizationService/Login"
-	AuthorizationService_Logout_FullMethodName        = "/proto.AuthorizationService/Logout"
-	AuthorizationService_RefreshToken_FullMethodName  = "/proto.AuthorizationService/RefreshToken"
-	AuthorizationService_ValidateToken_FullMethodName = "/proto.AuthorizationService/ValidateToken"
+	AuthorizationService_Register_FullMethodName             = "/proto.AuthorizationService/Register"
+	AuthorizationService_Login_FullMethodName                = "/proto.AuthorizationService/Login"
+	AuthorizationService_Logout_FullMethodName               = "/proto.AuthorizationService/Logout"
+	AuthorizationService_RefreshToken_FullMethodName         = "/proto.AuthorizationService/RefreshToken"
+	AuthorizationService_VerifyEmail_FullMethodName          = "/proto.AuthorizationService/VerifyEmail"
+	AuthorizationService_RequestPasswordReset_FullMethodName = "/proto.AuthorizationService/RequestPasswordReset"
+	AuthorizationService_ConfirmPasswordReset_FullMethodName = "/proto.AuthorizationService/ConfirmPasswordReset"
+	AuthorizationService_ChangePassword_FullMethodName       = "/proto.AuthorizationService/ChangePassword"
+	AuthorizationService_GetCurrentSession_FullMethodName    = "/proto.AuthorizationService/GetCurrentSession"
+	AuthorizationService_ListActiveSessions_FullMethodName   = "/proto.AuthorizationService/ListActiveSessions"
+	AuthorizationService_RevokeSession_FullMethodName        = "/proto.AuthorizationService/RevokeSession"
 )
 
 // AuthorizationServiceClient is the client API for AuthorizationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
+	// Registration and Login
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	RefreshToken(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
-	ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
+	// Email Verification
+	VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error)
+	// Password Recovery
+	RequestPasswordReset(ctx context.Context, in *RequestPasswordResetRequest, opts ...grpc.CallOption) (*RequestPasswordResetResponse, error)
+	ConfirmPasswordReset(ctx context.Context, in *ConfirmResetPasswordRequest, opts ...grpc.CallOption) (*ConfirmResetPasswordResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
+	// Session Management
+	GetCurrentSession(ctx context.Context, in *GetCurrentSessionRequest, opts ...grpc.CallOption) (*GetCurrentSessionResponse, error)
+	ListActiveSessions(ctx context.Context, in *ListActiveSessionsRequest, opts ...grpc.CallOption) (*ListActiveSessionsResponse, error)
+	RevokeSession(ctx context.Context, in *RevokeSessionRequest, opts ...grpc.CallOption) (*RevokeSessionResponse, error)
 }
 
 type authorizationServiceClient struct {
@@ -66,9 +81,9 @@ func (c *authorizationServiceClient) Login(ctx context.Context, in *LoginRequest
 	return out, nil
 }
 
-func (c *authorizationServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authorizationServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(LogoutResponse)
 	err := c.cc.Invoke(ctx, AuthorizationService_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -76,9 +91,9 @@ func (c *authorizationServiceClient) Logout(ctx context.Context, in *LogoutReque
 	return out, nil
 }
 
-func (c *authorizationServiceClient) RefreshToken(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error) {
+func (c *authorizationServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RefreshResponse)
+	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, AuthorizationService_RefreshToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -86,10 +101,70 @@ func (c *authorizationServiceClient) RefreshToken(ctx context.Context, in *Refre
 	return out, nil
 }
 
-func (c *authorizationServiceClient) ValidateToken(ctx context.Context, in *ValidateRequest, opts ...grpc.CallOption) (*ValidateResponse, error) {
+func (c *authorizationServiceClient) VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateResponse)
-	err := c.cc.Invoke(ctx, AuthorizationService_ValidateToken_FullMethodName, in, out, cOpts...)
+	out := new(VerifyEmailResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_VerifyEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) RequestPasswordReset(ctx context.Context, in *RequestPasswordResetRequest, opts ...grpc.CallOption) (*RequestPasswordResetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RequestPasswordResetResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_RequestPasswordReset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) ConfirmPasswordReset(ctx context.Context, in *ConfirmResetPasswordRequest, opts ...grpc.CallOption) (*ConfirmResetPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmResetPasswordResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ConfirmPasswordReset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) GetCurrentSession(ctx context.Context, in *GetCurrentSessionRequest, opts ...grpc.CallOption) (*GetCurrentSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCurrentSessionResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_GetCurrentSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) ListActiveSessions(ctx context.Context, in *ListActiveSessionsRequest, opts ...grpc.CallOption) (*ListActiveSessionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListActiveSessionsResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ListActiveSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) RevokeSession(ctx context.Context, in *RevokeSessionRequest, opts ...grpc.CallOption) (*RevokeSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RevokeSessionResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_RevokeSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +175,21 @@ func (c *authorizationServiceClient) ValidateToken(ctx context.Context, in *Vali
 // All implementations must embed UnimplementedAuthorizationServiceServer
 // for forward compatibility.
 type AuthorizationServiceServer interface {
+	// Registration and Login
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
-	RefreshToken(context.Context, *RefreshRequest) (*RefreshResponse, error)
-	ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error)
+	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
+	// Email Verification
+	VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error)
+	// Password Recovery
+	RequestPasswordReset(context.Context, *RequestPasswordResetRequest) (*RequestPasswordResetResponse, error)
+	ConfirmPasswordReset(context.Context, *ConfirmResetPasswordRequest) (*ConfirmResetPasswordResponse, error)
+	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	// Session Management
+	GetCurrentSession(context.Context, *GetCurrentSessionRequest) (*GetCurrentSessionResponse, error)
+	ListActiveSessions(context.Context, *ListActiveSessionsRequest) (*ListActiveSessionsResponse, error)
+	RevokeSession(context.Context, *RevokeSessionRequest) (*RevokeSessionResponse, error)
 	mustEmbedUnimplementedAuthorizationServiceServer()
 }
 
@@ -121,14 +206,32 @@ func (UnimplementedAuthorizationServiceServer) Register(context.Context, *Regist
 func (UnimplementedAuthorizationServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error) {
+func (UnimplementedAuthorizationServiceServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) RefreshToken(context.Context, *RefreshRequest) (*RefreshResponse, error) {
+func (UnimplementedAuthorizationServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) ValidateToken(context.Context, *ValidateRequest) (*ValidateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
+func (UnimplementedAuthorizationServiceServer) VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) RequestPasswordReset(context.Context, *RequestPasswordResetRequest) (*RequestPasswordResetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestPasswordReset not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) ConfirmPasswordReset(context.Context, *ConfirmResetPasswordRequest) (*ConfirmResetPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmPasswordReset not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) GetCurrentSession(context.Context, *GetCurrentSessionRequest) (*GetCurrentSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentSession not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) ListActiveSessions(context.Context, *ListActiveSessionsRequest) (*ListActiveSessionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListActiveSessions not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) RevokeSession(context.Context, *RevokeSessionRequest) (*RevokeSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeSession not implemented")
 }
 func (UnimplementedAuthorizationServiceServer) mustEmbedUnimplementedAuthorizationServiceServer() {}
 func (UnimplementedAuthorizationServiceServer) testEmbeddedByValue()                              {}
@@ -206,7 +309,7 @@ func _AuthorizationService_Logout_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _AuthorizationService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RefreshRequest)
+	in := new(RefreshTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -218,25 +321,133 @@ func _AuthorizationService_RefreshToken_Handler(srv interface{}, ctx context.Con
 		FullMethod: AuthorizationService_RefreshToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).RefreshToken(ctx, req.(*RefreshRequest))
+		return srv.(AuthorizationServiceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthorizationService_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateRequest)
+func _AuthorizationService_VerifyEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizationServiceServer).ValidateToken(ctx, in)
+		return srv.(AuthorizationServiceServer).VerifyEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthorizationService_ValidateToken_FullMethodName,
+		FullMethod: AuthorizationService_VerifyEmail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).ValidateToken(ctx, req.(*ValidateRequest))
+		return srv.(AuthorizationServiceServer).VerifyEmail(ctx, req.(*VerifyEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_RequestPasswordReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestPasswordResetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).RequestPasswordReset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_RequestPasswordReset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).RequestPasswordReset(ctx, req.(*RequestPasswordResetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_ConfirmPasswordReset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmResetPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).ConfirmPasswordReset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_ConfirmPasswordReset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).ConfirmPasswordReset(ctx, req.(*ConfirmResetPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).ChangePassword(ctx, req.(*ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_GetCurrentSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCurrentSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).GetCurrentSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_GetCurrentSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).GetCurrentSession(ctx, req.(*GetCurrentSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_ListActiveSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListActiveSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).ListActiveSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_ListActiveSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).ListActiveSessions(ctx, req.(*ListActiveSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_RevokeSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).RevokeSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_RevokeSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).RevokeSession(ctx, req.(*RevokeSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -265,8 +476,32 @@ var AuthorizationService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthorizationService_RefreshToken_Handler,
 		},
 		{
-			MethodName: "ValidateToken",
-			Handler:    _AuthorizationService_ValidateToken_Handler,
+			MethodName: "VerifyEmail",
+			Handler:    _AuthorizationService_VerifyEmail_Handler,
+		},
+		{
+			MethodName: "RequestPasswordReset",
+			Handler:    _AuthorizationService_RequestPasswordReset_Handler,
+		},
+		{
+			MethodName: "ConfirmPasswordReset",
+			Handler:    _AuthorizationService_ConfirmPasswordReset_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _AuthorizationService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "GetCurrentSession",
+			Handler:    _AuthorizationService_GetCurrentSession_Handler,
+		},
+		{
+			MethodName: "ListActiveSessions",
+			Handler:    _AuthorizationService_ListActiveSessions_Handler,
+		},
+		{
+			MethodName: "RevokeSession",
+			Handler:    _AuthorizationService_RevokeSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

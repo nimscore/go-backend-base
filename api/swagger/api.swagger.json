@@ -9,10 +9,43 @@
       "name": "AuthorizationService"
     },
     {
+      "name": "BadgeService"
+    },
+    {
+      "name": "CommentService"
+    },
+    {
       "name": "CommunityService"
     },
     {
+      "name": "FeedService"
+    },
+    {
+      "name": "MediaService"
+    },
+    {
+      "name": "ModerationService"
+    },
+    {
+      "name": "NotificationService"
+    },
+    {
+      "name": "PermissionService"
+    },
+    {
+      "name": "PlatformService"
+    },
+    {
       "name": "PostService"
+    },
+    {
+      "name": "ReportService"
+    },
+    {
+      "name": "RoleService"
+    },
+    {
+      "name": "SearchService"
     },
     {
       "name": "UserService"
@@ -25,7 +58,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/auth/change-password": {
+    "/auth/change-password": {
       "post": {
         "operationId": "AuthorizationService_ChangePassword",
         "responses": {
@@ -57,7 +90,7 @@
         ]
       }
     },
-    "/v1/auth/login": {
+    "/auth/login": {
       "post": {
         "operationId": "AuthorizationService_Login",
         "responses": {
@@ -89,7 +122,7 @@
         ]
       }
     },
-    "/v1/auth/logout": {
+    "/auth/logout": {
       "post": {
         "operationId": "AuthorizationService_Logout",
         "responses": {
@@ -111,14 +144,14 @@
         ]
       }
     },
-    "/v1/auth/password-reset/confirm": {
+    "/auth/password-reset/confirm": {
       "post": {
-        "operationId": "AuthorizationService_ResetPassword",
+        "operationId": "AuthorizationService_ConfirmPasswordReset",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoResetPasswordResponse"
+              "$ref": "#/definitions/protoConfirmResetPasswordResponse"
             }
           },
           "default": {
@@ -134,7 +167,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoResetPasswordRequest"
+              "$ref": "#/definitions/protoConfirmResetPasswordRequest"
             }
           }
         ],
@@ -143,7 +176,7 @@
         ]
       }
     },
-    "/v1/auth/password-reset/request": {
+    "/auth/password-reset/request": {
       "post": {
         "summary": "Password Recovery",
         "operationId": "AuthorizationService_RequestPasswordReset",
@@ -176,7 +209,7 @@
         ]
       }
     },
-    "/v1/auth/refresh": {
+    "/auth/refresh": {
       "post": {
         "operationId": "AuthorizationService_RefreshToken",
         "responses": {
@@ -208,7 +241,7 @@
         ]
       }
     },
-    "/v1/auth/register": {
+    "/auth/register": {
       "post": {
         "summary": "Registration and Login",
         "operationId": "AuthorizationService_Register",
@@ -241,7 +274,7 @@
         ]
       }
     },
-    "/v1/auth/session": {
+    "/auth/session": {
       "get": {
         "summary": "Session Management",
         "operationId": "AuthorizationService_GetCurrentSession",
@@ -264,7 +297,7 @@
         ]
       }
     },
-    "/v1/auth/sessions": {
+    "/auth/sessions": {
       "get": {
         "operationId": "AuthorizationService_ListActiveSessions",
         "responses": {
@@ -301,7 +334,7 @@
         ]
       }
     },
-    "/v1/auth/sessions/{sessionId}": {
+    "/auth/sessions/{sessionId}": {
       "delete": {
         "operationId": "AuthorizationService_RevokeSession",
         "responses": {
@@ -331,7 +364,7 @@
         ]
       }
     },
-    "/v1/auth/verify-email": {
+    "/auth/verify-email": {
       "post": {
         "summary": "Email Verification",
         "operationId": "AuthorizationService_VerifyEmail",
@@ -364,7 +397,619 @@
         ]
       }
     },
-    "/v1/communities": {
+    "/badges/community": {
+      "post": {
+        "operationId": "BadgeService_CreateCommunityBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreateCommunityBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreateCommunityBadgeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/community/{badgeId}/approve": {
+      "post": {
+        "summary": "Badge Moderation (Community Badges)",
+        "operationId": "BadgeService_ApproveCommunityBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoApproveCommunityBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/community/{badgeId}/reject": {
+      "post": {
+        "operationId": "BadgeService_RejectCommunityBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRejectCommunityBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BadgeServiceRejectCommunityBadgeBody"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/pending": {
+      "get": {
+        "operationId": "BadgeService_ListPendingBadges",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListPendingBadgesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/platform": {
+      "post": {
+        "summary": "Badge Management",
+        "operationId": "BadgeService_CreatePlatformBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreatePlatformBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreatePlatformBadgeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/{badgeId}": {
+      "get": {
+        "operationId": "BadgeService_GetBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      },
+      "delete": {
+        "operationId": "BadgeService_DeleteBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDeleteBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      },
+      "patch": {
+        "operationId": "BadgeService_UpdateBadge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateBadgeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BadgeServiceUpdateBadgeBody"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/{badgeId}/award/community": {
+      "post": {
+        "operationId": "BadgeService_AwardBadgeToCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoAwardBadgeToCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BadgeServiceAwardBadgeToCommunityBody"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/{badgeId}/award/community/{communityId}": {
+      "delete": {
+        "operationId": "BadgeService_RevokeBadgeFromCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRevokeBadgeFromCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/{badgeId}/award/user": {
+      "post": {
+        "summary": "Badge Awards",
+        "operationId": "BadgeService_AwardBadgeToUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoAwardBadgeToUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BadgeServiceAwardBadgeToUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/badges/{badgeId}/award/user/{userId}": {
+      "delete": {
+        "operationId": "BadgeService_RevokeBadgeFromUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRevokeBadgeFromUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "badgeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/comments": {
+      "post": {
+        "summary": "CRUD Operations",
+        "operationId": "CommentService_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreateCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreateCommentRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      }
+    },
+    "/comments/{commentId}": {
+      "get": {
+        "operationId": "CommentService_Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      },
+      "delete": {
+        "operationId": "CommentService_Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDeleteCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      },
+      "patch": {
+        "operationId": "CommentService_Update",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCommentServiceUpdateBody"
+            }
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      }
+    },
+    "/comments/{commentId}/like": {
+      "delete": {
+        "operationId": "CommentService_Unlike",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnlikeCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      },
+      "post": {
+        "summary": "Like Operations",
+        "operationId": "CommentService_Like",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoLikeCommentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CommentService"
+        ]
+      }
+    },
+    "/communities": {
       "get": {
         "summary": "List Operations",
         "operationId": "CommunityService_ListCommunities",
@@ -403,7 +1048,7 @@
       },
       "post": {
         "summary": "CRUD Operations",
-        "operationId": "CommunityService_CreateCommunity",
+        "operationId": "CommunityService_Create",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -433,9 +1078,9 @@
         ]
       }
     },
-    "/v1/communities/{communityId}": {
+    "/communities/{communityId}": {
       "get": {
-        "operationId": "CommunityService_GetCommunity",
+        "operationId": "CommunityService_Get",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -463,7 +1108,7 @@
         ]
       },
       "delete": {
-        "operationId": "CommunityService_DeleteCommunity",
+        "operationId": "CommunityService_Delete",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -498,7 +1143,7 @@
         ]
       },
       "patch": {
-        "operationId": "CommunityService_UpdateCommunity",
+        "operationId": "CommunityService_Update",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -525,7 +1170,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CommunityServiceUpdateCommunityBody"
+              "$ref": "#/definitions/protoCommunityServiceUpdateBody"
             }
           }
         ],
@@ -534,10 +1179,53 @@
         ]
       }
     },
-    "/v1/communities/{communityId}/ban": {
+    "/communities/{communityId}/badges": {
+      "get": {
+        "operationId": "BadgeService_ListCommunityBadges",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListCommunityBadgesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/communities/{communityId}/ban": {
       "post": {
         "summary": "Moderation Operations",
-        "operationId": "CommunityService_BanCommunity",
+        "operationId": "CommunityService_Ban",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -564,7 +1252,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CommunityServiceBanCommunityBody"
+              "$ref": "#/definitions/CommunityServiceBanBody"
             }
           }
         ],
@@ -573,10 +1261,10 @@
         ]
       }
     },
-    "/v1/communities/{communityId}/join": {
+    "/communities/{communityId}/join": {
       "post": {
         "summary": "Membership Operations",
-        "operationId": "CommunityService_JoinCommunity",
+        "operationId": "CommunityService_Join",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -604,9 +1292,9 @@
         ]
       }
     },
-    "/v1/communities/{communityId}/leave": {
+    "/communities/{communityId}/leave": {
       "post": {
-        "operationId": "CommunityService_LeaveCommunity",
+        "operationId": "CommunityService_Leave",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -634,7 +1322,86 @@
         ]
       }
     },
-    "/v1/communities/{communityId}/transfer-ownership": {
+    "/communities/{communityId}/roles": {
+      "get": {
+        "operationId": "RoleService_ListCommunityRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListCommunityRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      },
+      "post": {
+        "operationId": "RoleService_CreateCommunityRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreateCommunityRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RoleServiceCreateCommunityRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      }
+    },
+    "/communities/{communityId}/transfer-ownership": {
       "post": {
         "summary": "Ownership Operations",
         "operationId": "CommunityService_TransferOwnership",
@@ -664,7 +1431,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CommunityServiceTransferOwnershipBody"
+              "$ref": "#/definitions/protoCommunityServiceTransferOwnershipBody"
             }
           }
         ],
@@ -673,9 +1440,9 @@
         ]
       }
     },
-    "/v1/communities/{communityId}/unban": {
+    "/communities/{communityId}/unban": {
       "post": {
-        "operationId": "CommunityService_UnbanCommunity",
+        "operationId": "CommunityService_Unban",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -703,10 +1470,844 @@
         ]
       }
     },
-    "/v1/posts": {
+    "/feed": {
+      "get": {
+        "summary": "Feed Operations",
+        "operationId": "FeedService_GetFeed",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetFeedResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "timePeriod",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "TIME_PERIOD_UNSPECIFIED",
+              "TIME_PERIOD_TODAY",
+              "TIME_PERIOD_WEEK",
+              "TIME_PERIOD_MONTH",
+              "TIME_PERIOD_YEAR",
+              "TIME_PERIOD_ALL_TIME"
+            ],
+            "default": "TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "communityId",
+            "description": "if empty, global feed",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "FeedService"
+        ]
+      }
+    },
+    "/feed/personalized": {
+      "get": {
+        "operationId": "FeedService_GetPersonalizedFeed",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetPersonalizedFeedResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "FeedService"
+        ]
+      }
+    },
+    "/media/confirm": {
+      "post": {
+        "operationId": "MediaService_Confirm",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoConfirmResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoConfirmRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MediaService"
+        ]
+      }
+    },
+    "/media/upload": {
+      "post": {
+        "summary": "Presigned URL Operations",
+        "operationId": "MediaService_Upload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUploadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoUploadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "MediaService"
+        ]
+      }
+    },
+    "/moderation/communities/{communityId}/users/{userId}/ban": {
+      "post": {
+        "summary": "Community-specific Moderation",
+        "operationId": "ModerationService_BanUserInCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoBanUserInCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModerationServiceBanUserInCommunityBody"
+            }
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/communities/{communityId}/users/{userId}/mute": {
+      "post": {
+        "operationId": "ModerationService_MuteUserInCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoMuteUserInCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModerationServiceMuteUserInCommunityBody"
+            }
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/communities/{communityId}/users/{userId}/unban": {
+      "post": {
+        "operationId": "ModerationService_UnbanUserInCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnbanUserInCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/communities/{communityId}/users/{userId}/unmute": {
+      "post": {
+        "operationId": "ModerationService_UnmuteUserInCommunity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnmuteUserInCommunityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/logs": {
+      "get": {
+        "summary": "Moderation Logs",
+        "operationId": "ModerationService_ListModerationLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListModerationLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "description": "if empty, platform-wide logs",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/users/{userId}/ban": {
+      "post": {
+        "summary": "Platform-wide Moderation",
+        "operationId": "ModerationService_BanUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoBanUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModerationServiceBanUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/moderation/users/{userId}/unban": {
+      "post": {
+        "operationId": "ModerationService_UnbanUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUnbanUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ModerationService"
+        ]
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "History Operations",
+        "operationId": "NotificationService_Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetNotificationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "readStatusFilter",
+            "description": "if set, filter by read status",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "typeFilter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "NOTIFICATION_TYPE_UNSPECIFIED",
+              "NOTIFICATION_TYPE_NEW_POST_IN_COMMUNITY",
+              "NOTIFICATION_TYPE_NEW_POST_FROM_FOLLOWED_USER",
+              "NOTIFICATION_TYPE_COMMENT_LIKED",
+              "NOTIFICATION_TYPE_NEW_COMMENT_IN_POST",
+              "NOTIFICATION_TYPE_COMMENT_REPLY"
+            ],
+            "default": "NOTIFICATION_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/notifications/preferences": {
+      "get": {
+        "summary": "Preferences Operations",
+        "operationId": "NotificationService_GetPreferences",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetPreferencesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NotificationService"
+        ]
+      },
+      "put": {
+        "operationId": "NotificationService_UpdatePreferences",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdatePreferencesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoUpdatePreferencesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/notifications/read-all": {
+      "post": {
+        "operationId": "NotificationService_MarkAllAsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoMarkAllAsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/notifications/unread-count": {
+      "get": {
+        "operationId": "NotificationService_GetUnreadCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetUnreadCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/notifications/{notificationId}/read": {
+      "post": {
+        "operationId": "NotificationService_MarkAsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoMarkAsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/permissions/communities/{communityId}": {
+      "get": {
+        "operationId": "PermissionService_GetCommunityPermissions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetCommunityPermissionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "description": "if empty, get current user's permissions",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PermissionService"
+        ]
+      }
+    },
+    "/permissions/platform": {
+      "get": {
+        "summary": "Get Permissions",
+        "operationId": "PermissionService_GetUserPermissions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetUserPermissionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "if empty, get current user's permissions",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PermissionService"
+        ]
+      }
+    },
+    "/platform/confirm-ownership": {
+      "post": {
+        "operationId": "PlatformService_ConfirmOwnership",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoConfirmPlatformOwnershipResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoConfirmPlatformOwnershipRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PlatformService"
+        ]
+      }
+    },
+    "/platform/settings": {
+      "get": {
+        "summary": "Settings Operations",
+        "operationId": "PlatformService_GetSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetSettingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "PlatformService"
+        ]
+      },
+      "patch": {
+        "operationId": "PlatformService_UpdateSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateSettingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoUpdateSettingsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PlatformService"
+        ]
+      }
+    },
+    "/platform/statistics": {
+      "get": {
+        "summary": "Statistics Operations",
+        "operationId": "PlatformService_GetStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetPlatformStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "PlatformService"
+        ]
+      }
+    },
+    "/platform/transfer-ownership": {
+      "post": {
+        "summary": "Ownership Operations",
+        "operationId": "PlatformService_TransferOwnership",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoTransferPlatformOwnershipResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoTransferPlatformOwnershipRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PlatformService"
+        ]
+      }
+    },
+    "/posts": {
       "post": {
         "summary": "CRUD Operations",
-        "operationId": "PostService_CreatePost",
+        "operationId": "PostService_Create",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -736,7 +2337,7 @@
         ]
       }
     },
-    "/v1/posts/bookmarks": {
+    "/posts/bookmarks": {
       "get": {
         "operationId": "PostService_ListBookmarks",
         "responses": {
@@ -773,9 +2374,9 @@
         ]
       }
     },
-    "/v1/posts/{postId}": {
+    "/posts/{postId}": {
       "get": {
-        "operationId": "PostService_GetPost",
+        "operationId": "PostService_Get",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -803,7 +2404,7 @@
         ]
       },
       "delete": {
-        "operationId": "PostService_DeletePost",
+        "operationId": "PostService_Delete",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -831,7 +2432,7 @@
         ]
       },
       "patch": {
-        "operationId": "PostService_UpdatePost",
+        "operationId": "PostService_Update",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -858,7 +2459,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PostServiceUpdatePostBody"
+              "$ref": "#/definitions/protoPostServiceUpdateBody"
             }
           }
         ],
@@ -867,14 +2468,14 @@
         ]
       }
     },
-    "/v1/posts/{postId}/bookmark": {
+    "/posts/{postId}/bookmark": {
       "delete": {
-        "operationId": "PostService_RemoveBookmark",
+        "operationId": "PostService_DeleteBookmark",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoRemoveBookmarkResponse"
+              "$ref": "#/definitions/protoDeleteBookmarkResponse"
             }
           },
           "default": {
@@ -898,12 +2499,12 @@
       },
       "post": {
         "summary": "Bookmark Operations",
-        "operationId": "PostService_BookmarkPost",
+        "operationId": "PostService_CreateBookmark",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoBookmarkPostResponse"
+              "$ref": "#/definitions/protoCreateBookmarkResponse"
             }
           },
           "default": {
@@ -926,9 +2527,53 @@
         ]
       }
     },
-    "/v1/posts/{postId}/like": {
+    "/posts/{postId}/comments": {
+      "get": {
+        "summary": "List Operations",
+        "operationId": "PostService_ListComments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListPostCommentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "PostService"
+        ]
+      }
+    },
+    "/posts/{postId}/like": {
       "delete": {
-        "operationId": "PostService_UnlikePost",
+        "operationId": "PostService_Unlike",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -957,7 +2602,7 @@
       },
       "post": {
         "summary": "Like Operations",
-        "operationId": "PostService_LikePost",
+        "operationId": "PostService_Like",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -985,10 +2630,10 @@
         ]
       }
     },
-    "/v1/posts/{postId}/publish": {
+    "/posts/{postId}/publish": {
       "post": {
         "summary": "Status Management",
-        "operationId": "PostService_PublishPost",
+        "operationId": "PostService_Publish",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1016,9 +2661,9 @@
         ]
       }
     },
-    "/v1/posts/{postId}/unpublish": {
+    "/posts/{postId}/unpublish": {
       "post": {
-        "operationId": "PostService_UnpublishPost",
+        "operationId": "PostService_Unpublish",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1046,9 +2691,533 @@
         ]
       }
     },
-    "/v1/users/me": {
+    "/reports": {
       "get": {
-        "operationId": "UserService_GetCurrentUser",
+        "operationId": "ReportService_List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "statusFilter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "REPORT_STATUS_UNSPECIFIED",
+              "REPORT_STATUS_PENDING",
+              "REPORT_STATUS_RESOLVED",
+              "REPORT_STATUS_DISMISSED"
+            ],
+            "default": "REPORT_STATUS_UNSPECIFIED"
+          },
+          {
+            "name": "contentTypeFilter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "REPORTED_CONTENT_TYPE_UNSPECIFIED",
+              "REPORTED_CONTENT_TYPE_POST",
+              "REPORTED_CONTENT_TYPE_COMMENT"
+            ],
+            "default": "REPORTED_CONTENT_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "ReportService"
+        ]
+      },
+      "post": {
+        "summary": "CRUD Operations",
+        "operationId": "ReportService_Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ReportService"
+        ]
+      }
+    },
+    "/reports/{reportId}": {
+      "get": {
+        "operationId": "ReportService_Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ReportService"
+        ]
+      }
+    },
+    "/reports/{reportId}/dismiss": {
+      "post": {
+        "operationId": "ReportService_Dismiss",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDismissResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReportServiceDismissBody"
+            }
+          }
+        ],
+        "tags": [
+          "ReportService"
+        ]
+      }
+    },
+    "/reports/{reportId}/resolve": {
+      "post": {
+        "summary": "Resolve Operations",
+        "operationId": "ReportService_Resolve",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoResolveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReportServiceResolveBody"
+            }
+          }
+        ],
+        "tags": [
+          "ReportService"
+        ]
+      }
+    },
+    "/roles/platform": {
+      "get": {
+        "summary": "List Operations",
+        "operationId": "RoleService_ListPlatformRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListPlatformRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      },
+      "post": {
+        "summary": "Create Operations",
+        "operationId": "RoleService_CreatePlatformRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoCreatePlatformRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoCreatePlatformRoleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      }
+    },
+    "/roles/{roleId}": {
+      "get": {
+        "summary": "CRUD Operations",
+        "operationId": "RoleService_GetRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      },
+      "delete": {
+        "operationId": "RoleService_DeleteRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoDeleteRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      },
+      "patch": {
+        "operationId": "RoleService_UpdateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoUpdateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RoleServiceUpdateRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      }
+    },
+    "/roles/{roleId}/assign": {
+      "post": {
+        "summary": "Assignment Operations",
+        "operationId": "RoleService_AssignRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoAssignRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RoleServiceAssignRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      }
+    },
+    "/roles/{roleId}/remove": {
+      "post": {
+        "operationId": "RoleService_RemoveRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoRemoveRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RoleServiceRemoveRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "RoleService"
+        ]
+      }
+    },
+    "/search": {
+      "get": {
+        "summary": "Unified Search",
+        "operationId": "SearchService_Search",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoSearchResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "query",
+            "description": "min 3 chars",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "contentType",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CONTENT_TYPE_UNSPECIFIED",
+              "CONTENT_TYPE_POSTS",
+              "CONTENT_TYPE_COMMENTS",
+              "CONTENT_TYPE_USERS",
+              "CONTENT_TYPE_COMMUNITIES",
+              "CONTENT_TYPE_ALL"
+            ],
+            "default": "CONTENT_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "SearchService"
+        ]
+      }
+    },
+    "/users/heartbeat": {
+      "post": {
+        "summary": "Online Status",
+        "operationId": "UserService_Heartbeat",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoHeartbeatResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "operationId": "UserService_GetCurrent",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1098,10 +3267,10 @@
         ]
       }
     },
-    "/v1/users/{userId}": {
+    "/users/{userId}": {
       "get": {
         "summary": "Profile Operations",
-        "operationId": "UserService_GetUser",
+        "operationId": "UserService_Get",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1130,9 +3299,53 @@
         ]
       }
     },
-    "/v1/users/{userId}/comments": {
+    "/users/{userId}/badges": {
       "get": {
-        "operationId": "UserService_ListUserComments",
+        "summary": "Badge Listings",
+        "operationId": "BadgeService_ListUserBadges",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoListUserBadgesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "BadgeService"
+        ]
+      }
+    },
+    "/users/{userId}/comments": {
+      "get": {
+        "operationId": "UserService_ListComments",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1173,10 +3386,10 @@
         ]
       }
     },
-    "/v1/users/{userId}/communities": {
+    "/users/{userId}/communities": {
       "get": {
         "summary": "List Operations",
-        "operationId": "UserService_ListUserCommunities",
+        "operationId": "UserService_ListCommunities",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1217,14 +3430,14 @@
         ]
       }
     },
-    "/v1/users/{userId}/follow": {
+    "/users/{userId}/follow": {
       "delete": {
-        "operationId": "UserService_UnfollowUser",
+        "operationId": "UserService_Unfollow",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoUnfollowUserResponse"
+              "$ref": "#/definitions/protoUnfollowResponse"
             }
           },
           "default": {
@@ -1248,12 +3461,12 @@
       },
       "post": {
         "summary": "Follow Operations",
-        "operationId": "UserService_FollowUser",
+        "operationId": "UserService_Follow",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoFollowUserResponse"
+              "$ref": "#/definitions/protoFollowResponse"
             }
           },
           "default": {
@@ -1276,7 +3489,7 @@
         ]
       }
     },
-    "/v1/users/{userId}/followers": {
+    "/users/{userId}/followers": {
       "get": {
         "operationId": "UserService_ListFollowers",
         "responses": {
@@ -1319,7 +3532,7 @@
         ]
       }
     },
-    "/v1/users/{userId}/following": {
+    "/users/{userId}/following": {
       "get": {
         "operationId": "UserService_ListFollowing",
         "responses": {
@@ -1362,9 +3575,78 @@
         ]
       }
     },
-    "/v1/users/{userId}/posts": {
+    "/users/{userId}/permissions/communities/{communityId}": {
       "get": {
-        "operationId": "UserService_ListUserPosts",
+        "operationId": "PermissionService_GetCommunityPermissions2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetCommunityPermissionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "if empty, get current user's permissions",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PermissionService"
+        ]
+      }
+    },
+    "/users/{userId}/permissions/platform": {
+      "get": {
+        "summary": "Get Permissions",
+        "operationId": "PermissionService_GetUserPermissions2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoGetUserPermissionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "if empty, get current user's permissions",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PermissionService"
+        ]
+      }
+    },
+    "/users/{userId}/posts": {
+      "get": {
+        "operationId": "UserService_ListPosts",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1418,9 +3700,9 @@
         ]
       }
     },
-    "/v1/users/{userId}/statistics": {
+    "/users/{userId}/statistics": {
       "get": {
-        "operationId": "UserService_GetUserStatistics",
+        "operationId": "UserService_GetStatistics",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1450,23 +3732,38 @@
     }
   },
   "definitions": {
-    "CommunityServiceBanCommunityBody": {
+    "BadgeServiceAwardBadgeToCommunityBody": {
       "type": "object",
       "properties": {
+        "communityId": {
+          "type": "string"
+        },
         "reason": {
           "type": "string"
         }
       }
     },
-    "CommunityServiceTransferOwnershipBody": {
+    "BadgeServiceAwardBadgeToUserBody": {
       "type": "object",
       "properties": {
-        "newOwnerId": {
+        "userId": {
+          "type": "string"
+        },
+        "reason": {
           "type": "string"
         }
       }
     },
-    "CommunityServiceUpdateCommunityBody": {
+    "BadgeServiceRejectCommunityBadgeBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "title": "mandatory rejection reason"
+        }
+      }
+    },
+    "BadgeServiceUpdateBadgeBody": {
       "type": "object",
       "properties": {
         "name": {
@@ -1475,21 +3772,259 @@
         "description": {
           "type": "string"
         },
-        "rules": {
+        "iconUrl": {
+          "type": "string"
+        },
+        "rarity": {
+          "$ref": "#/definitions/protoRarityLevel"
+        }
+      }
+    },
+    "CommunityServiceBanBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
           "type": "string"
         }
       }
     },
-    "PostServiceUpdatePostBody": {
+    "ModerationServiceBanUserBody": {
       "type": "object",
       "properties": {
-        "title": {
+        "reason": {
           "type": "string"
-        },
-        "content": {
-          "type": "object"
         }
       }
+    },
+    "ModerationServiceBanUserInCommunityBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "ModerationServiceMuteUserInCommunityBody": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "$ref": "#/definitions/protoMuteDuration"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "ReportServiceDismissBody": {
+      "type": "object",
+      "properties": {
+        "dismissalReason": {
+          "type": "string"
+        }
+      }
+    },
+    "ReportServiceResolveBody": {
+      "type": "object",
+      "properties": {
+        "resolutionNote": {
+          "type": "string"
+        }
+      }
+    },
+    "RoleServiceAssignRoleBody": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "RoleServiceCreateCommunityRoleBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/definitions/protoPermissions"
+        }
+      }
+    },
+    "RoleServiceRemoveRoleBody": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      }
+    },
+    "RoleServiceUpdateRoleBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "cannot rename @everyone"
+        },
+        "color": {
+          "type": "string"
+        },
+        "permissions": {
+          "$ref": "#/definitions/protoPermissions"
+        }
+      }
+    },
+    "protoApproveCommunityBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        }
+      }
+    },
+    "protoAssignRoleResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoAutomaticBadgeSetting": {
+      "type": "object",
+      "properties": {
+        "badgeId": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "title": "FR-539: Automatic badge setting"
+    },
+    "protoAwardBadgeToCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "award": {
+          "$ref": "#/definitions/protoBadgeAward"
+        }
+      }
+    },
+    "protoAwardBadgeToUserResponse": {
+      "type": "object",
+      "properties": {
+        "award": {
+          "$ref": "#/definitions/protoBadgeAward"
+        }
+      }
+    },
+    "protoBadge": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "iconUrl": {
+          "type": "string"
+        },
+        "rarity": {
+          "$ref": "#/definitions/protoRarityLevel"
+        },
+        "type": {
+          "$ref": "#/definitions/protoBadgeType"
+        },
+        "status": {
+          "$ref": "#/definitions/protoBadgeStatus"
+        },
+        "communityId": {
+          "type": "string",
+          "title": "only for community badges"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isAutomatic": {
+          "type": "boolean",
+          "title": "FR-529: automatic platform badges"
+        }
+      }
+    },
+    "protoBadgeAward": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "badgeId": {
+          "type": "string"
+        },
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        },
+        "recipientId": {
+          "type": "string",
+          "title": "user_id or community_id"
+        },
+        "recipientType": {
+          "$ref": "#/definitions/protoRecipientType"
+        },
+        "awardedBy": {
+          "type": "string"
+        },
+        "awardedByUsername": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "awardedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "awardedByCommunityId": {
+          "type": "string",
+          "title": "FR-498: source community (null = platform)"
+        },
+        "awardedByCommunityName": {
+          "type": "string",
+          "title": "FR-498: for UI display"
+        }
+      }
+    },
+    "protoBadgeStatus": {
+      "type": "string",
+      "enum": [
+        "BADGE_STATUS_UNSPECIFIED",
+        "ACTIVE",
+        "PENDING_APPROVAL",
+        "REJECTED"
+      ],
+      "default": "BADGE_STATUS_UNSPECIFIED"
+    },
+    "protoBadgeType": {
+      "type": "string",
+      "enum": [
+        "BADGE_TYPE_UNSPECIFIED",
+        "PLATFORM",
+        "COMMUNITY"
+      ],
+      "default": "BADGE_TYPE_UNSPECIFIED"
     },
     "protoBanCommunityResponse": {
       "type": "object",
@@ -1499,11 +4034,25 @@
         }
       }
     },
-    "protoBookmarkPostResponse": {
+    "protoBanUserInCommunityResponse": {
       "type": "object",
       "properties": {
         "message": {
           "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
+        }
+      }
+    },
+    "protoBanUserResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
         }
       }
     },
@@ -1577,6 +4126,39 @@
         }
       }
     },
+    "protoCommentEvent": {
+      "type": "object",
+      "properties": {
+        "eventType": {
+          "$ref": "#/definitions/protoCommentEventType"
+        },
+        "comment": {
+          "$ref": "#/definitions/protoComment"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoCommentEventType": {
+      "type": "string",
+      "enum": [
+        "COMMENT_EVENT_TYPE_UNSPECIFIED",
+        "COMMENT_EVENT_TYPE_CREATED",
+        "COMMENT_EVENT_TYPE_UPDATED",
+        "COMMENT_EVENT_TYPE_DELETED"
+      ],
+      "default": "COMMENT_EVENT_TYPE_UNSPECIFIED"
+    },
+    "protoCommentServiceUpdateBody": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      }
+    },
     "protoCommentWithPostInfo": {
       "type": "object",
       "properties": {
@@ -1620,6 +4202,11 @@
           "type": "integer",
           "format": "int32"
         },
+        "reputation": {
+          "type": "integer",
+          "format": "int32",
+          "title": "FR-455-458: sum(post_likes) + (sum(comments) × 0.1)"
+        },
         "isBanned": {
           "type": "boolean"
         },
@@ -1630,6 +4217,164 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "protoCommunityServiceTransferOwnershipBody": {
+      "type": "object",
+      "properties": {
+        "newOwnerId": {
+          "type": "string"
+        }
+      }
+    },
+    "protoCommunityServiceUpdateBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "string"
+        }
+      }
+    },
+    "protoConfirmPlatformOwnershipRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "protoConfirmPlatformOwnershipResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/protoPlatformSettings"
+        }
+      }
+    },
+    "protoConfirmRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "protoConfirmResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string",
+          "title": "same requirements as registration"
+        }
+      }
+    },
+    "protoConfirmResetPasswordResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoConfirmResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoContentType": {
+      "type": "string",
+      "enum": [
+        "CONTENT_TYPE_UNSPECIFIED",
+        "CONTENT_TYPE_POSTS",
+        "CONTENT_TYPE_COMMENTS",
+        "CONTENT_TYPE_USERS",
+        "CONTENT_TYPE_COMMUNITIES",
+        "CONTENT_TYPE_ALL"
+      ],
+      "default": "CONTENT_TYPE_UNSPECIFIED"
+    },
+    "protoCreateBookmarkResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoCreateCommentRequest": {
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "title": "1-10000 chars"
+        },
+        "parentCommentId": {
+          "type": "string",
+          "title": "for nested replies"
+        },
+        "attachmentUrls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "S3 URLs from presigned upload"
+        }
+      }
+    },
+    "protoCreateCommentResponse": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "$ref": "#/definitions/protoComment"
+        }
+      }
+    },
+    "protoCreateCommunityBadgeRequest": {
+      "type": "object",
+      "properties": {
+        "communityId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "title": "3-100 chars"
+        },
+        "description": {
+          "type": "string",
+          "title": "10-500 chars"
+        },
+        "iconUrl": {
+          "type": "string"
+        },
+        "rarity": {
+          "$ref": "#/definitions/protoRarityLevel"
+        }
+      }
+    },
+    "protoCreateCommunityBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
         }
       }
     },
@@ -1654,6 +4399,65 @@
       "properties": {
         "community": {
           "$ref": "#/definitions/protoCommunity"
+        }
+      }
+    },
+    "protoCreateCommunityRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/protoRole"
+        }
+      }
+    },
+    "protoCreatePlatformBadgeRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "3-100 chars"
+        },
+        "description": {
+          "type": "string",
+          "title": "10-500 chars"
+        },
+        "iconUrl": {
+          "type": "string"
+        },
+        "rarity": {
+          "$ref": "#/definitions/protoRarityLevel"
+        }
+      }
+    },
+    "protoCreatePlatformBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        }
+      }
+    },
+    "protoCreatePlatformRoleRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "1-50 chars, cannot be \"@everyone\""
+        },
+        "color": {
+          "type": "string",
+          "title": "hex color code"
+        },
+        "permissions": {
+          "$ref": "#/definitions/protoPermissions"
+        }
+      }
+    },
+    "protoCreatePlatformRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/protoRole"
         }
       }
     },
@@ -1682,6 +4486,32 @@
       "properties": {
         "post": {
           "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoCreateRequest": {
+      "type": "object",
+      "properties": {
+        "contentType": {
+          "$ref": "#/definitions/protoReportedContentType"
+        },
+        "contentId": {
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/definitions/protoReportReason"
+        },
+        "description": {
+          "type": "string",
+          "title": "10-1000 chars"
+        }
+      }
+    },
+    "protoCreateResponse": {
+      "type": "object",
+      "properties": {
+        "report": {
+          "$ref": "#/definitions/protoReport"
         }
       }
     },
@@ -1735,6 +4565,30 @@
         }
       }
     },
+    "protoDeleteBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoDeleteBookmarkResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoDeleteCommentResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "protoDeleteCommunityResponse": {
       "type": "object",
       "properties": {
@@ -1751,11 +4605,56 @@
         }
       }
     },
-    "protoFollowUserResponse": {
+    "protoDeleteRoleResponse": {
       "type": "object",
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "protoDismissResponse": {
+      "type": "object",
+      "properties": {
+        "report": {
+          "$ref": "#/definitions/protoReport"
+        }
+      }
+    },
+    "protoFollowResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoGetBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        },
+        "awardedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "how many times awarded"
+        }
+      }
+    },
+    "protoGetCommentResponse": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "$ref": "#/definitions/protoComment"
+        }
+      }
+    },
+    "protoGetCommunityPermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissionsInfo": {
+          "$ref": "#/definitions/protoUserPermissionsInfo"
         }
       }
     },
@@ -1783,11 +4682,123 @@
         }
       }
     },
+    "protoGetFeedResponse": {
+      "type": "object",
+      "properties": {
+        "posts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoPost"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoGetNotificationResponse": {
+      "type": "object",
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoNotification"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoGetPersonalizedFeedResponse": {
+      "type": "object",
+      "properties": {
+        "posts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoPost"
+          },
+          "title": "from followed users + joined communities"
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoGetPlatformStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "statistics": {
+          "$ref": "#/definitions/protoPlatformStatistics"
+        }
+      }
+    },
     "protoGetPostResponse": {
       "type": "object",
       "properties": {
         "post": {
           "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoGetPreferencesResponse": {
+      "type": "object",
+      "properties": {
+        "preferences": {
+          "$ref": "#/definitions/protoNotificationPreferences"
+        }
+      }
+    },
+    "protoGetResponse": {
+      "type": "object",
+      "properties": {
+        "report": {
+          "$ref": "#/definitions/protoReport"
+        }
+      }
+    },
+    "protoGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/protoRole"
+        }
+      }
+    },
+    "protoGetSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "$ref": "#/definitions/protoPlatformSettings"
+        }
+      }
+    },
+    "protoGetUnreadCountResponse": {
+      "type": "object",
+      "properties": {
+        "unreadCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protoGetUserPermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissionsInfo": {
+          "$ref": "#/definitions/protoUserPermissionsInfo"
         }
       }
     },
@@ -1807,6 +4818,18 @@
         }
       }
     },
+    "protoHeartbeatResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "lastActivity": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "protoJoinCommunityResponse": {
       "type": "object",
       "properties": {
@@ -1820,6 +4843,18 @@
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "protoLikeCommentResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "newLikeCount": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -1889,6 +4924,42 @@
         }
       }
     },
+    "protoListCommunityBadgesResponse": {
+      "type": "object",
+      "properties": {
+        "awards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoBadgeAward"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListCommunityRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoRole"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
     "protoListFollowersResponse": {
       "type": "object",
       "properties": {
@@ -1915,6 +4986,114 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/protoUserProfile"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListModerationLogsResponse": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoModerationAction"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListPendingBadgesResponse": {
+      "type": "object",
+      "properties": {
+        "badges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoBadge"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListPlatformRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoRole"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListPostCommentsResponse": {
+      "type": "object",
+      "properties": {
+        "comments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoComment"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListResponse": {
+      "type": "object",
+      "properties": {
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoReport"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoListUserBadgesResponse": {
+      "type": "object",
+      "properties": {
+        "awards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoBadgeAward"
           }
         },
         "nextCursor": {
@@ -2014,6 +5193,26 @@
         }
       }
     },
+    "protoMarkAllAsReadResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "markedCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "protoMarkAsReadResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
     "protoMediaAttachment": {
       "type": "object",
       "properties": {
@@ -2027,6 +5226,465 @@
         "sizeBytes": {
           "type": "string",
           "format": "int64"
+        }
+      }
+    },
+    "protoModerationAction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "moderatorId": {
+          "type": "string"
+        },
+        "moderatorUsername": {
+          "type": "string"
+        },
+        "targetUserId": {
+          "type": "string"
+        },
+        "targetUsername": {
+          "type": "string"
+        },
+        "actionType": {
+          "type": "string",
+          "title": "ban, unban, mute, unmute"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "communityId": {
+          "type": "string",
+          "title": "only for community-specific actions"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoMuteDuration": {
+      "type": "string",
+      "enum": [
+        "MUTE_DURATION_UNSPECIFIED",
+        "MUTE_DURATION_1_HOUR",
+        "MUTE_DURATION_24_HOURS",
+        "MUTE_DURATION_7_DAYS",
+        "MUTE_DURATION_30_DAYS",
+        "MUTE_DURATION_PERMANENT"
+      ],
+      "default": "MUTE_DURATION_UNSPECIFIED"
+    },
+    "protoMuteUserInCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "mutedUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
+        }
+      }
+    },
+    "protoNotification": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/protoNotificationType"
+        },
+        "content": {
+          "$ref": "#/definitions/protoNotificationContent"
+        },
+        "isRead": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoNotificationContent": {
+      "type": "object",
+      "properties": {
+        "actorUsername": {
+          "type": "string"
+        },
+        "actorAvatar": {
+          "type": "string"
+        },
+        "targetType": {
+          "type": "string",
+          "title": "post or comment"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "actionType": {
+          "type": "string"
+        },
+        "communityName": {
+          "type": "string",
+          "title": "Type-specific fields"
+        },
+        "postTitle": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "string"
+        },
+        "commentId": {
+          "type": "string"
+        },
+        "commentText": {
+          "type": "string",
+          "title": "truncated to 100 chars"
+        },
+        "originalCommentId": {
+          "type": "string"
+        },
+        "replyText": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "Notification content structure (FR-418, FR-433-438)"
+    },
+    "protoNotificationPreferences": {
+      "type": "object",
+      "properties": {
+        "newPostInCommunity": {
+          "type": "boolean"
+        },
+        "newPostFromFollowedUser": {
+          "type": "boolean"
+        },
+        "commentLiked": {
+          "type": "boolean"
+        },
+        "newCommentInPost": {
+          "type": "boolean"
+        },
+        "commentReply": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoNotificationType": {
+      "type": "string",
+      "enum": [
+        "NOTIFICATION_TYPE_UNSPECIFIED",
+        "NOTIFICATION_TYPE_NEW_POST_IN_COMMUNITY",
+        "NOTIFICATION_TYPE_NEW_POST_FROM_FOLLOWED_USER",
+        "NOTIFICATION_TYPE_COMMENT_LIKED",
+        "NOTIFICATION_TYPE_NEW_COMMENT_IN_POST",
+        "NOTIFICATION_TYPE_COMMENT_REPLY"
+      ],
+      "default": "NOTIFICATION_TYPE_UNSPECIFIED"
+    },
+    "protoPermissionChangeEvent": {
+      "type": "object",
+      "properties": {
+        "changeType": {
+          "$ref": "#/definitions/protoPermissionChangeType"
+        },
+        "updatedPermissions": {
+          "$ref": "#/definitions/protoUserPermissionsInfo"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoPermissionChangeType": {
+      "type": "string",
+      "enum": [
+        "PERMISSION_CHANGE_TYPE_UNSPECIFIED",
+        "PERMISSION_CHANGE_TYPE_ROLE_ASSIGNED",
+        "PERMISSION_CHANGE_TYPE_ROLE_REMOVED",
+        "PERMISSION_CHANGE_TYPE_ROLE_EDITED",
+        "PERMISSION_CHANGE_TYPE_COMMUNITY_JOINED",
+        "PERMISSION_CHANGE_TYPE_COMMUNITY_LEFT"
+      ],
+      "default": "PERMISSION_CHANGE_TYPE_UNSPECIFIED"
+    },
+    "protoPermissions": {
+      "type": "object",
+      "properties": {
+        "banUsers": {
+          "type": "boolean",
+          "title": "Moderation permissions (FR-127)"
+        },
+        "muteUsers": {
+          "type": "boolean"
+        },
+        "deleteAnyPost": {
+          "type": "boolean"
+        },
+        "deleteAnyComment": {
+          "type": "boolean"
+        },
+        "unpublishPost": {
+          "type": "boolean"
+        },
+        "viewModerationLogs": {
+          "type": "boolean"
+        },
+        "createPost": {
+          "type": "boolean",
+          "title": "Content permissions (FR-128)"
+        },
+        "editOwnPost": {
+          "type": "boolean"
+        },
+        "deleteOwnPost": {
+          "type": "boolean"
+        },
+        "createComment": {
+          "type": "boolean"
+        },
+        "editOwnComment": {
+          "type": "boolean"
+        },
+        "deleteOwnComment": {
+          "type": "boolean"
+        },
+        "likeContent": {
+          "type": "boolean"
+        },
+        "bookmarkContent": {
+          "type": "boolean"
+        },
+        "createCommunity": {
+          "type": "boolean",
+          "title": "Community permissions (FR-129)"
+        },
+        "editCommunitySettings": {
+          "type": "boolean"
+        },
+        "deleteCommunity": {
+          "type": "boolean"
+        },
+        "transferCommunityOwnership": {
+          "type": "boolean"
+        },
+        "manageCommunityMembers": {
+          "type": "boolean"
+        },
+        "assignCommunityRoles": {
+          "type": "boolean"
+        },
+        "createCommunityRoles": {
+          "type": "boolean"
+        },
+        "editCommunityRoles": {
+          "type": "boolean"
+        },
+        "deleteCommunityRoles": {
+          "type": "boolean"
+        },
+        "editPlatformSettings": {
+          "type": "boolean",
+          "title": "Platform permissions (FR-130)"
+        },
+        "transferPlatformOwnership": {
+          "type": "boolean"
+        },
+        "managePlatformUsers": {
+          "type": "boolean"
+        },
+        "assignPlatformRoles": {
+          "type": "boolean"
+        },
+        "createPlatformRoles": {
+          "type": "boolean"
+        },
+        "editPlatformRoles": {
+          "type": "boolean"
+        },
+        "deletePlatformRoles": {
+          "type": "boolean"
+        },
+        "viewAllCommunities": {
+          "type": "boolean"
+        },
+        "viewAnalytics": {
+          "type": "boolean"
+        },
+        "reportContent": {
+          "type": "boolean",
+          "title": "Report permissions (FR-131)"
+        },
+        "viewReports": {
+          "type": "boolean"
+        },
+        "resolveReports": {
+          "type": "boolean"
+        },
+        "dismissReports": {
+          "type": "boolean"
+        },
+        "pinPost": {
+          "type": "boolean",
+          "title": "Advanced permissions (FR-132)"
+        },
+        "unpinPost": {
+          "type": "boolean"
+        },
+        "lockThread": {
+          "type": "boolean"
+        },
+        "unlockThread": {
+          "type": "boolean"
+        },
+        "featurePost": {
+          "type": "boolean"
+        },
+        "editAnyPost": {
+          "type": "boolean"
+        },
+        "editAnyComment": {
+          "type": "boolean"
+        },
+        "createPlatformBadges": {
+          "type": "boolean",
+          "title": "Badge permissions (FR-523)"
+        },
+        "editPlatformBadges": {
+          "type": "boolean"
+        },
+        "deletePlatformBadges": {
+          "type": "boolean"
+        },
+        "awardPlatformBadges": {
+          "type": "boolean"
+        },
+        "createCommunityBadges": {
+          "type": "boolean"
+        },
+        "editCommunityBadges": {
+          "type": "boolean"
+        },
+        "deleteCommunityBadges": {
+          "type": "boolean"
+        },
+        "awardCommunityBadges": {
+          "type": "boolean"
+        },
+        "approveCommunityBadges": {
+          "type": "boolean"
+        }
+      },
+      "title": "Granular permission flags (FR-126-132)"
+    },
+    "protoPlatformSettings": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "bannerUrl": {
+          "type": "string"
+        },
+        "authBannerUrl": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "ownerUsername": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "badgeSettings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoAutomaticBadgeSetting"
+          },
+          "title": "FR-539: automatic badge enable/disable"
+        }
+      }
+    },
+    "protoPlatformStatistics": {
+      "type": "object",
+      "properties": {
+        "totalUsers": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "verifiedUsers": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalCommunities": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalPosts": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalComments": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pendingReports": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Report statistics"
+        },
+        "resolvedReports": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dismissedReports": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "activeUsers24h": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Activity statistics"
+        },
+        "activeUsers7d": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "activeUsers30d": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "calculatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -2086,6 +5744,17 @@
         }
       }
     },
+    "protoPostServiceUpdateBody": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object"
+        }
+      }
+    },
     "protoPostStatus": {
       "type": "string",
       "enum": [
@@ -2102,6 +5771,26 @@
           "$ref": "#/definitions/protoPost"
         }
       }
+    },
+    "protoRarityLevel": {
+      "type": "string",
+      "enum": [
+        "RARITY_LEVEL_UNSPECIFIED",
+        "COMMON",
+        "RARE",
+        "EPIC",
+        "LEGENDARY"
+      ],
+      "default": "RARITY_LEVEL_UNSPECIFIED"
+    },
+    "protoRecipientType": {
+      "type": "string",
+      "enum": [
+        "RECIPIENT_TYPE_UNSPECIFIED",
+        "RECIPIENT_TYPE_USER",
+        "RECIPIENT_TYPE_COMMUNITY"
+      ],
+      "default": "RECIPIENT_TYPE_UNSPECIFIED"
     },
     "protoRefreshTokenRequest": {
       "type": "object",
@@ -2151,13 +5840,114 @@
         }
       }
     },
-    "protoRemoveBookmarkResponse": {
+    "protoRejectCommunityBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        }
+      }
+    },
+    "protoRelationType": {
+      "type": "string",
+      "enum": [
+        "MEDIA_TYPE_UNSPECIFIED",
+        "MEDIA_TYPE_USER_AVATAR",
+        "MEDIA_TYPE_USER_BANNER",
+        "MEDIA_TYPE_COMMENT_ATTACHMENT",
+        "MEDIA_TYPE_PLATFORM_LOGO",
+        "MEDIA_TYPE_PLATFORM_BANNER",
+        "MEDIA_TYPE_COMMUNITY_LOGO",
+        "MEDIA_TYPE_COMMUNITY_BANNER"
+      ],
+      "default": "MEDIA_TYPE_UNSPECIFIED"
+    },
+    "protoRemoveRoleResponse": {
       "type": "object",
       "properties": {
         "message": {
           "type": "string"
         }
       }
+    },
+    "protoReport": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "reporterId": {
+          "type": "string"
+        },
+        "reporterUsername": {
+          "type": "string"
+        },
+        "contentType": {
+          "$ref": "#/definitions/protoReportedContentType"
+        },
+        "contentId": {
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/definitions/protoReportReason"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/protoReportStatus"
+        },
+        "resolverId": {
+          "type": "string"
+        },
+        "resolverUsername": {
+          "type": "string"
+        },
+        "resolutionNote": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolvedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoReportReason": {
+      "type": "string",
+      "enum": [
+        "REPORT_REASON_UNSPECIFIED",
+        "REPORT_REASON_SPAM",
+        "REPORT_REASON_HARASSMENT",
+        "REPORT_REASON_MISINFORMATION",
+        "REPORT_REASON_EXPLICIT_CONTENT",
+        "REPORT_REASON_VIOLENCE",
+        "REPORT_REASON_HATE_SPEECH",
+        "REPORT_REASON_OTHER"
+      ],
+      "default": "REPORT_REASON_UNSPECIFIED"
+    },
+    "protoReportStatus": {
+      "type": "string",
+      "enum": [
+        "REPORT_STATUS_UNSPECIFIED",
+        "REPORT_STATUS_PENDING",
+        "REPORT_STATUS_RESOLVED",
+        "REPORT_STATUS_DISMISSED"
+      ],
+      "default": "REPORT_STATUS_UNSPECIFIED"
+    },
+    "protoReportedContentType": {
+      "type": "string",
+      "enum": [
+        "REPORTED_CONTENT_TYPE_UNSPECIFIED",
+        "REPORTED_CONTENT_TYPE_POST",
+        "REPORTED_CONTENT_TYPE_COMMENT"
+      ],
+      "default": "REPORTED_CONTENT_TYPE_UNSPECIFIED"
     },
     "protoRequestPasswordResetRequest": {
       "type": "object",
@@ -2176,19 +5966,23 @@
         }
       }
     },
-    "protoResetPasswordRequest": {
+    "protoResolveResponse": {
       "type": "object",
       "properties": {
-        "token": {
-          "type": "string"
-        },
-        "newPassword": {
-          "type": "string",
-          "title": "same requirements as registration"
+        "report": {
+          "$ref": "#/definitions/protoReport"
         }
       }
     },
-    "protoResetPasswordResponse": {
+    "protoRevokeBadgeFromCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoRevokeBadgeFromUserResponse": {
       "type": "object",
       "properties": {
         "message": {
@@ -2201,6 +5995,95 @@
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "protoRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string",
+          "title": "hex color code"
+        },
+        "type": {
+          "$ref": "#/definitions/protoRoleType"
+        },
+        "communityId": {
+          "type": "string",
+          "title": "only for community roles"
+        },
+        "permissions": {
+          "$ref": "#/definitions/protoPermissions"
+        },
+        "memberCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isEveryone": {
+          "type": "boolean",
+          "title": "true for @everyone roles"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "protoRoleType": {
+      "type": "string",
+      "enum": [
+        "ROLE_TYPE_UNSPECIFIED",
+        "ROLE_TYPE_PLATFORM",
+        "ROLE_TYPE_COMMUNITY"
+      ],
+      "default": "ROLE_TYPE_UNSPECIFIED"
+    },
+    "protoSearchResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoSearchResult"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "hasMore": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protoSearchResult": {
+      "type": "object",
+      "properties": {
+        "resultType": {
+          "type": "string",
+          "title": "post, comment, user, community"
+        },
+        "post": {
+          "$ref": "#/definitions/protoPost"
+        },
+        "comment": {
+          "$ref": "#/definitions/protoComment"
+        },
+        "user": {
+          "$ref": "#/definitions/protoUserProfile"
+        },
+        "community": {
+          "$ref": "#/definitions/protoCommunity"
+        },
+        "relevanceScore": {
+          "type": "number",
+          "format": "float"
         }
       }
     },
@@ -2226,7 +6109,35 @@
         }
       }
     },
+    "protoTimePeriod": {
+      "type": "string",
+      "enum": [
+        "TIME_PERIOD_UNSPECIFIED",
+        "TIME_PERIOD_TODAY",
+        "TIME_PERIOD_WEEK",
+        "TIME_PERIOD_MONTH",
+        "TIME_PERIOD_YEAR",
+        "TIME_PERIOD_ALL_TIME"
+      ],
+      "default": "TIME_PERIOD_UNSPECIFIED"
+    },
     "protoTransferCommunityOwnershipResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoTransferPlatformOwnershipRequest": {
+      "type": "object",
+      "properties": {
+        "newOwnerId": {
+          "type": "string"
+        }
+      }
+    },
+    "protoTransferPlatformOwnershipResponse": {
       "type": "object",
       "properties": {
         "message": {
@@ -2242,11 +6153,45 @@
         }
       }
     },
-    "protoUnfollowUserResponse": {
+    "protoUnbanUserInCommunityResponse": {
       "type": "object",
       "properties": {
         "message": {
           "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
+        }
+      }
+    },
+    "protoUnbanUserResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
+        }
+      }
+    },
+    "protoUnfollowResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protoUnlikeCommentResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "newLikeCount": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -2262,11 +6207,38 @@
         }
       }
     },
+    "protoUnmuteUserInCommunityResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/protoModerationAction"
+        }
+      }
+    },
     "protoUnpublishPostResponse": {
       "type": "object",
       "properties": {
         "post": {
           "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoUpdateBadgeResponse": {
+      "type": "object",
+      "properties": {
+        "badge": {
+          "$ref": "#/definitions/protoBadge"
+        }
+      }
+    },
+    "protoUpdateCommentResponse": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "$ref": "#/definitions/protoComment"
         }
       }
     },
@@ -2283,6 +6255,22 @@
       "properties": {
         "post": {
           "$ref": "#/definitions/protoPost"
+        }
+      }
+    },
+    "protoUpdatePreferencesRequest": {
+      "type": "object",
+      "properties": {
+        "preferences": {
+          "$ref": "#/definitions/protoNotificationPreferences"
+        }
+      }
+    },
+    "protoUpdatePreferencesResponse": {
+      "type": "object",
+      "properties": {
+        "preferences": {
+          "$ref": "#/definitions/protoNotificationPreferences"
         }
       }
     },
@@ -2308,6 +6296,78 @@
       "properties": {
         "user": {
           "$ref": "#/definitions/protoCurrentUserProfile"
+        }
+      }
+    },
+    "protoUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/protoRole"
+        }
+      }
+    },
+    "protoUpdateSettingsRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "3-100 chars"
+        },
+        "description": {
+          "type": "string",
+          "title": "max 1000 chars"
+        },
+        "rules": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        },
+        "bannerUrl": {
+          "type": "string"
+        },
+        "authBannerUrl": {
+          "type": "string"
+        },
+        "automaticBadgeSettings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoAutomaticBadgeSetting"
+          },
+          "title": "FR-540: update badge enable/disable"
+        }
+      }
+    },
+    "protoUpdateSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "$ref": "#/definitions/protoPlatformSettings"
+        }
+      }
+    },
+    "protoUploadRequest": {
+      "type": "object",
+      "properties": {
+        "chunk": {
+          "type": "string",
+          "format": "byte"
+        },
+        "relationType": {
+          "$ref": "#/definitions/protoRelationType"
+        },
+        "relationId": {
+          "type": "string"
+        }
+      }
+    },
+    "protoUploadResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
         }
       }
     },
@@ -2352,6 +6412,27 @@
         }
       }
     },
+    "protoUserPermissionsInfo": {
+      "type": "object",
+      "properties": {
+        "calculatedPermissions": {
+          "$ref": "#/definitions/protoPermissions",
+          "title": "union of all roles"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protoUserRoleInfo"
+          },
+          "title": "list of user's roles"
+        },
+        "calculatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "protoUserProfile": {
       "type": "object",
       "properties": {
@@ -2389,9 +6470,30 @@
           "type": "boolean",
           "title": "if current user follows this user"
         },
+        "isOnline": {
+          "type": "boolean",
+          "title": "online if last_activity \u003c 5 minutes (FR-464)"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "protoUserRoleInfo": {
+      "type": "object",
+      "properties": {
+        "roleId": {
+          "type": "string"
+        },
+        "roleName": {
+          "type": "string"
+        },
+        "roleColor": {
+          "type": "string"
+        },
+        "roleType": {
+          "$ref": "#/definitions/protoRoleType"
         }
       }
     },
