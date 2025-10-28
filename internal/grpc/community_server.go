@@ -30,7 +30,7 @@ func NewCommunityServer(logger *zap.Logger, databaseClient *ormpkg.PostgresClien
 	}
 }
 
-func (this *CommunityServer) Create(ctx context.Context, request *protopkg.CreateRequest) (*protopkg.CreateResponse, error) {
+func (this *CommunityServer) Create(ctx context.Context, request *protopkg.CreateCommunityRequest) (*protopkg.CreateCommunityResponse, error) {
 	// Валидация входных данных
 	if request.Slug == "" || request.Name == "" || request.OwnerId == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "slug, name and owner_id are required")
@@ -74,7 +74,7 @@ func (this *CommunityServer) Create(ctx context.Context, request *protopkg.Creat
 	}, nil
 }
 
-func (this *CommunityServer) GetCommunity(ctx context.Context, request *protopkg.GetCommunityRequest) (*protopkg.GetCommunityResponse, error) {
+func (this *CommunityServer) Get(ctx context.Context, request *protopkg.GetCommunityRequest) (*protopkg.GetCommunityResponse, error) {
 	var community *ormpkg.Community
 	var err error
 
@@ -107,6 +107,14 @@ func (this *CommunityServer) GetCommunity(ctx context.Context, request *protopkg
 			UpdatedAt:   timestamppb.New(community.UpdatedAt),
 		},
 	}, nil
+}
+
+func (this *CommunityServer) Update(context.Context, *protopkg.UpdateCommunityRequest) (*protopkg.UpdateCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+
+func (this *CommunityServer) Delete(context.Context, *protopkg.DeleteCommunityRequest) (*protopkg.DeleteCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func (this *CommunityServer) ListCommunities(ctx context.Context, request *protopkg.ListCommunitiesRequest) (*protopkg.ListCommunitiesResponse, error) {
@@ -161,4 +169,24 @@ func (this *CommunityServer) ListCommunities(ctx context.Context, request *proto
 		NextCursor:  nextCursor,
 		HasMore:     hasMore,
 	}, nil
+}
+
+func (this *CommunityServer) Join(context.Context, *protopkg.JoinCommunityRequest) (*protopkg.JoinCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
+}
+
+func (this *CommunityServer) Leave(context.Context, *protopkg.LeaveCommunityRequest) (*protopkg.LeaveCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Leave not implemented")
+}
+
+func (this *CommunityServer) Ban(context.Context, *protopkg.BanCommunityRequest) (*protopkg.BanCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ban not implemented")
+}
+
+func (this *CommunityServer) Unban(context.Context, *protopkg.UnbanCommunityRequest) (*protopkg.UnbanCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Unban not implemented")
+}
+
+func (this *CommunityServer) TransferOwnership(context.Context, *protopkg.TransferCommunityOwnershipRequest) (*protopkg.TransferCommunityOwnershipResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferOwnership not implemented")
 }

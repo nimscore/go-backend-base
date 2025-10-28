@@ -42,8 +42,8 @@ func NewGRPC(
 	)
 
 	// Authorization API
-	iamServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
-	protopkg.RegisterAuthorizationServiceServer(grpcServer, iamServer)
+	authorizationServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
+	protopkg.RegisterAuthorizationServiceServer(grpcServer, authorizationServer)
 
 	// Community API
 	communityServer := NewCommunityServer(logger, databaseClient, brokerClient)

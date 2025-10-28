@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 
 	eventpkg "github.com/stormhead-org/backend/internal/event"
@@ -60,7 +59,7 @@ func NewAuthorizationServer(logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient 
 }
 
 func (this *AuthorizationServer) Register(context context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
-	err := ValidateUserSlug(request.Slug)
+	err := ValidateUserSlug(request.Username)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "slug not match conditions")
 	}
@@ -70,8 +69,8 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		return nil, status.Errorf(codes.InvalidArgument, "email not match conditions")
 	}
 
-	_, err = this.databaseClient.SelectUserBySlug(
-		request.Slug,
+	_, err = this.databaseClient.SelectUserByUsername(
+		request.Username,
 	)
 	if err != gorm.ErrRecordNotFound {
 		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
@@ -96,7 +95,7 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 	}
 
 	user := &ormpkg.User{
-		Slug:       request.Slug,
+		Name:       request.Username,
 		Email:      request.Email,
 		Password:   hash,
 		Salt:       salt,
@@ -171,9 +170,8 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 	return &protopkg.LoginResponse{
 		User: &protopkg.User{
 			Id:          user.ID.String(),
-			Name:        user.Name,
+			Username:    user.Name,
 			Description: user.Description,
-			Slug:        user.Slug,
 			Email:       user.Email,
 			IsVerified:  user.IsVerified,
 		},
@@ -182,20 +180,20 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 	}, nil
 }
 
-func (this *AuthorizationServer) Logout(context context.Context, request *protopkg.LogoutRequest) (*emptypb.Empty, error) {
-	id, err := this.jwt.ParseRefreshToken(
-		request.RefreshToken,
-	)
-	if err != nil {
-		this.logger.Debug("refresh token error", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
-	}
+func (this *AuthorizationServer) Logout(context context.Context, request *protopkg.LogoutRequest) (*protopkg.LogoutResponse, error) {
+	// id, err := this.jwt.ParseRefreshToken(
+	// 	request.RefreshToken,
+	// )
+	// if err != nil {
+	// 	this.logger.Debug("refresh token error", zap.Error(err))
+	// 	return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
+	// }
 
-	err = this.brokerClient.WriteMessage(
+	err := this.brokerClient.WriteMessage(
 		context,
 		eventpkg.AUTHORIZATION_LOGOUT,
 		eventpkg.AuthorizationLogoutMessage{
-			ID: id,
+			ID: "", // TODO: id
 		},
 	)
 	if err != nil {
@@ -203,10 +201,10 @@ func (this *AuthorizationServer) Logout(context context.Context, request *protop
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &emptypb.Empty{}, nil
+	return &protopkg.LogoutResponse{}, nil
 }
 
-func (this *AuthorizationServer) RefreshToken(context context.Context, request *protopkg.RefreshRequest) (*protopkg.RefreshResponse, error) {
+func (this *AuthorizationServer) RefreshToken(context context.Context, request *protopkg.RefreshTokenRequest) (*protopkg.RefreshTokenResponse, error) {
 	id, err := this.jwt.ParseRefreshToken(
 		request.RefreshToken,
 	)
@@ -239,35 +237,36 @@ func (this *AuthorizationServer) RefreshToken(context context.Context, request *
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopkg.RefreshResponse{
+	return &protopkg.RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (this *AuthorizationServer) ValidateToken(context context.Context, request *protopkg.ValidateRequest) (*protopkg.ValidateResponse, error) {
-	id, err := this.jwt.ParseAccessToken(
-		request.AccessToken,
-	)
-	valid := err != nil
-	if err != nil {
-		this.logger.Debug("access token error", zap.Error(err))
-	}
+func (this *AuthorizationServer) VerifyEmail(context.Context, *protopkg.VerifyEmailRequest) (*protopkg.VerifyEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
+}
 
-	err = this.brokerClient.WriteMessage(
-		context,
-		eventpkg.AUTHORIZATION_VALIDATE_TOKEN,
-		eventpkg.AuthorizationValidateTokenMessage{
-			ID: id,
-		},
-	)
-	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "internal error")
-	}
+func (this *AuthorizationServer) RequestPasswordReset(context.Context, *protopkg.RequestPasswordResetRequest) (*protopkg.RequestPasswordResetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestPasswordReset not implemented")
+}
 
-	return &protopkg.ValidateResponse{
-		Id:    id,
-		Valid: valid,
-	}, nil
+func (this *AuthorizationServer) ConfirmPasswordReset(context.Context, *protopkg.ConfirmResetPasswordRequest) (*protopkg.ConfirmResetPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmPasswordReset not implemented")
+}
+
+func (this *AuthorizationServer) ChangePassword(context.Context, *protopkg.ChangePasswordRequest) (*protopkg.ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+
+func (this *AuthorizationServer) GetCurrentSession(context.Context, *protopkg.GetCurrentSessionRequest) (*protopkg.GetCurrentSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentSession not implemented")
+}
+
+func (this *AuthorizationServer) ListActiveSessions(context.Context, *protopkg.ListActiveSessionsRequest) (*protopkg.ListActiveSessionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListActiveSessions not implemented")
+}
+
+func (this *AuthorizationServer) RevokeSession(context.Context, *protopkg.RevokeSessionRequest) (*protopkg.RevokeSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeSession not implemented")
 }

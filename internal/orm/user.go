@@ -11,7 +11,6 @@ type User struct {
 	ID          uuid.UUID `gorm:"primaryKey"`
 	Name        string
 	Description string
-	Slug        string
 	Email       string
 	Password    string
 	Salt        string
@@ -30,7 +29,7 @@ func (this *User) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
+func (this *PostgresClient) SelectUserByUsername(username string) (*User, error) {
 	var user User
 	transaction := this.database.
 		Select(
@@ -38,14 +37,13 @@ func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
 				"id",
 				"name",
 				"description",
-				"slug",
 				"email",
 				"password",
 				"salt",
 				"is_verified",
 			},
 		).
-		Where("slug = ?", slug).
+		Where("name = ?", username).
 		First(&user)
 
 	if transaction.Error != nil {
@@ -63,7 +61,6 @@ func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 				"id",
 				"name",
 				"description",
-				"slug",
 				"email",
 				"password",
 				"salt",
