@@ -59,20 +59,20 @@ message NotificationPreferences {
 // Stream (FR-400, FR-408, FR-410, FR-430-432) - gRPC Streaming
 // ============================================================================
 
-message StreamRequest {}
+message StreamNotificationRequest {}
 
 // ============================================================================
-// Get (FR-411, FR-421-423)
+// GetNotification (FR-411, FR-421-423)
 // ============================================================================
 
-message GetRequest {
+message GetNotificationRequest {
   optional bool read_status_filter      = 1;  // if set, filter by read status
   optional NotificationType type_filter = 2;
   string cursor                         = 3;
   int32 limit                           = 4;
 }
 
-message GetResponse {
+message GetNotificationResponse {
   repeated Notification notifications = 1;
   string next_cursor                  = 2;
   bool has_more                       = 3;
@@ -139,12 +139,12 @@ message UpdatePreferencesResponse {
 
 service NotificationService {
   // Real-time Streaming (gRPC Server-Side Streaming)
-  rpc Stream(StreamRequest) returns (stream Notification) {
+  rpc Stream(StreamNotificationRequest) returns (stream Notification) {
     // No HTTP mapping - gRPC streaming only
   }
 
   // History Operations
-  rpc Get(GetRequest) returns (GetResponse) {
+  rpc Get(GetNotificationRequest) returns (GetNotificationResponse) {
     option (google.api.http) = {
       get: "/notifications"
     };

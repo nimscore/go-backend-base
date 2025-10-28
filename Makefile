@@ -21,9 +21,20 @@ generate-proto:
 		--openapiv2_opt=allow_merge=true \
 		--openapiv2_opt=merge_file_name=api \
 		authorization.proto \
+		badge.proto \
+		comment.proto \
 		community.proto \
 		entity.proto \
+		feed.proto \
+		media.proto \
+		moderation.proto \
+		notification.proto \
+		permission.proto \
+		platform.proto \
 		post.proto \
+		report.proto \
+		role.proto \
+		search.proto \
 		user.proto
 
 binary-build:

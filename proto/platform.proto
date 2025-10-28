@@ -16,15 +16,15 @@ message AutomaticBadgeSetting {
 }
 
 message PlatformSettings {
-  string name                                  = 1;
-  string description                           = 2;
-  string rules                                 = 3;
-  string logo_url                              = 4;
-  string banner_url                            = 5;
-  string auth_banner_url                       = 6;
-  string owner_id                              = 7;
-  string owner_username                        = 8;
-  google.protobuf.Timestamp created_at         = 9;
+  string name                                   = 1;
+  string description                            = 2;
+  string rules                                  = 3;
+  string logo_url                               = 4;
+  string banner_url                             = 5;
+  string auth_banner_url                        = 6;
+  string owner_id                               = 7;
+  string owner_username                         = 8;
+  google.protobuf.Timestamp created_at          = 9;
   repeated AutomaticBadgeSetting badge_settings = 10;  // FR-539: automatic badge enable/disable
 }
 
@@ -63,12 +63,12 @@ message GetSettingsResponse {
 // ============================================================================
 
 message UpdateSettingsRequest {
-  optional string name                                 = 1;  // 3-100 chars
-  optional string description                          = 2;  // max 1000 chars
-  optional string rules                                = 3;
-  optional string logo_url                             = 4;
-  optional string banner_url                           = 5;
-  optional string auth_banner_url                      = 6;
+  optional string name                                    = 1;  // 3-100 chars
+  optional string description                             = 2;  // max 1000 chars
+  optional string rules                                   = 3;
+  optional string logo_url                                = 4;
+  optional string banner_url                              = 5;
+  optional string auth_banner_url                         = 6;
   repeated AutomaticBadgeSetting automatic_badge_settings = 7;  // FR-540: update badge enable/disable
 }
 
@@ -80,9 +80,9 @@ message UpdateSettingsResponse {
 // GetStatistics (FR-317, FR-324-326)
 // ============================================================================
 
-message GetStatisticsRequest {}
+message GetPlatformStatisticsRequest {}
 
-message GetStatisticsResponse {
+message GetPlatformStatisticsResponse {
   PlatformStatistics statistics = 1;
 }
 
@@ -90,11 +90,11 @@ message GetStatisticsResponse {
 // TransferOwnership (FR-106-108)
 // ============================================================================
 
-message TransferOwnershipRequest {
+message TransferPlatformOwnershipRequest {
   string new_owner_id = 1;
 }
 
-message TransferOwnershipResponse {
+message TransferPlatformOwnershipResponse {
   string message = 1;
 }
 
@@ -102,11 +102,11 @@ message TransferOwnershipResponse {
 // ConfirmOwnership (FR-108)
 // ============================================================================
 
-message ConfirmOwnershipRequest {
+message ConfirmPlatformOwnershipRequest {
   string token = 1;
 }
 
-message ConfirmOwnershipResponse {
+message ConfirmPlatformOwnershipResponse {
   string message            = 1;
   PlatformSettings settings = 2;
 }
@@ -131,21 +131,21 @@ service PlatformService {
   }
 
   // Statistics Operations
-  rpc GetStatistics(GetStatisticsRequest) returns (GetStatisticsResponse) {
+  rpc GetStatistics(GetPlatformStatisticsRequest) returns (GetPlatformStatisticsResponse) {
     option (google.api.http) = {
       get: "/platform/statistics"
     };
   }
 
   // Ownership Operations
-  rpc TransferOwnership(TransferOwnershipRequest) returns (TransferOwnershipResponse) {
+  rpc TransferOwnership(TransferPlatformOwnershipRequest) returns (TransferPlatformOwnershipResponse) {
     option (google.api.http) = {
       post: "/platform/transfer-ownership"
       body: "*"
     };
   }
 
-  rpc ConfirmOwnership(ConfirmOwnershipRequest) returns (ConfirmOwnershipResponse) {
+  rpc ConfirmOwnership(ConfirmPlatformOwnershipRequest) returns (ConfirmPlatformOwnershipResponse) {
     option (google.api.http) = {
       post: "/platform/confirm-ownership"
       body: "*"

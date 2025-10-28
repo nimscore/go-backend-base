@@ -11,14 +11,14 @@ import "google/api/annotations.proto";
 // Create (FR-327-334)
 // ============================================================================
 
-message CreateRequest {
+message CreatePostRequest {
   string community_id            = 1;
   string title                   = 2;  // 3-300 chars
   google.protobuf.Struct content = 3;  // JSON
   PostStatus status              = 4;  // draft or published
 }
 
-message CreateResponse {
+message CreatePostResponse {
   Post post = 1;
 }
 
@@ -26,11 +26,11 @@ message CreateResponse {
 // Get (FR-208, FR-213)
 // ============================================================================
 
-message GetRequest {
+message GetPostRequest {
   string post_id = 1;
 }
 
-message GetResponse {
+message GetPostResponse {
   Post post = 1;
 }
 
@@ -38,13 +38,13 @@ message GetResponse {
 // Update (FR-376-383)
 // ============================================================================
 
-message UpdateRequest {
+message UpdatePostRequest {
   string post_id                          = 1;
   optional string title                   = 2;
   optional google.protobuf.Struct content = 3;
 }
 
-message UpdateResponse {
+message UpdatePostResponse {
   Post post = 1;
 }
 
@@ -52,11 +52,11 @@ message UpdateResponse {
 // Delete (FR-209)
 // ============================================================================
 
-message DeleteRequest {
+message DeletePostRequest {
   string post_id = 1;
 }
 
-message DeleteResponse {
+message DeletePostResponse {
   string message = 1;
 }
 
@@ -64,13 +64,13 @@ message DeleteResponse {
 // ListComments (FR-217, FR-220, FR-221)
 // ============================================================================
 
-message ListCommentsRequest {
+message ListPostCommentsRequest {
   string post_id = 1;
   string cursor  = 2;
   int32 limit    = 3;
 }
 
-message ListCommentsResponse {
+message ListPostCommentsResponse {
   repeated Comment comments = 1;
   string next_cursor        = 2;
   bool has_more             = 3;
@@ -80,11 +80,11 @@ message ListCommentsResponse {
 // Publish (FR-210)
 // ============================================================================
 
-message PublishRequest {
+message PublishPostRequest {
   string post_id = 1;
 }
 
-message PublishResponse {
+message PublishPostResponse {
   Post post = 1;
 }
 
@@ -92,11 +92,11 @@ message PublishResponse {
 // Unpublish (FR-211)
 // ============================================================================
 
-message UnpublishRequest {
+message UnpublishPostRequest {
   string post_id = 1;
 }
 
-message UnpublishResponse {
+message UnpublishPostResponse {
   Post post = 1;
 }
 
@@ -104,11 +104,11 @@ message UnpublishResponse {
 // Like (FR-171, FR-175, FR-177, FR-178)
 // ============================================================================
 
-message LikeRequest {
+message LikePostRequest {
   string post_id = 1;
 }
 
-message LikeResponse {
+message LikePostResponse {
   string message       = 1;
   int32 new_like_count = 2;
 }
@@ -117,11 +117,11 @@ message LikeResponse {
 // Unlike (FR-172, FR-176)
 // ============================================================================
 
-message UnlikeRequest {
+message UnlikePostRequest {
   string post_id = 1;
 }
 
-message UnlikeResponse {
+message UnlikePostResponse {
   string message       = 1;
   int32 new_like_count = 2;
 }
@@ -171,60 +171,60 @@ message ListBookmarksResponse {
 
 service PostService {
   // CRUD Operations
-  rpc Create(CreateRequest) returns (CreateResponse) {
+  rpc Create(CreatePostRequest) returns (CreatePostResponse) {
     option (google.api.http) = {
       post: "/posts"
       body: "*"
     };
   }
 
-  rpc Get(GetRequest) returns (GetResponse) {
+  rpc Get(GetPostRequest) returns (GetPostResponse) {
     option (google.api.http) = {
       get: "/posts/{post_id}"
     };
   }
 
-  rpc Update(UpdateRequest) returns (UpdateResponse) {
+  rpc Update(UpdatePostRequest) returns (UpdatePostResponse) {
     option (google.api.http) = {
       patch: "/posts/{post_id}"
       body: "*"
     };
   }
 
-  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+  rpc Delete(DeletePostRequest) returns (DeletePostResponse) {
     option (google.api.http) = {
       delete: "/posts/{post_id}"
     };
   }
 
   // List Operations
-  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+  rpc ListComments(ListPostCommentsRequest) returns (ListPostCommentsResponse) {
     option (google.api.http) = {
       get: "/posts/{post_id}/comments"
     };
   }
 
   // Status Management
-  rpc Publish(PublishRequest) returns (PublishResponse) {
+  rpc Publish(PublishPostRequest) returns (PublishPostResponse) {
     option (google.api.http) = {
       post: "/posts/{post_id}/publish"
     };
   }
 
-  rpc Unpublish(UnpublishRequest) returns (UnpublishResponse) {
+  rpc Unpublish(UnpublishPostRequest) returns (UnpublishPostResponse) {
     option (google.api.http) = {
       post: "/posts/{post_id}/unpublish"
     };
   }
 
   // Like Operations
-  rpc Like(LikeRequest) returns (LikeResponse) {
+  rpc Like(LikePostRequest) returns (LikePostResponse) {
     option (google.api.http) = {
       post: "/posts/{post_id}/like"
     };
   }
 
-  rpc Unlike(UnlikeRequest) returns (UnlikeResponse) {
+  rpc Unlike(UnlikePostRequest) returns (UnlikePostResponse) {
     option (google.api.http) = {
       delete: "/posts/{post_id}/like"
     };

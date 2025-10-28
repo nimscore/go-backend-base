@@ -36,7 +36,7 @@ message PermissionChangeEvent {
 // ============================================================================
 
 message GetUserPermissionsRequest {
-  optional string user_id = 1;  // if empty, get current user's permissions
+  string user_id = 1;  // if empty, get current user's permissions
 }
 
 message GetUserPermissionsResponse {
@@ -48,8 +48,8 @@ message GetUserPermissionsResponse {
 // ============================================================================
 
 message GetCommunityPermissionsRequest {
-  string community_id     = 1;
-  optional string user_id = 2;  // if empty, get current user's permissions
+  string community_id = 1;
+  string user_id      = 2;  // if empty, get current user's permissions
 }
 
 message GetCommunityPermissionsResponse {

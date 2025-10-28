@@ -19,18 +19,37 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CommunityService_Create_FullMethodName          = "/proto.CommunityService/Create"
-	CommunityService_GetCommunity_FullMethodName    = "/proto.CommunityService/GetCommunity"
-	CommunityService_ListCommunities_FullMethodName = "/proto.CommunityService/ListCommunities"
+	CommunityService_Create_FullMethodName            = "/proto.CommunityService/Create"
+	CommunityService_Get_FullMethodName               = "/proto.CommunityService/Get"
+	CommunityService_Update_FullMethodName            = "/proto.CommunityService/Update"
+	CommunityService_Delete_FullMethodName            = "/proto.CommunityService/Delete"
+	CommunityService_ListCommunities_FullMethodName   = "/proto.CommunityService/ListCommunities"
+	CommunityService_Join_FullMethodName              = "/proto.CommunityService/Join"
+	CommunityService_Leave_FullMethodName             = "/proto.CommunityService/Leave"
+	CommunityService_Ban_FullMethodName               = "/proto.CommunityService/Ban"
+	CommunityService_Unban_FullMethodName             = "/proto.CommunityService/Unban"
+	CommunityService_TransferOwnership_FullMethodName = "/proto.CommunityService/TransferOwnership"
 )
 
 // CommunityServiceClient is the client API for CommunityService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommunityServiceClient interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	GetCommunity(ctx context.Context, in *GetCommunityRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error)
+	// CRUD Operations
+	Create(ctx context.Context, in *CreateCommunityRequest, opts ...grpc.CallOption) (*CreateCommunityResponse, error)
+	Get(ctx context.Context, in *GetCommunityRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error)
+	Update(ctx context.Context, in *UpdateCommunityRequest, opts ...grpc.CallOption) (*UpdateCommunityResponse, error)
+	Delete(ctx context.Context, in *DeleteCommunityRequest, opts ...grpc.CallOption) (*DeleteCommunityResponse, error)
+	// List Operations
 	ListCommunities(ctx context.Context, in *ListCommunitiesRequest, opts ...grpc.CallOption) (*ListCommunitiesResponse, error)
+	// Membership Operations
+	Join(ctx context.Context, in *JoinCommunityRequest, opts ...grpc.CallOption) (*JoinCommunityResponse, error)
+	Leave(ctx context.Context, in *LeaveCommunityRequest, opts ...grpc.CallOption) (*LeaveCommunityResponse, error)
+	// Moderation Operations
+	Ban(ctx context.Context, in *BanCommunityRequest, opts ...grpc.CallOption) (*BanCommunityResponse, error)
+	Unban(ctx context.Context, in *UnbanCommunityRequest, opts ...grpc.CallOption) (*UnbanCommunityResponse, error)
+	// Ownership Operations
+	TransferOwnership(ctx context.Context, in *TransferCommunityOwnershipRequest, opts ...grpc.CallOption) (*TransferCommunityOwnershipResponse, error)
 }
 
 type communityServiceClient struct {
@@ -41,9 +60,9 @@ func NewCommunityServiceClient(cc grpc.ClientConnInterface) CommunityServiceClie
 	return &communityServiceClient{cc}
 }
 
-func (c *communityServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+func (c *communityServiceClient) Create(ctx context.Context, in *CreateCommunityRequest, opts ...grpc.CallOption) (*CreateCommunityResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateResponse)
+	out := new(CreateCommunityResponse)
 	err := c.cc.Invoke(ctx, CommunityService_Create_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,10 +70,30 @@ func (c *communityServiceClient) Create(ctx context.Context, in *CreateRequest, 
 	return out, nil
 }
 
-func (c *communityServiceClient) GetCommunity(ctx context.Context, in *GetCommunityRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error) {
+func (c *communityServiceClient) Get(ctx context.Context, in *GetCommunityRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCommunityResponse)
-	err := c.cc.Invoke(ctx, CommunityService_GetCommunity_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CommunityService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) Update(ctx context.Context, in *UpdateCommunityRequest, opts ...grpc.CallOption) (*UpdateCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) Delete(ctx context.Context, in *DeleteCommunityRequest, opts ...grpc.CallOption) (*DeleteCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +110,75 @@ func (c *communityServiceClient) ListCommunities(ctx context.Context, in *ListCo
 	return out, nil
 }
 
+func (c *communityServiceClient) Join(ctx context.Context, in *JoinCommunityRequest, opts ...grpc.CallOption) (*JoinCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Join_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) Leave(ctx context.Context, in *LeaveCommunityRequest, opts ...grpc.CallOption) (*LeaveCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaveCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Leave_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) Ban(ctx context.Context, in *BanCommunityRequest, opts ...grpc.CallOption) (*BanCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BanCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Ban_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) Unban(ctx context.Context, in *UnbanCommunityRequest, opts ...grpc.CallOption) (*UnbanCommunityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnbanCommunityResponse)
+	err := c.cc.Invoke(ctx, CommunityService_Unban_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) TransferOwnership(ctx context.Context, in *TransferCommunityOwnershipRequest, opts ...grpc.CallOption) (*TransferCommunityOwnershipResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransferCommunityOwnershipResponse)
+	err := c.cc.Invoke(ctx, CommunityService_TransferOwnership_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommunityServiceServer is the server API for CommunityService service.
 // All implementations must embed UnimplementedCommunityServiceServer
 // for forward compatibility.
 type CommunityServiceServer interface {
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	GetCommunity(context.Context, *GetCommunityRequest) (*GetCommunityResponse, error)
+	// CRUD Operations
+	Create(context.Context, *CreateCommunityRequest) (*CreateCommunityResponse, error)
+	Get(context.Context, *GetCommunityRequest) (*GetCommunityResponse, error)
+	Update(context.Context, *UpdateCommunityRequest) (*UpdateCommunityResponse, error)
+	Delete(context.Context, *DeleteCommunityRequest) (*DeleteCommunityResponse, error)
+	// List Operations
 	ListCommunities(context.Context, *ListCommunitiesRequest) (*ListCommunitiesResponse, error)
+	// Membership Operations
+	Join(context.Context, *JoinCommunityRequest) (*JoinCommunityResponse, error)
+	Leave(context.Context, *LeaveCommunityRequest) (*LeaveCommunityResponse, error)
+	// Moderation Operations
+	Ban(context.Context, *BanCommunityRequest) (*BanCommunityResponse, error)
+	Unban(context.Context, *UnbanCommunityRequest) (*UnbanCommunityResponse, error)
+	// Ownership Operations
+	TransferOwnership(context.Context, *TransferCommunityOwnershipRequest) (*TransferCommunityOwnershipResponse, error)
 	mustEmbedUnimplementedCommunityServiceServer()
 }
 
@@ -88,14 +189,35 @@ type CommunityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCommunityServiceServer struct{}
 
-func (UnimplementedCommunityServiceServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
+func (UnimplementedCommunityServiceServer) Create(context.Context, *CreateCommunityRequest) (*CreateCommunityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedCommunityServiceServer) GetCommunity(context.Context, *GetCommunityRequest) (*GetCommunityResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCommunity not implemented")
+func (UnimplementedCommunityServiceServer) Get(context.Context, *GetCommunityRequest) (*GetCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedCommunityServiceServer) Update(context.Context, *UpdateCommunityRequest) (*UpdateCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedCommunityServiceServer) Delete(context.Context, *DeleteCommunityRequest) (*DeleteCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedCommunityServiceServer) ListCommunities(context.Context, *ListCommunitiesRequest) (*ListCommunitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCommunities not implemented")
+}
+func (UnimplementedCommunityServiceServer) Join(context.Context, *JoinCommunityRequest) (*JoinCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
+}
+func (UnimplementedCommunityServiceServer) Leave(context.Context, *LeaveCommunityRequest) (*LeaveCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Leave not implemented")
+}
+func (UnimplementedCommunityServiceServer) Ban(context.Context, *BanCommunityRequest) (*BanCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ban not implemented")
+}
+func (UnimplementedCommunityServiceServer) Unban(context.Context, *UnbanCommunityRequest) (*UnbanCommunityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Unban not implemented")
+}
+func (UnimplementedCommunityServiceServer) TransferOwnership(context.Context, *TransferCommunityOwnershipRequest) (*TransferCommunityOwnershipResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferOwnership not implemented")
 }
 func (UnimplementedCommunityServiceServer) mustEmbedUnimplementedCommunityServiceServer() {}
 func (UnimplementedCommunityServiceServer) testEmbeddedByValue()                          {}
@@ -119,7 +241,7 @@ func RegisterCommunityServiceServer(s grpc.ServiceRegistrar, srv CommunityServic
 }
 
 func _CommunityService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+	in := new(CreateCommunityRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -131,25 +253,61 @@ func _CommunityService_Create_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: CommunityService_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommunityServiceServer).Create(ctx, req.(*CreateRequest))
+		return srv.(CommunityServiceServer).Create(ctx, req.(*CreateCommunityRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CommunityService_GetCommunity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CommunityService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCommunityRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommunityServiceServer).GetCommunity(ctx, in)
+		return srv.(CommunityServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CommunityService_GetCommunity_FullMethodName,
+		FullMethod: CommunityService_Get_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommunityServiceServer).GetCommunity(ctx, req.(*GetCommunityRequest))
+		return srv.(CommunityServiceServer).Get(ctx, req.(*GetCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Update(ctx, req.(*UpdateCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Delete(ctx, req.(*DeleteCommunityRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -172,6 +330,96 @@ func _CommunityService_ListCommunities_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CommunityService_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Join(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Join_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Join(ctx, req.(*JoinCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_Leave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Leave(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Leave_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Leave(ctx, req.(*LeaveCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_Ban_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BanCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Ban(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Ban_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Ban(ctx, req.(*BanCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_Unban_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnbanCommunityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).Unban(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_Unban_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).Unban(ctx, req.(*UnbanCommunityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_TransferOwnership_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransferCommunityOwnershipRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).TransferOwnership(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_TransferOwnership_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).TransferOwnership(ctx, req.(*TransferCommunityOwnershipRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CommunityService_ServiceDesc is the grpc.ServiceDesc for CommunityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -184,12 +432,40 @@ var CommunityService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CommunityService_Create_Handler,
 		},
 		{
-			MethodName: "GetCommunity",
-			Handler:    _CommunityService_GetCommunity_Handler,
+			MethodName: "Get",
+			Handler:    _CommunityService_Get_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _CommunityService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _CommunityService_Delete_Handler,
 		},
 		{
 			MethodName: "ListCommunities",
 			Handler:    _CommunityService_ListCommunities_Handler,
+		},
+		{
+			MethodName: "Join",
+			Handler:    _CommunityService_Join_Handler,
+		},
+		{
+			MethodName: "Leave",
+			Handler:    _CommunityService_Leave_Handler,
+		},
+		{
+			MethodName: "Ban",
+			Handler:    _CommunityService_Ban_Handler,
+		},
+		{
+			MethodName: "Unban",
+			Handler:    _CommunityService_Unban_Handler,
+		},
+		{
+			MethodName: "TransferOwnership",
+			Handler:    _CommunityService_TransferOwnership_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

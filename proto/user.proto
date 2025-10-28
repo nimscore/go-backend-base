@@ -56,11 +56,11 @@ message UserStatistics {
 // Get (FR-303, FR-307, FR-313, FR-314)
 // ============================================================================
 
-message GetRequest {
+message GetUserRequest {
   string user_id = 1;  // or username
 }
 
-message GetResponse {
+message GetUserResponse {
   UserProfile user = 1;
 }
 
@@ -68,9 +68,9 @@ message GetResponse {
 // GetCurrent (FR-304, FR-308)
 // ============================================================================
 
-message GetCurrentRequest {}
+message GetCurrentUserRequest {}
 
-message GetCurrentResponse {
+message GetCurrentUserResponse {
   CurrentUserProfile user = 1;
 }
 
@@ -92,11 +92,11 @@ message UpdateProfileResponse {
 // GetStatistics (FR-306, FR-312)
 // ============================================================================
 
-message GetStatisticsRequest {
+message GetUserStatisticsRequest {
   string user_id = 1;
 }
 
-message GetStatisticsResponse {
+message GetUserStatisticsResponse {
   UserStatistics statistics = 1;
 }
 
@@ -104,13 +104,13 @@ message GetStatisticsResponse {
 // ListCommunities (FR-227, FR-232)
 // ============================================================================
 
-message ListCommunitiesRequest {
+message ListUserCommunitiesRequest {
   string user_id = 1;
   string cursor  = 2;
   int32 limit    = 3;
 }
 
-message ListCommunitiesResponse {
+message ListUserCommunitiesResponse {
   repeated Community communities = 1;
   string next_cursor             = 2;
   bool has_more                  = 3;
@@ -120,14 +120,14 @@ message ListCommunitiesResponse {
 // ListPosts (FR-212, FR-214, FR-215)
 // ============================================================================
 
-message ListPostsRequest {
+message ListUserPostsRequest {
   string user_id                    = 1;
   optional PostStatus status_filter = 2;  // all, draft, published
   string cursor                     = 3;
   int32 limit                       = 4;
 }
 
-message ListPostsResponse {
+message ListUserPostsResponse {
   repeated Post posts = 1;
   string next_cursor  = 2;
   bool has_more       = 3;
@@ -143,13 +143,13 @@ message CommentWithPostInfo {
   string post_title = 3;
 }
 
-message ListCommentsRequest {
+message ListUserCommentsRequest {
   string user_id = 1;
   string cursor  = 2;
   int32 limit    = 3;
 }
 
-message ListCommentsResponse {
+message ListUserCommentsResponse {
   repeated CommentWithPostInfo comments = 1;
   string next_cursor                    = 2;
   bool has_more                         = 3;
@@ -220,8 +220,8 @@ message HeartbeatRequest {
 }
 
 message HeartbeatResponse {
-  string message                           = 1;
-  google.protobuf.Timestamp last_activity  = 2;
+  string message                          = 1;
+  google.protobuf.Timestamp last_activity = 2;
 }
 
 // ============================================================================
@@ -230,13 +230,13 @@ message HeartbeatResponse {
 
 service UserService {
   // Profile Operations
-  rpc Get(GetRequest) returns (GetResponse) {
+  rpc Get(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}"
     };
   }
 
-  rpc GetCurrent(GetCurrentRequest) returns (GetCurrentResponse) {
+  rpc GetCurrent(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
     option (google.api.http) = {
       get: "/users/me"
     };
@@ -249,26 +249,26 @@ service UserService {
     };
   }
 
-  rpc GetStatistics(GetStatisticsRequest) returns (GetStatisticsResponse) {
+  rpc GetStatistics(GetUserStatisticsRequest) returns (GetUserStatisticsResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/statistics"
     };
   }
 
   // List Operations
-  rpc ListCommunities(ListCommunitiesRequest) returns (ListCommunitiesResponse) {
+  rpc ListCommunities(ListUserCommunitiesRequest) returns (ListUserCommunitiesResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/communities"
     };
   }
 
-  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
+  rpc ListPosts(ListUserPostsRequest) returns (ListUserPostsResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/posts"
     };
   }
 
-  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+  rpc ListComments(ListUserCommentsRequest) returns (ListUserCommentsResponse) {
     option (google.api.http) = {
       get: "/users/{user_id}/comments"
     };

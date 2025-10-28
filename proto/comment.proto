@@ -10,14 +10,14 @@ import "google/api/annotations.proto";
 // Create (FR-335-344)
 // ============================================================================
 
-message CreateRequest {
+message CreateCommentRequest {
   string post_id                    = 1;
   string text                       = 2;  // 1-10000 chars
   optional string parent_comment_id = 3;  // for nested replies
   repeated string attachment_urls   = 4;  // S3 URLs from presigned upload
 }
 
-message CreateResponse {
+message CreateCommentResponse {
   Comment comment = 1;
 }
 
@@ -25,11 +25,11 @@ message CreateResponse {
 // Get (FR-216, FR-219)
 // ============================================================================
 
-message GetRequest {
+message GetCommentRequest {
   string comment_id = 1;
 }
 
-message GetResponse {
+message GetCommentResponse {
   Comment comment = 1;
 }
 
@@ -37,12 +37,12 @@ message GetResponse {
 // Update (FR-384-390)
 // ============================================================================
 
-message UpdateRequest {
+message UpdateCommentRequest {
   string comment_id = 1;
   string text       = 2;
 }
 
-message UpdateResponse {
+message UpdateCommentResponse {
   Comment comment = 1;
 }
 
@@ -50,11 +50,11 @@ message UpdateResponse {
 // Delete (FR-030)
 // ============================================================================
 
-message DeleteRequest {
+message DeleteCommentRequest {
   string comment_id = 1;
 }
 
-message DeleteResponse {
+message DeleteCommentResponse {
   string message = 1;
 }
 
@@ -62,11 +62,11 @@ message DeleteResponse {
 // Like (FR-173, FR-175, FR-177, FR-178)
 // ============================================================================
 
-message LikeRequest {
+message LikeCommentRequest {
   string comment_id = 1;
 }
 
-message LikeResponse {
+message LikeCommentResponse {
   string message       = 1;
   int32 new_like_count = 2;
 }
@@ -75,11 +75,11 @@ message LikeResponse {
 // Unlike (FR-174, FR-176)
 // ============================================================================
 
-message UnlikeRequest {
+message UnlikeCommentRequest {
   string comment_id = 1;
 }
 
-message UnlikeResponse {
+message UnlikeCommentResponse {
   string message       = 1;
   int32 new_like_count = 2;
 }
@@ -88,7 +88,7 @@ message UnlikeResponse {
 // Stream (FR-031-034, FR-081) - gRPC Server-Side Streaming
 // ============================================================================
 
-message StreamRequest {
+message StreamCommentRequest {
   optional string post_id = 1;  // if empty, stream all platform comments
 }
 
@@ -98,47 +98,47 @@ message StreamRequest {
 
 service CommentService {
   // CRUD Operations
-  rpc Create(CreateRequest) returns (CreateResponse) {
+  rpc Create(CreateCommentRequest) returns (CreateCommentResponse) {
     option (google.api.http) = {
       post: "/comments"
       body: "*"
     };
   }
 
-  rpc Get(GetRequest) returns (GetResponse) {
+  rpc Get(GetCommentRequest) returns (GetCommentResponse) {
     option (google.api.http) = {
       get: "/comments/{comment_id}"
     };
   }
 
-  rpc Update(UpdateRequest) returns (UpdateResponse) {
+  rpc Update(UpdateCommentRequest) returns (UpdateCommentResponse) {
     option (google.api.http) = {
       patch: "/comments/{comment_id}"
       body: "*"
     };
   }
 
-  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+  rpc Delete(DeleteCommentRequest) returns (DeleteCommentResponse) {
     option (google.api.http) = {
       delete: "/comments/{comment_id}"
     };
   }
 
   // Like Operations
-  rpc Like(LikeRequest) returns (LikeResponse) {
+  rpc Like(LikeCommentRequest) returns (LikeCommentResponse) {
     option (google.api.http) = {
       post: "/comments/{comment_id}/like"
     };
   }
 
-  rpc Unlike(UnlikeRequest) returns (UnlikeResponse) {
+  rpc Unlike(UnlikeCommentRequest) returns (UnlikeCommentResponse) {
     option (google.api.http) = {
       delete: "/comments/{comment_id}/like"
     };
   }
 
   // Real-time Streaming
-  rpc Stream(StreamRequest) returns (stream CommentEvent) {
+  rpc Stream(StreamCommentRequest) returns (stream CommentEvent) {
     // No HTTP mapping - gRPC streaming only
   }
 }
