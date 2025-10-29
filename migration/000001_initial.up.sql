@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS "users" (
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
+    verification_token TEXT NOT NULL,
+    reset_token TEXT NOT NULL,
     is_verified BOOLEAN,
     created_at TIMESTAMP,
     updated_at TIMESTAMP

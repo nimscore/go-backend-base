@@ -103,11 +103,12 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 
 	// Create user
 	user := &ormpkg.User{
-		Name:       request.Name,
-		Email:      request.Email,
-		Password:   hash,
-		Salt:       salt,
-		IsVerified: false,
+		Name:              request.Name,
+		Email:             request.Email,
+		Password:          hash,
+		Salt:              salt,
+		VerificationToken: securitypkg.GenerateToken(),
+		IsVerified:        false,
 	}
 	err = s.database.InsertUser(user)
 	if err != nil {
@@ -323,16 +324,92 @@ func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopk
 	}, nil
 }
 
-func (s *AuthorizationServer) VerifyEmail(context.Context, *protopkg.VerifyEmailRequest) (*protopkg.VerifyEmailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
+func (s *AuthorizationServer) VerifyEmail(ctx context.Context, request *protopkg.VerifyEmailRequest) (*protopkg.VerifyEmailResponse, error) {
+	// Find user
+	user, err := s.database.SelectUserByVerificationToken(request.Token)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "user not exist")
+	}
+
+	// Update user
+	user.IsVerified = true
+
+	err = s.database.UpdateUser(user)
+	if err != nil {
+		s.log.Error("can't update user", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.VerifyEmailResponse{}, nil
 }
 
-func (s *AuthorizationServer) RequestPasswordReset(context.Context, *protopkg.RequestPasswordResetRequest) (*protopkg.RequestPasswordResetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RequestPasswordReset not implemented")
+func (s *AuthorizationServer) RequestPasswordReset(ctx context.Context, request *protopkg.RequestPasswordResetRequest) (*protopkg.RequestPasswordResetResponse, error) {
+	// Get user from database
+	user, err := s.database.SelectUserByEmail(
+		request.Email,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "user not found")
+	}
+	if !user.IsVerified {
+		return nil, status.Errorf(codes.InvalidArgument, "user not verified")
+	}
+
+	// Update user
+	user.ResetToken = securitypkg.GenerateToken()
+
+	err = s.database.UpdateUser(user)
+	if err != nil {
+		s.log.Error("can't update user", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Write message to broker
+	err = s.broker.WriteMessage(
+		ctx,
+		eventpkg.AUTHORIZATION_REQUEST_PASSWORD_RESET,
+		eventpkg.AuthorizationRequestPasswordReset{
+			ID: user.ID.String(),
+		},
+	)
+	if err != nil {
+		s.log.Error("can't write to broker", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.RequestPasswordResetResponse{}, nil
 }
 
-func (s *AuthorizationServer) ConfirmPasswordReset(context.Context, *protopkg.ConfirmResetPasswordRequest) (*protopkg.ConfirmResetPasswordResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConfirmPasswordReset not implemented")
+func (s *AuthorizationServer) ConfirmPasswordReset(ctx context.Context, request *protopkg.ConfirmResetPasswordRequest) (*protopkg.ConfirmResetPasswordResponse, error) {
+	// Find user
+	user, err := s.database.SelectUserByResetToken(request.Token)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "user not exist")
+	}
+
+	// Salt password
+	salt := securitypkg.GenerateSalt()
+
+	hash, err := securitypkg.HashPassword(
+		request.Password,
+		salt,
+	)
+	if err != nil {
+		s.log.Error("can't hash password", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Update user in database
+	user.Password = hash
+	user.Salt = salt
+
+	err = s.database.UpdateUser(user)
+	if err != nil {
+		s.log.Error("can't update user", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.ConfirmResetPasswordResponse{}, nil
 }
 
 func (s *AuthorizationServer) ChangePassword(ctx context.Context, request *protopkg.ChangePasswordRequest) (*protopkg.ChangePasswordResponse, error) {

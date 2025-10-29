@@ -8,16 +8,18 @@ import (
 )
 
 type User struct {
-	ID          uuid.UUID `gorm:"primaryKey"`
-	Name        string
-	Description string
-	Email       string
-	Password    string
-	Salt        string
-	IsVerified  bool
-	Communities []Community `gorm:"foreignKey:OwnerID"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID                uuid.UUID `gorm:"primaryKey"`
+	Name              string
+	Description       string
+	Email             string
+	Password          string
+	Salt              string
+	VerificationToken string
+	ResetToken        string
+	IsVerified        bool
+	Communities       []Community `gorm:"foreignKey:OwnerID"`
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }
 
 func (c *User) TableName() string {
@@ -40,6 +42,8 @@ func (c *PostgresClient) SelectUserByID(ID string) (*User, error) {
 				"email",
 				"password",
 				"salt",
+				"verification_token",
+				"reset_token",
 				"is_verified",
 			},
 		).
@@ -64,6 +68,8 @@ func (c *PostgresClient) SelectUserByName(name string) (*User, error) {
 				"email",
 				"password",
 				"salt",
+				"verification_token",
+				"reset_token",
 				"is_verified",
 			},
 		).
@@ -88,10 +94,64 @@ func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 				"email",
 				"password",
 				"salt",
+				"verification_token",
+				"reset_token",
 				"is_verified",
 			},
 		).
 		Where("email = ?", email).
+		First(&user)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &user, nil
+}
+
+func (c *PostgresClient) SelectUserByVerificationToken(verificationToken string) (*User, error) {
+	var user User
+	tx := c.database.
+		Select(
+			[]string{
+				"id",
+				"name",
+				"description",
+				"email",
+				"password",
+				"salt",
+				"verification_token",
+				"reset_token",
+				"is_verified",
+			},
+		).
+		Where("verification_token = ?", verificationToken).
+		First(&user)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &user, nil
+}
+
+func (c *PostgresClient) SelectUserByResetToken(resetToken string) (*User, error) {
+	var user User
+	tx := c.database.
+		Select(
+			[]string{
+				"id",
+				"name",
+				"description",
+				"email",
+				"password",
+				"salt",
+				"verification_token",
+				"reset_token",
+				"is_verified",
+			},
+		).
+		Where("reset_token = ?", resetToken).
 		First(&user)
 
 	if tx.Error != nil {
