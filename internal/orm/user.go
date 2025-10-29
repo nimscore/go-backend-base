@@ -29,6 +29,30 @@ func (c *User) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
+func (c *PostgresClient) SelectUserByID(ID string) (*User, error) {
+	var user User
+	tx := c.database.
+		Select(
+			[]string{
+				"id",
+				"name",
+				"description",
+				"email",
+				"password",
+				"salt",
+				"is_verified",
+			},
+		).
+		Where("id = ?", ID).
+		First(&user)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &user, nil
+}
+
 func (c *PostgresClient) SelectUserByName(name string) (*User, error) {
 	var user User
 	tx := c.database.
@@ -79,5 +103,10 @@ func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 
 func (c *PostgresClient) InsertUser(user *User) error {
 	tx := c.database.Create(user)
+	return tx.Error
+}
+
+func (c *PostgresClient) UpdateUser(user *User) error {
+	tx := c.database.Model(user).Updates(user)
 	return tx.Error
 }

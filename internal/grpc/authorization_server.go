@@ -132,6 +132,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 }
 
 func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.LoginRequest) (*protopkg.LoginResponse, error) {
+	// Get user from database
 	user, err := s.database.SelectUserByEmail(
 		request.Email,
 	)
@@ -170,6 +171,26 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	if userAgent == "unknown" || ipAddress == "unknown" {
 		s.log.Error("can't obtainin user agent or ip address")
 		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Check existing sessions
+	sessions, err := s.database.SelectSessionsByUserID(user.ID.String(), "", 0)
+	if err != nil {
+		s.log.Error("can't obtainin sessions from database")
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	for _, session := range sessions {
+		if session.IpAddress != ipAddress {
+			continue
+		}
+
+		if session.UserAgent != userAgent {
+			continue
+		}
+
+		s.log.Error("multiple login attempt from same client")
+		return nil, status.Errorf(codes.Internal, "multiple login attempt from same client")
 	}
 
 	// Create session
@@ -314,8 +335,53 @@ func (s *AuthorizationServer) ConfirmPasswordReset(context.Context, *protopkg.Co
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmPasswordReset not implemented")
 }
 
-func (s *AuthorizationServer) ChangePassword(context.Context, *protopkg.ChangePasswordRequest) (*protopkg.ChangePasswordResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+func (s *AuthorizationServer) ChangePassword(ctx context.Context, request *protopkg.ChangePasswordRequest) (*protopkg.ChangePasswordResponse, error) {
+	// Get current user
+	userID, err := middlewarepkg.GetUserID(ctx)
+	if err != nil {
+		s.log.Error("can't get user from middleware", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	user, err := s.database.SelectUserByID(userID)
+	if err != nil {
+		s.log.Error("can't get user from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Check password
+	err = securitypkg.ComparePasswords(
+		user.Password,
+		request.OldPassword,
+		user.Salt,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "password invalid")
+	}
+
+	// Salt password
+	salt := securitypkg.GenerateSalt()
+
+	hash, err := securitypkg.HashPassword(
+		request.NewPassword,
+		salt,
+	)
+	if err != nil {
+		s.log.Error("can't hash password", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Update user in database
+	user.Password = hash
+	user.Salt = salt
+
+	err = s.database.UpdateUser(user)
+	if err != nil {
+		s.log.Error("can't update user in database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.ChangePasswordResponse{}, nil
 }
 
 func (s *AuthorizationServer) GetCurrentSession(ctx context.Context, request *protopkg.GetCurrentSessionRequest) (*protopkg.GetCurrentSessionResponse, error) {

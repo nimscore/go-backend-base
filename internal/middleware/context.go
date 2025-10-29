@@ -20,3 +20,17 @@ func GetSessionID(context contextpkg.Context) (string, error) {
 
 	return "", ErrSessionIDNotSet
 }
+
+func SetUserID(context contextpkg.Context, id string) contextpkg.Context {
+	return contextpkg.WithValue(context, "userID", id)
+}
+
+func GetUserID(context contextpkg.Context) (string, error) {
+	if val := context.Value("userID"); val != nil {
+		if id, ok := val.(string); ok {
+			return id, nil
+		}
+	}
+
+	return "", ErrSessionIDNotSet
+}

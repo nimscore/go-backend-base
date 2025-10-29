@@ -67,8 +67,11 @@ func NewAuthorizationMiddleware(logger *zap.Logger, jwt *jwtpkg.JWT, database *o
 			return nil, status.Errorf(codes.Internal, "internal error")
 		}
 
+		ctx = SetSessionID(ctx, id)
+		ctx = SetUserID(ctx, session.UserID.String())
+
 		return handler(
-			SetSessionID(ctx, id),
+			ctx,
 			request,
 		)
 	}

@@ -80,7 +80,13 @@ func (c *PostgresClient) SelectSessionsByUserID(userID string, cursor string, li
 			)
 	}
 
-	tx := query.Limit(limit).Find(&sessions)
+	var tx *gorm.DB
+	if limit != 0 {
+		tx = query.Limit(limit).Find(&sessions)
+	} else {
+		tx = query.Find(&sessions)
+	}
+
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
