@@ -20,18 +20,18 @@ type User struct {
 	UpdatedAt   time.Time
 }
 
-func (User) TableName() string {
+func (c *User) TableName() string {
 	return "users"
 }
 
-func (this *User) BeforeCreate(transaction *gorm.DB) error {
-	this.ID = uuid.New()
+func (c *User) BeforeCreate(transaction *gorm.DB) error {
+	c.ID = uuid.New()
 	return nil
 }
 
-func (this *PostgresClient) SelectUserByUsername(username string) (*User, error) {
+func (c *PostgresClient) SelectUserByUsername(username string) (*User, error) {
 	var user User
-	transaction := this.database.
+	transaction := c.database.
 		Select(
 			[]string{
 				"id",
@@ -53,9 +53,9 @@ func (this *PostgresClient) SelectUserByUsername(username string) (*User, error)
 	return &user, nil
 }
 
-func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
+func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	var user User
-	transaction := this.database.
+	transaction := c.database.
 		Select(
 			[]string{
 				"id",
@@ -77,7 +77,7 @@ func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (this *PostgresClient) InsertUser(user *User) error {
-	transaction := this.database.Create(user)
+func (c *PostgresClient) InsertUser(user *User) error {
+	transaction := c.database.Create(user)
 	return transaction.Error
 }

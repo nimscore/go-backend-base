@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ComparePassword(hashEncoded string, password string, salt string) error {
+func ComparePasswords(hashEncoded string, password string, salt string) error {
 	hash, err := base64.StdEncoding.DecodeString(hashEncoded)
 	if err != nil {
 		return err

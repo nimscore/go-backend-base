@@ -28,11 +28,11 @@ func NewJWT(secret string) *JWT {
 	}
 }
 
-func (this *JWT) GenerateAccessToken(userID string) (string, error) {
+func (this *JWT) GenerateAccessToken(sessionID string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":    userID,
+			"session_id": sessionID,
 			"expiration": time.Now().Add(ACCESS_TOKEN_EXPIRATION).Unix(),
 			"kind":       KIND_ACCESS,
 		},
@@ -40,11 +40,11 @@ func (this *JWT) GenerateAccessToken(userID string) (string, error) {
 	return token.SignedString(this.secret)
 }
 
-func (this *JWT) GenerateRefreshToken(userID string) (string, error) {
+func (this *JWT) GenerateRefreshToken(sessionID string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id":    userID,
+			"session_id": sessionID,
 			"expiration": time.Now().Add(REFRESH_TOKEN_EXPIRATION).Unix(),
 			"kind":       KIND_REFRESH,
 		},
@@ -63,7 +63,7 @@ func (this *JWT) ParseAccessToken(token string) (string, error) {
 		return "", ErrTokenKindInvalid
 	}
 
-	id, ok := claims["user_id"].(string)
+	id, ok := claims["session_id"].(string)
 	if !ok {
 		return "", ErrTokenSchemaMalformed
 	}
@@ -82,7 +82,7 @@ func (this *JWT) ParseRefreshToken(token string) (string, error) {
 		return "", ErrTokenKindInvalid
 	}
 
-	id, ok := claims["user_id"].(string)
+	id, ok := claims["session_id"].(string)
 	if !ok {
 		return "", ErrTokenSchemaMalformed
 	}

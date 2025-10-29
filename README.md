@@ -25,8 +25,14 @@ minikube service -n community community --url
 
 ```
 grpcurl -plaintext 127.0.0.1:8080 list
-grpcurl -plaintext -d '{"slug": "user", "email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 proto.AuthorizationService.Register
+
+grpcurl -plaintext -d '{"name": "user1", "email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 proto.AuthorizationService.Register
+
 grpcurl -plaintext -d '{"email": "user@example.com", "password": "123456"}' 127.0.0.1:8080 proto.AuthorizationService.Login
+
+grpcurl -plaintext -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzYxNzE5MTk3LCJraW5kIjoiYWNjZXNzIiwic2Vzc2lvbl9pZCI6IjIyYWVkOWE1LWQxMzEtNDg0MC05OGZhLTVhMGI0MTAzMWE1MyJ9.PEO0fobI1hzCii8Q1Qr2eHeXZf6FKR50iXJIeZZupEE" 127.0.0.1:8080 proto.AuthorizationService.GetCurrentSession
+
+grpcurl -plaintext -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzYxNzE5NzcxLCJraW5kIjoiYWNjZXNzIiwic2Vzc2lvbl9pZCI6IjUwNjBkYTJhLTVmOTctNDA5Yy1iODQ1LTM0ZjEyZmFkNDUyMyJ9.QtrRKyRQQnJxZSI4HTsOLpfOp_Nv7uKLZGp3VaYSxs0" -d '{"session_id": "5060da2a-5f97-409c-b845-34f12fad4523"}' 127.0.0.1:8080 proto.AuthorizationService.RevokeSession
 ```
 
 # Schema

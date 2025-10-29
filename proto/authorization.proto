@@ -10,40 +10,54 @@ import "google/api/annotations.proto";
 // ============================================================================
 
 message User {
-  string id                            = 1;
-  string username                      = 2;
-  string email                         = 3;
-  string avatar_url                    = 4;
-  string banner_url                    = 5;
-  string description                   = 6;
-  int32 reputation                     = 7;
-  bool is_verified                     = 8;
-  bool is_banned                       = 9;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  string id          = 1;
+  string name        = 2;
+  string description = 3;
+  string email       = 4;
+  bool is_verified   = 5;
 }
 
 message Session {
-  string session_id                       = 1;
-  string device_info                      = 2;
-  string ip_address                       = 3;
-  google.protobuf.Timestamp last_activity = 4;
-  google.protobuf.Timestamp created_at    = 5;
+  string session_id                    = 1;
+  string user_agent                    = 2;
+  string ip_address                    = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
 }
+
+// ============================================================================
+// ValidateName
+// ============================================================================
+
+message ValidateNameRequest {
+  string name = 1;
+}
+
+message ValidateNameResponse {}
+
+// ============================================================================
+// ValidateEmail
+// ============================================================================
+
+message ValidateEmailRequest {
+  string email = 1;
+}
+
+message ValidateEmailResponse {}
 
 // ============================================================================
 // Register (FR-280, FR-291, FR-292)
 // ============================================================================
 
 message RegisterRequest {
-  string username = 1;
+  string name     = 1;
   string email    = 2;
   string password = 3;  // min 12 chars, checked against Have I Been Pwned
 }
 
 message RegisterResponse {
-  string user_id = 1;
-  string message = 2;  // "Verification email sent"
+  string user_id            = 1;
+  map<string, int32> errors = 2;
 }
 
 // ============================================================================
@@ -67,9 +81,7 @@ message LoginResponse {
 
 message LogoutRequest {}
 
-message LogoutResponse {
-  string message = 1;
-}
+message LogoutResponse {}
 
 // ============================================================================
 // RefreshToken (FR-283, FR-295, FR-296)
@@ -92,10 +104,7 @@ message VerifyEmailRequest {
   string token = 1;
 }
 
-message VerifyEmailResponse {
-  string message = 1;
-  User user      = 2;
-}
+message VerifyEmailResponse {}
 
 // ============================================================================
 // RequestPasswordReset (FR-285)
@@ -105,22 +114,18 @@ message RequestPasswordResetRequest {
   string email = 1;
 }
 
-message RequestPasswordResetResponse {
-  string message = 1;  // "Password reset email sent"
-}
+message RequestPasswordResetResponse {}
 
 // ============================================================================
 // ConfirmResetPassword (FR-286)
 // ============================================================================
 
 message ConfirmResetPasswordRequest {
-  string token        = 1;
-  string new_password = 2;  // same requirements as registration
+  string token    = 1;
+  string password = 2;  // same requirements as registration
 }
 
-message ConfirmResetPasswordResponse {
-  string message = 1;
-}
+message ConfirmResetPasswordResponse {}
 
 // ============================================================================
 // ChangePassword (FR-287, FR-297, FR-298)
@@ -131,9 +136,7 @@ message ChangePasswordRequest {
   string new_password = 2;
 }
 
-message ChangePasswordResponse {
-  string message = 1;
-}
+message ChangePasswordResponse {}
 
 // ============================================================================
 // GetCurrentSession (FR-288, FR-299)
@@ -168,9 +171,7 @@ message RevokeSessionRequest {
   string session_id = 1;
 }
 
-message RevokeSessionResponse {
-  string message = 1;
-}
+message RevokeSessionResponse {}
 
 // ============================================================================
 // Service Definition
@@ -178,6 +179,20 @@ message RevokeSessionResponse {
 
 service AuthorizationService {
   // Registration and Login
+  rpc ValidateName(ValidateNameRequest) returns (ValidateNameResponse) {
+    option (google.api.http) = {
+      post: "/auth/validate-name"
+      body: "*"
+    };
+  }
+
+  rpc ValidateEmail(ValidateEmailRequest) returns (ValidateEmailResponse) {
+    option (google.api.http) = {
+      post: "/auth/validate-email"
+      body: "*"
+    };
+  }
+
   rpc Register(RegisterRequest) returns (RegisterResponse) {
     option (google.api.http) = {
       post: "/auth/register"

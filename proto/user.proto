@@ -8,51 +8,6 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
 // ============================================================================
-// Messages
-// ============================================================================
-
-message UserProfile {
-  string id                            = 1;
-  string username                      = 2;
-  string avatar_url                    = 3;
-  string banner_url                    = 4;
-  string description                   = 5;
-  int32 reputation                     = 6;
-  int32 follower_count                 = 7;
-  int32 following_count                = 8;
-  bool is_banned                       = 9;
-  bool is_following                    = 10;  // if current user follows this user
-  bool is_online                       = 11;  // online if last_activity < 5 minutes (FR-464)
-  google.protobuf.Timestamp created_at = 12;
-}
-
-message CurrentUserProfile {
-  string id                            = 1;
-  string username                      = 2;
-  string email                         = 3;
-  bool email_verified                  = 4;
-  string avatar_url                    = 5;
-  string banner_url                    = 6;
-  string description                   = 7;
-  int32 reputation                     = 8;
-  int32 follower_count                 = 9;
-  int32 following_count                = 10;
-  int32 joined_communities_count       = 11;
-  int32 active_sessions_count          = 12;
-  google.protobuf.Timestamp created_at = 13;
-}
-
-message UserStatistics {
-  int32 total_posts          = 1;
-  int32 total_comments       = 2;
-  int32 total_likes_received = 3;
-  int32 post_likes           = 4;
-  int32 comment_likes        = 5;
-  int32 communities_created  = 6;
-  int32 communities_joined   = 7;
-}
-
-// ============================================================================
 // Get (FR-303, FR-307, FR-313, FR-314)
 // ============================================================================
 

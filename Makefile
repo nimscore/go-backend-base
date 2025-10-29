@@ -61,6 +61,12 @@ chart-install: version ?= 0.1.0
 chart-install:
 	helm -n community install --create-namespace community community-${version}.tgz
 
+infrastructure-up:
+	docker-compose up -d
+
+infrastructure-down:
+	docker-compose down
+
 database-create-migration: name ?= initial
 database-create-migration:
 	migrate create -ext sql -dir migration -seq ${name}

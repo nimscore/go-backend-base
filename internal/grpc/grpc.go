@@ -37,6 +37,7 @@ func NewGRPC(
 			middlewarepkg.NewAuthorizationMiddleware(
 				logger,
 				jwt,
+				databaseClient,
 			),
 		),
 	)
@@ -45,9 +46,9 @@ func NewGRPC(
 	authorizationServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
 	protopkg.RegisterAuthorizationServiceServer(grpcServer, authorizationServer)
 
-	// Community API
-	communityServer := NewCommunityServer(logger, databaseClient, brokerClient)
-	protopkg.RegisterCommunityServiceServer(grpcServer, communityServer)
+	// // Community API
+	// communityServer := NewCommunityServer(logger, databaseClient, brokerClient)
+	// protopkg.RegisterCommunityServiceServer(grpcServer, communityServer)
 
 	// Health API
 	healthServer := health.NewServer()
