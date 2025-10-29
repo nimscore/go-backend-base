@@ -4934,11 +4934,11 @@
             "$ref": "#/definitions/protoSession"
           }
         },
-        "nextCursor": {
-          "type": "string"
-        },
         "hasMore": {
           "type": "boolean"
+        },
+        "nextCursor": {
+          "type": "string"
         }
       }
     },

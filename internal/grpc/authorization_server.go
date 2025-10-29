@@ -25,6 +25,8 @@ import (
 var ErrUserExist = errors.New("user exist")
 var ErrInvalid = errors.New("invalid")
 
+const SESSIONS_PER_PAGE = 10
+
 func ValidateUserName(name string) error {
 	if len(name) < 5 {
 		return ErrInvalid
@@ -117,7 +119,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		salt,
 	)
 	if err != nil {
-		s.log.Error("error hashing password", zap.Error(err))
+		s.log.Error("can't hash password", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -131,7 +133,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 
 	err = s.database.InsertUser(user)
 	if err != nil {
-		s.log.Error("error inserting user", zap.Error(err))
+		s.log.Error("can't insert user", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -143,7 +145,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		},
 	)
 	if err != nil {
-		s.log.Error("error writing broker", zap.Error(err))
+		s.log.Error("can't write to broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -187,7 +189,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	}
 
 	if userAgent == "unknown" || ipAddress == "unknown" {
-		s.log.Error("error obtaining user agent or ip address")
+		s.log.Error("can't obtainin user agent or ip address")
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -199,20 +201,20 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	}
 	err = s.database.InsertSession(&session)
 	if err != nil {
-		s.log.Error("error inserting session", zap.Error(err))
+		s.log.Error("can't insert session", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Generate tokens
 	accessToken, err := s.jwt.GenerateAccessToken(session.ID.String())
 	if err != nil {
-		s.log.Error("error generating access token", zap.Error(err))
+		s.log.Error("can't generate access token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := s.jwt.GenerateRefreshToken(session.ID.String())
 	if err != nil {
-		s.log.Error("error generating refresh token", zap.Error(err))
+		s.log.Error("can't generate refresh token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -225,7 +227,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 		},
 	)
 	if err != nil {
-		s.log.Error("error writing broker", zap.Error(err))
+		s.log.Error("can't write to broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -243,23 +245,36 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 }
 
 func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.LogoutRequest) (*protopkg.LogoutResponse, error) {
-	// id, err := this.jwt.ParseRefreshToken(
-	// 	request.RefreshToken,
-	// )
-	// if err != nil {
-	// 	this.logger.Debug("refresh token error", zap.Error(err))
-	// 	return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
-	// }
+	// Get current session
+	sessionID, err := middlewarepkg.GetSessionID(ctx)
+	if err != nil {
+		s.log.Error("can't get session from middleware", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
 
-	err := s.broker.WriteMessage(
+	session, err := s.database.SelectSessionByID(sessionID)
+	if err != nil {
+		s.log.Error("can't get session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Delete session from database
+	err = s.database.DeleteSession(session)
+	if err != nil {
+		s.log.Error("can't delete session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Send message to broker
+	err = s.broker.WriteMessage(
 		ctx,
 		eventpkg.AUTHORIZATION_LOGOUT,
 		eventpkg.AuthorizationLogoutMessage{
-			ID: "", // TODO: id
+			ID: session.UserID.String(),
 		},
 	)
 	if err != nil {
-		s.log.Error("error writing broker", zap.Error(err))
+		s.log.Error("can't write to broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -267,26 +282,29 @@ func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.Logo
 }
 
 func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopkg.RefreshTokenRequest) (*protopkg.RefreshTokenResponse, error) {
+	// Get token
 	id, err := s.jwt.ParseRefreshToken(
 		request.RefreshToken,
 	)
 	if err != nil {
-		s.log.Debug("refresh token error", zap.Error(err))
+		s.log.Debug("can't parse refresh token", zap.Error(err))
 		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
 	}
 
+	// Recreate tokens
 	accessToken, err := s.jwt.GenerateAccessToken(id)
 	if err != nil {
-		s.log.Error("error generating access token", zap.Error(err))
+		s.log.Error("can't generate access token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := s.jwt.GenerateRefreshToken(id)
 	if err != nil {
-		s.log.Error("error generating refresh token", zap.Error(err))
+		s.log.Error("can't generate refresh token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
+	// Write message to broker
 	err = s.broker.WriteMessage(
 		ctx,
 		eventpkg.AUTHORIZATION_REFRESH_TOKEN,
@@ -295,7 +313,7 @@ func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopk
 		},
 	)
 	if err != nil {
-		s.log.Error("error writing broker", zap.Error(err))
+		s.log.Error("can't write to broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -322,6 +340,7 @@ func (s *AuthorizationServer) ChangePassword(context.Context, *protopkg.ChangePa
 }
 
 func (s *AuthorizationServer) GetCurrentSession(ctx context.Context, request *protopkg.GetCurrentSessionRequest) (*protopkg.GetCurrentSessionResponse, error) {
+	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
 		s.log.Error("can't get session from middleware", zap.Error(err))
@@ -345,11 +364,62 @@ func (s *AuthorizationServer) GetCurrentSession(ctx context.Context, request *pr
 	}, nil
 }
 
-func (s *AuthorizationServer) ListActiveSessions(context.Context, *protopkg.ListActiveSessionsRequest) (*protopkg.ListActiveSessionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListActiveSessions not implemented")
+func (s *AuthorizationServer) ListActiveSessions(ctx context.Context, request *protopkg.ListActiveSessionsRequest) (*protopkg.ListActiveSessionsResponse, error) {
+	// Get current session
+	sessionID, err := middlewarepkg.GetSessionID(ctx)
+	if err != nil {
+		s.log.Error("can't get session from middleware", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	session, err := s.database.SelectSessionByID(sessionID)
+	if err != nil {
+		s.log.Error("can't get session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Get user sessions
+	sessions, err := s.database.SelectSessionsByUserID(session.UserID.String(), request.Cursor, SESSIONS_PER_PAGE+1)
+	if err != nil {
+		s.log.Error("can't get sessions from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Build result
+	hasMore := len(sessions) > SESSIONS_PER_PAGE
+
+	var nextCursor string = ""
+	if hasMore && len(sessions) > 0 {
+		nextCursor = sessions[len(sessions)-1].ID.String()
+	}
+
+	if len(sessions) == SESSIONS_PER_PAGE+1 {
+		sessions = sessions[:len(sessions)-1]
+	}
+
+	var result []*protopkg.Session
+	for _, session := range sessions {
+		result = append(
+			result,
+			&protopkg.Session{
+				SessionId: session.ID.String(),
+				UserAgent: session.UserAgent,
+				IpAddress: session.IpAddress,
+				CreatedAt: timestamppb.New(session.CreatedAt),
+				UpdatedAt: timestamppb.New(session.UpdatedAt),
+			},
+		)
+	}
+
+	return &protopkg.ListActiveSessionsResponse{
+		Sessions:   result,
+		HasMore:    hasMore,
+		NextCursor: nextCursor,
+	}, nil
 }
 
 func (s *AuthorizationServer) RevokeSession(ctx context.Context, request *protopkg.RevokeSessionRequest) (*protopkg.RevokeSessionResponse, error) {
+	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
 		s.log.Error("can't get session from middleware", zap.Error(err))
@@ -362,6 +432,7 @@ func (s *AuthorizationServer) RevokeSession(ctx context.Context, request *protop
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
+	// Get requested session
 	requestedSession, err := s.database.SelectSessionByID(request.SessionId)
 	if err != nil {
 		s.log.Error("can't get session from database", zap.Error(err))
@@ -373,6 +444,7 @@ func (s *AuthorizationServer) RevokeSession(ctx context.Context, request *protop
 		return nil, status.Errorf(codes.PermissionDenied, "internal error")
 	}
 
+	// Delete session from database
 	err = s.database.DeleteSession(requestedSession)
 	if err != nil {
 		s.log.Error("can't delete session from database", zap.Error(err))
