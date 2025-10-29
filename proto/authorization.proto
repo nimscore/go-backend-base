@@ -159,8 +159,8 @@ message ListActiveSessionsRequest {
 
 message ListActiveSessionsResponse {
   repeated Session sessions = 1;
-  string next_cursor        = 2;
-  bool has_more             = 3;
+  bool has_more             = 2;
+  string next_cursor        = 3;
 }
 
 // ============================================================================

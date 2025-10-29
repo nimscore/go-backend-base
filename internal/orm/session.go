@@ -26,7 +26,7 @@ func (s *Session) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (c *PostgresClient) SelectSessionByID(id string) (*Session, error) {
+func (c *PostgresClient) SelectSessionByID(ID string) (*Session, error) {
 	var session Session
 	tx := c.database.
 		Select([]string{
@@ -37,7 +37,7 @@ func (c *PostgresClient) SelectSessionByID(id string) (*Session, error) {
 			"created_at",
 			"updated_at",
 		}).
-		Where("id = ?", id).
+		Where("id = ?", ID).
 		First(&session)
 
 	if tx.Error != nil {
@@ -45,6 +45,47 @@ func (c *PostgresClient) SelectSessionByID(id string) (*Session, error) {
 	}
 
 	return &session, nil
+}
+
+func (c *PostgresClient) SelectSessionsByUserID(userID string, cursor string, limit int) ([]*Session, error) {
+	var sessions []*Session
+	query := c.database.
+		Select([]string{
+			"id",
+			"user_id",
+			"user_agent",
+			"ip_address",
+			"created_at",
+			"updated_at",
+		}).
+		Where("user_id = ?", userID).
+		Order("created_at DESC")
+
+	if cursor != "" {
+		var cursorSession Session
+		tx := c.database.
+			Where("id = ?", cursor).
+			First(&cursorSession)
+
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+
+		query = query.
+			Where(
+				"(created_at < ?) OR (created_at = ? AND id < ?)",
+				cursorSession.CreatedAt,
+				cursorSession.CreatedAt,
+				cursorSession.ID,
+			)
+	}
+
+	tx := query.Limit(limit).Find(&sessions)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return sessions, nil
 }
 
 func (c *PostgresClient) InsertSession(session *Session) error {
