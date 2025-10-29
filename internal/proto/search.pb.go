@@ -342,8 +342,7 @@ var File_search_proto protoreflect.FileDescriptor
 
 const file_search_proto_rawDesc = "" +
 	"\n" +
-	"\fsearch.proto\x12\x05proto\x1a\fentity.proto\x1a\n" +
-	"user.proto\x1a\x1cgoogle/api/annotations.proto\"\x8d\x02\n" +
+	"\fsearch.proto\x12\x05proto\x1a\fentity.proto\x1a\x1cgoogle/api/annotations.proto\"\x8d\x02\n" +
 	"\fSearchResult\x12\x1f\n" +
 	"\vresult_type\x18\x01 \x01(\tR\n" +
 	"resultType\x12!\n" +
@@ -419,7 +418,6 @@ func file_search_proto_init() {
 		return
 	}
 	file_entity_proto_init()
-	file_user_proto_init()
 	file_search_proto_msgTypes[0].OneofWrappers = []any{
 		(*SearchResult_Post)(nil),
 		(*SearchResult_Comment)(nil),

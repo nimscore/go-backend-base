@@ -11,7 +11,6 @@ type User struct {
 	ID          uuid.UUID `gorm:"primaryKey"`
 	Name        string
 	Description string
-	Slug        string
 	Email       string
 	Password    string
 	Salt        string
@@ -21,31 +20,30 @@ type User struct {
 	UpdatedAt   time.Time
 }
 
-func (User) TableName() string {
+func (c *User) TableName() string {
 	return "users"
 }
 
-func (this *User) BeforeCreate(transaction *gorm.DB) error {
-	this.ID = uuid.New()
+func (c *User) BeforeCreate(transaction *gorm.DB) error {
+	c.ID = uuid.New()
 	return nil
 }
 
-func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
+func (c *PostgresClient) SelectUserByUsername(username string) (*User, error) {
 	var user User
-	transaction := this.database.
+	transaction := c.database.
 		Select(
 			[]string{
 				"id",
 				"name",
 				"description",
-				"slug",
 				"email",
 				"password",
 				"salt",
 				"is_verified",
 			},
 		).
-		Where("slug = ?", slug).
+		Where("name = ?", username).
 		First(&user)
 
 	if transaction.Error != nil {
@@ -55,15 +53,14 @@ func (this *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
 	return &user, nil
 }
 
-func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
+func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	var user User
-	transaction := this.database.
+	transaction := c.database.
 		Select(
 			[]string{
 				"id",
 				"name",
 				"description",
-				"slug",
 				"email",
 				"password",
 				"salt",
@@ -80,7 +77,7 @@ func (this *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (this *PostgresClient) InsertUser(user *User) error {
-	transaction := this.database.Create(user)
+func (c *PostgresClient) InsertUser(user *User) error {
+	transaction := c.database.Create(user)
 	return transaction.Error
 }

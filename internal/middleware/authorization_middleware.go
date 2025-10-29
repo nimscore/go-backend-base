@@ -11,24 +11,27 @@ import (
 	"google.golang.org/grpc/status"
 
 	jwtpkg "github.com/stormhead-org/backend/internal/jwt"
+	ormpkg "github.com/stormhead-org/backend/internal/orm"
 )
 
-func NewAuthorizationMiddleware(logger *zap.Logger, jwt *jwtpkg.JWT) grpc.UnaryServerInterceptor {
+func NewAuthorizationMiddleware(logger *zap.Logger, jwt *jwtpkg.JWT, database *ormpkg.PostgresClient) grpc.UnaryServerInterceptor {
 	return func(
-		context context.Context,
+		ctx context.Context,
 		request interface{},
 		information *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		bypassCheck := map[string]bool{
-			"/proto.AuthorizationService/Register": true,
-			"/proto.AuthorizationService/Login":    true,
+			"/proto.AuthorizationService/ValidateName":  true,
+			"/proto.AuthorizationService/ValidateEmail": true,
+			"/proto.AuthorizationService/Register":      true,
+			"/proto.AuthorizationService/Login":         true,
 		}
 		if bypassCheck[information.FullMethod] {
-			return handler(context, request)
+			return handler(ctx, request)
 		}
 
-		meta, ok := metadata.FromIncomingContext(context)
+		meta, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			logger.Error("missing metadata")
 			return nil, status.Errorf(codes.Unauthenticated, "missing metadata")
@@ -52,8 +55,20 @@ func NewAuthorizationMiddleware(logger *zap.Logger, jwt *jwtpkg.JWT) grpc.UnaryS
 			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 		}
 
+		session, err := database.SelectSessionByID(id)
+		if err != nil {
+			logger.Error("database error", zap.Error(err))
+			return nil, status.Errorf(codes.Internal, "internal error")
+		}
+
+		err = database.UpdateSession(session)
+		if err != nil {
+			logger.Error("database error", zap.Error(err))
+			return nil, status.Errorf(codes.Internal, "internal error")
+		}
+
 		return handler(
-			SetUserID(context, id),
+			SetSessionID(ctx, id),
 			request,
 		)
 	}

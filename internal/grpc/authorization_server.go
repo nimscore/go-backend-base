@@ -4,15 +4,19 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strings"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 
 	eventpkg "github.com/stormhead-org/backend/internal/event"
 	jwtpkg "github.com/stormhead-org/backend/internal/jwt"
+	middlewarepkg "github.com/stormhead-org/backend/internal/middleware"
 	ormpkg "github.com/stormhead-org/backend/internal/orm"
 	protopkg "github.com/stormhead-org/backend/internal/proto"
 	securitypkg "github.com/stormhead-org/backend/internal/security"
@@ -21,8 +25,8 @@ import (
 var ErrUserExist = errors.New("user exist")
 var ErrInvalid = errors.New("invalid")
 
-func ValidateUserSlug(slug string) error {
-	if len(slug) < 5 {
+func ValidateUserName(name string) error {
+	if len(name) < 5 {
 		return ErrInvalid
 	}
 
@@ -44,25 +48,47 @@ func ValidateUserEmail(email string) error {
 
 type AuthorizationServer struct {
 	protopkg.UnimplementedAuthorizationServiceServer
-	logger         *zap.Logger
-	jwt            *jwtpkg.JWT
-	databaseClient *ormpkg.PostgresClient
-	brokerClient   *eventpkg.KafkaClient
+	log      *zap.Logger
+	jwt      *jwtpkg.JWT
+	database *ormpkg.PostgresClient
+	broker   *eventpkg.KafkaClient
 }
 
-func NewAuthorizationServer(logger *zap.Logger, jwt *jwtpkg.JWT, databaseClient *ormpkg.PostgresClient, brokerClient *eventpkg.KafkaClient) *AuthorizationServer {
+func NewAuthorizationServer(log *zap.Logger, jwt *jwtpkg.JWT, database *ormpkg.PostgresClient, broker *eventpkg.KafkaClient) *AuthorizationServer {
 	return &AuthorizationServer{
-		logger:         logger,
-		jwt:            jwt,
-		databaseClient: databaseClient,
-		brokerClient:   brokerClient,
+		log:      log,
+		jwt:      jwt,
+		database: database,
+		broker:   broker,
 	}
 }
 
-func (this *AuthorizationServer) Register(context context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
-	err := ValidateUserSlug(request.Slug)
+func (s *AuthorizationServer) ValidateName(ctx context.Context, request *protopkg.ValidateNameRequest) (*protopkg.ValidateNameResponse, error) {
+	_, err := s.database.SelectUserByUsername(
+		request.Name,
+	)
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.InvalidArgument, "name already exist")
+	}
+
+	return &protopkg.ValidateNameResponse{}, nil
+}
+
+func (s *AuthorizationServer) ValidateEmail(ctx context.Context, request *protopkg.ValidateEmailRequest) (*protopkg.ValidateEmailResponse, error) {
+	_, err := s.database.SelectUserByEmail(
+		request.Email,
+	)
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.InvalidArgument, "email already exist")
+	}
+
+	return &protopkg.ValidateEmailResponse{}, nil
+}
+
+func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
+	err := ValidateUserName(request.Name)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "slug not match conditions")
+		return nil, status.Errorf(codes.InvalidArgument, "name not match conditions")
 	}
 
 	err = ValidateUserEmail(request.Email)
@@ -70,14 +96,14 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		return nil, status.Errorf(codes.InvalidArgument, "email not match conditions")
 	}
 
-	_, err = this.databaseClient.SelectUserBySlug(
-		request.Slug,
+	_, err = s.database.SelectUserByUsername(
+		request.Name,
 	)
 	if err != gorm.ErrRecordNotFound {
-		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
+		return nil, status.Errorf(codes.InvalidArgument, "name already exist")
 	}
 
-	_, err = this.databaseClient.SelectUserByEmail(
+	_, err = s.database.SelectUserByEmail(
 		request.Email,
 	)
 	if err != gorm.ErrRecordNotFound {
@@ -91,41 +117,41 @@ func (this *AuthorizationServer) Register(context context.Context, request *prot
 		salt,
 	)
 	if err != nil {
-		this.logger.Error("error hashing password", zap.Error(err))
+		s.log.Error("error hashing password", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	user := &ormpkg.User{
-		Slug:       request.Slug,
+		Name:       request.Name,
 		Email:      request.Email,
 		Password:   hash,
 		Salt:       salt,
 		IsVerified: false,
 	}
 
-	err = this.databaseClient.InsertUser(user)
+	err = s.database.InsertUser(user)
 	if err != nil {
-		this.logger.Error("error inserting user", zap.Error(err))
+		s.log.Error("error inserting user", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.brokerClient.WriteMessage(
-		context,
+	err = s.broker.WriteMessage(
+		ctx,
 		eventpkg.AUTHORIZATION_REGISTER,
 		eventpkg.AuthorizationRegisterMessage{
 			ID: user.ID.String(),
 		},
 	)
 	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
+		s.log.Error("error writing broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	return nil, nil
 }
 
-func (this *AuthorizationServer) Login(context context.Context, request *protopkg.LoginRequest) (*protopkg.LoginResponse, error) {
-	user, err := this.databaseClient.SelectUserByEmail(
+func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.LoginRequest) (*protopkg.LoginResponse, error) {
+	user, err := s.database.SelectUserByEmail(
 		request.Email,
 	)
 	if err != nil {
@@ -135,7 +161,7 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 		return nil, status.Errorf(codes.InvalidArgument, "user not verified")
 	}
 
-	err = securitypkg.ComparePassword(
+	err = securitypkg.ComparePasswords(
 		user.Password,
 		request.Password,
 		user.Salt,
@@ -144,27 +170,62 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 		return nil, status.Errorf(codes.InvalidArgument, "password invalid")
 	}
 
-	accessToken, err := this.jwt.GenerateAccessToken(user.ID.String())
-	if err != nil {
-		this.logger.Error("error generating access token", zap.Error(err))
+	// Obtain user agent and ip address
+	userAgent := "unknown"
+	m, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		userAgent = strings.Join(m["user-agent"], "")
+	}
+
+	ipAddress := "unknown"
+	p, ok := peer.FromContext(ctx)
+	if ok {
+		parts := strings.Split(p.Addr.String(), ":")
+		if len(parts) == 2 {
+			ipAddress = parts[0]
+		}
+	}
+
+	if userAgent == "unknown" || ipAddress == "unknown" {
+		s.log.Error("error obtaining user agent or ip address")
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	refreshToken, err := this.jwt.GenerateRefreshToken(user.ID.String())
+	// Create session
+	session := ormpkg.Session{
+		UserID:    user.ID,
+		UserAgent: userAgent,
+		IpAddress: ipAddress,
+	}
+	err = s.database.InsertSession(&session)
 	if err != nil {
-		this.logger.Error("error generating refresh token", zap.Error(err))
+		s.log.Error("error inserting session", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.brokerClient.WriteMessage(
-		context,
+	// Generate tokens
+	accessToken, err := s.jwt.GenerateAccessToken(session.ID.String())
+	if err != nil {
+		s.log.Error("error generating access token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	refreshToken, err := s.jwt.GenerateRefreshToken(session.ID.String())
+	if err != nil {
+		s.log.Error("error generating refresh token", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	// Write event to broker
+	err = s.broker.WriteMessage(
+		ctx,
 		eventpkg.AUTHORIZATION_LOGIN,
 		eventpkg.AuthorizationLoginMessage{
 			ID: user.ID.String(),
 		},
 	)
 	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
+		s.log.Error("error writing broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -173,7 +234,6 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 			Id:          user.ID.String(),
 			Name:        user.Name,
 			Description: user.Description,
-			Slug:        user.Slug,
 			Email:       user.Email,
 			IsVerified:  user.IsVerified,
 		},
@@ -182,92 +242,142 @@ func (this *AuthorizationServer) Login(context context.Context, request *protopk
 	}, nil
 }
 
-func (this *AuthorizationServer) Logout(context context.Context, request *protopkg.LogoutRequest) (*emptypb.Empty, error) {
-	id, err := this.jwt.ParseRefreshToken(
-		request.RefreshToken,
-	)
-	if err != nil {
-		this.logger.Debug("refresh token error", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
-	}
+func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.LogoutRequest) (*protopkg.LogoutResponse, error) {
+	// id, err := this.jwt.ParseRefreshToken(
+	// 	request.RefreshToken,
+	// )
+	// if err != nil {
+	// 	this.logger.Debug("refresh token error", zap.Error(err))
+	// 	return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
+	// }
 
-	err = this.brokerClient.WriteMessage(
-		context,
+	err := s.broker.WriteMessage(
+		ctx,
 		eventpkg.AUTHORIZATION_LOGOUT,
 		eventpkg.AuthorizationLogoutMessage{
-			ID: id,
+			ID: "", // TODO: id
 		},
 	)
 	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
+		s.log.Error("error writing broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &emptypb.Empty{}, nil
+	return &protopkg.LogoutResponse{}, nil
 }
 
-func (this *AuthorizationServer) RefreshToken(context context.Context, request *protopkg.RefreshRequest) (*protopkg.RefreshResponse, error) {
-	id, err := this.jwt.ParseRefreshToken(
+func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopkg.RefreshTokenRequest) (*protopkg.RefreshTokenResponse, error) {
+	id, err := s.jwt.ParseRefreshToken(
 		request.RefreshToken,
 	)
 	if err != nil {
-		this.logger.Debug("refresh token error", zap.Error(err))
+		s.log.Debug("refresh token error", zap.Error(err))
 		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
 	}
 
-	accessToken, err := this.jwt.GenerateAccessToken(id)
+	accessToken, err := s.jwt.GenerateAccessToken(id)
 	if err != nil {
-		this.logger.Error("error generating access token", zap.Error(err))
+		s.log.Error("error generating access token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	refreshToken, err := this.jwt.GenerateRefreshToken(id)
+	refreshToken, err := s.jwt.GenerateRefreshToken(id)
 	if err != nil {
-		this.logger.Error("error generating refresh token", zap.Error(err))
+		s.log.Error("error generating refresh token", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	err = this.brokerClient.WriteMessage(
-		context,
+	err = s.broker.WriteMessage(
+		ctx,
 		eventpkg.AUTHORIZATION_REFRESH_TOKEN,
 		eventpkg.AuthorizationRefreshTokenMessage{
 			ID: id,
 		},
 	)
 	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
+		s.log.Error("error writing broker", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopkg.RefreshResponse{
+	return &protopkg.RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (this *AuthorizationServer) ValidateToken(context context.Context, request *protopkg.ValidateRequest) (*protopkg.ValidateResponse, error) {
-	id, err := this.jwt.ParseAccessToken(
-		request.AccessToken,
-	)
-	valid := err != nil
-	if err != nil {
-		this.logger.Debug("access token error", zap.Error(err))
-	}
+func (s *AuthorizationServer) VerifyEmail(context.Context, *protopkg.VerifyEmailRequest) (*protopkg.VerifyEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
+}
 
-	err = this.brokerClient.WriteMessage(
-		context,
-		eventpkg.AUTHORIZATION_VALIDATE_TOKEN,
-		eventpkg.AuthorizationValidateTokenMessage{
-			ID: id,
-		},
-	)
+func (s *AuthorizationServer) RequestPasswordReset(context.Context, *protopkg.RequestPasswordResetRequest) (*protopkg.RequestPasswordResetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestPasswordReset not implemented")
+}
+
+func (s *AuthorizationServer) ConfirmPasswordReset(context.Context, *protopkg.ConfirmResetPasswordRequest) (*protopkg.ConfirmResetPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmPasswordReset not implemented")
+}
+
+func (s *AuthorizationServer) ChangePassword(context.Context, *protopkg.ChangePasswordRequest) (*protopkg.ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+
+func (s *AuthorizationServer) GetCurrentSession(ctx context.Context, request *protopkg.GetCurrentSessionRequest) (*protopkg.GetCurrentSessionResponse, error) {
+	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
-		this.logger.Error("error writing broker", zap.Error(err))
+		s.log.Error("can't get session from middleware", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	return &protopkg.ValidateResponse{
-		Id:    id,
-		Valid: valid,
+	session, err := s.database.SelectSessionByID(sessionID)
+	if err != nil {
+		s.log.Error("can't get session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.GetCurrentSessionResponse{
+		Session: &protopkg.Session{
+			SessionId: session.ID.String(),
+			UserAgent: session.UserAgent,
+			IpAddress: session.IpAddress,
+			CreatedAt: timestamppb.New(session.CreatedAt),
+			UpdatedAt: timestamppb.New(session.UpdatedAt),
+		},
 	}, nil
+}
+
+func (s *AuthorizationServer) ListActiveSessions(context.Context, *protopkg.ListActiveSessionsRequest) (*protopkg.ListActiveSessionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListActiveSessions not implemented")
+}
+
+func (s *AuthorizationServer) RevokeSession(ctx context.Context, request *protopkg.RevokeSessionRequest) (*protopkg.RevokeSessionResponse, error) {
+	sessionID, err := middlewarepkg.GetSessionID(ctx)
+	if err != nil {
+		s.log.Error("can't get session from middleware", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	userSession, err := s.database.SelectSessionByID(sessionID)
+	if err != nil {
+		s.log.Error("can't get session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	requestedSession, err := s.database.SelectSessionByID(request.SessionId)
+	if err != nil {
+		s.log.Error("can't get session from database", zap.Error(err))
+		return nil, status.Errorf(codes.InvalidArgument, "internal error")
+	}
+
+	if userSession.UserID != requestedSession.UserID {
+		s.log.Error("can't validate session ownership", zap.Error(err))
+		return nil, status.Errorf(codes.PermissionDenied, "internal error")
+	}
+
+	err = s.database.DeleteSession(requestedSession)
+	if err != nil {
+		s.log.Error("can't delete session from database", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal error")
+	}
+
+	return &protopkg.RevokeSessionResponse{}, nil
 }

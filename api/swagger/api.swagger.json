@@ -243,7 +243,6 @@
     },
     "/auth/register": {
       "post": {
-        "summary": "Registration and Login",
         "operationId": "AuthorizationService_Register",
         "responses": {
           "200": {
@@ -357,6 +356,71 @@
             "in": "path",
             "required": true,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/auth/validate-email": {
+      "post": {
+        "operationId": "AuthorizationService_ValidateEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoValidateEmailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoValidateEmailRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/auth/validate-name": {
+      "post": {
+        "summary": "Registration and Login",
+        "operationId": "AuthorizationService_ValidateName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoValidateNameResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoValidateNameRequest"
+            }
           }
         ],
         "tags": [
@@ -4068,12 +4132,7 @@
       }
     },
     "protoChangePasswordResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoComment": {
       "type": "object",
@@ -4275,19 +4334,14 @@
         "token": {
           "type": "string"
         },
-        "newPassword": {
+        "password": {
           "type": "string",
           "title": "same requirements as registration"
         }
       }
     },
     "protoConfirmResetPasswordResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoConfirmResponse": {
       "type": "object",
@@ -5186,12 +5240,7 @@
       }
     },
     "protoLogoutResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoMarkAllAsReadResponse": {
       "type": "object",
@@ -5816,7 +5865,7 @@
     "protoRegisterRequest": {
       "type": "object",
       "properties": {
-        "username": {
+        "name": {
           "type": "string"
         },
         "email": {
@@ -5834,9 +5883,12 @@
         "userId": {
           "type": "string"
         },
-        "message": {
-          "type": "string",
-          "title": "\"Verification email sent\""
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          }
         }
       }
     },
@@ -5958,13 +6010,7 @@
       }
     },
     "protoRequestPasswordResetResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "title": "\"Password reset email sent\""
-        }
-      }
+      "type": "object"
     },
     "protoResolveResponse": {
       "type": "object",
@@ -5991,12 +6037,7 @@
       }
     },
     "protoRevokeSessionResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoRole": {
       "type": "object",
@@ -6093,17 +6134,17 @@
         "sessionId": {
           "type": "string"
         },
-        "deviceInfo": {
+        "userAgent": {
           "type": "string"
         },
         "ipAddress": {
           "type": "string"
         },
-        "lastActivity": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
-        "createdAt": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -6377,38 +6418,17 @@
         "id": {
           "type": "string"
         },
-        "username": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "avatarUrl": {
-          "type": "string"
-        },
-        "bannerUrl": {
+        "name": {
           "type": "string"
         },
         "description": {
           "type": "string"
         },
-        "reputation": {
-          "type": "integer",
-          "format": "int32"
+        "email": {
+          "type": "string"
         },
         "isVerified": {
           "type": "boolean"
-        },
-        "isBanned": {
-          "type": "boolean"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
@@ -6530,6 +6550,28 @@
         }
       }
     },
+    "protoValidateEmailRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "protoValidateEmailResponse": {
+      "type": "object"
+    },
+    "protoValidateNameRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "protoValidateNameResponse": {
+      "type": "object"
+    },
     "protoVerifyEmailRequest": {
       "type": "object",
       "properties": {
@@ -6539,15 +6581,7 @@
       }
     },
     "protoVerifyEmailResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        },
-        "user": {
-          "$ref": "#/definitions/protoUser"
-        }
-      }
+      "type": "object"
     },
     "protobufAny": {
       "type": "object",

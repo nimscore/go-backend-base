@@ -3,7 +3,6 @@ package proto;
 option go_package = "/proto";
 
 import "entity.proto";
-import "user.proto";
 
 import "google/api/annotations.proto";
 

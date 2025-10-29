@@ -672,6 +672,370 @@ func (x *CommentEvent) GetTimestamp() *timestamppb.Timestamp {
 	return nil
 }
 
+type UserProfile struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username       string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	AvatarUrl      string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	BannerUrl      string                 `protobuf:"bytes,4,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
+	Description    string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	Reputation     int32                  `protobuf:"varint,6,opt,name=reputation,proto3" json:"reputation,omitempty"`
+	FollowerCount  int32                  `protobuf:"varint,7,opt,name=follower_count,json=followerCount,proto3" json:"follower_count,omitempty"`
+	FollowingCount int32                  `protobuf:"varint,8,opt,name=following_count,json=followingCount,proto3" json:"following_count,omitempty"`
+	IsBanned       bool                   `protobuf:"varint,9,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
+	IsFollowing    bool                   `protobuf:"varint,10,opt,name=is_following,json=isFollowing,proto3" json:"is_following,omitempty"` // if current user follows this user
+	IsOnline       bool                   `protobuf:"varint,11,opt,name=is_online,json=isOnline,proto3" json:"is_online,omitempty"`          // online if last_activity < 5 minutes (FR-464)
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UserProfile) Reset() {
+	*x = UserProfile{}
+	mi := &file_entity_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserProfile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserProfile) ProtoMessage() {}
+
+func (x *UserProfile) ProtoReflect() protoreflect.Message {
+	mi := &file_entity_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserProfile.ProtoReflect.Descriptor instead.
+func (*UserProfile) Descriptor() ([]byte, []int) {
+	return file_entity_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UserProfile) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UserProfile) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserProfile) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+func (x *UserProfile) GetBannerUrl() string {
+	if x != nil {
+		return x.BannerUrl
+	}
+	return ""
+}
+
+func (x *UserProfile) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UserProfile) GetReputation() int32 {
+	if x != nil {
+		return x.Reputation
+	}
+	return 0
+}
+
+func (x *UserProfile) GetFollowerCount() int32 {
+	if x != nil {
+		return x.FollowerCount
+	}
+	return 0
+}
+
+func (x *UserProfile) GetFollowingCount() int32 {
+	if x != nil {
+		return x.FollowingCount
+	}
+	return 0
+}
+
+func (x *UserProfile) GetIsBanned() bool {
+	if x != nil {
+		return x.IsBanned
+	}
+	return false
+}
+
+func (x *UserProfile) GetIsFollowing() bool {
+	if x != nil {
+		return x.IsFollowing
+	}
+	return false
+}
+
+func (x *UserProfile) GetIsOnline() bool {
+	if x != nil {
+		return x.IsOnline
+	}
+	return false
+}
+
+func (x *UserProfile) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type CurrentUserProfile struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Id                     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username               string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Email                  string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	EmailVerified          bool                   `protobuf:"varint,4,opt,name=email_verified,json=emailVerified,proto3" json:"email_verified,omitempty"`
+	AvatarUrl              string                 `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	BannerUrl              string                 `protobuf:"bytes,6,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
+	Description            string                 `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
+	Reputation             int32                  `protobuf:"varint,8,opt,name=reputation,proto3" json:"reputation,omitempty"`
+	FollowerCount          int32                  `protobuf:"varint,9,opt,name=follower_count,json=followerCount,proto3" json:"follower_count,omitempty"`
+	FollowingCount         int32                  `protobuf:"varint,10,opt,name=following_count,json=followingCount,proto3" json:"following_count,omitempty"`
+	JoinedCommunitiesCount int32                  `protobuf:"varint,11,opt,name=joined_communities_count,json=joinedCommunitiesCount,proto3" json:"joined_communities_count,omitempty"`
+	ActiveSessionsCount    int32                  `protobuf:"varint,12,opt,name=active_sessions_count,json=activeSessionsCount,proto3" json:"active_sessions_count,omitempty"`
+	CreatedAt              *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *CurrentUserProfile) Reset() {
+	*x = CurrentUserProfile{}
+	mi := &file_entity_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CurrentUserProfile) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CurrentUserProfile) ProtoMessage() {}
+
+func (x *CurrentUserProfile) ProtoReflect() protoreflect.Message {
+	mi := &file_entity_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CurrentUserProfile.ProtoReflect.Descriptor instead.
+func (*CurrentUserProfile) Descriptor() ([]byte, []int) {
+	return file_entity_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CurrentUserProfile) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetEmailVerified() bool {
+	if x != nil {
+		return x.EmailVerified
+	}
+	return false
+}
+
+func (x *CurrentUserProfile) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetBannerUrl() string {
+	if x != nil {
+		return x.BannerUrl
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CurrentUserProfile) GetReputation() int32 {
+	if x != nil {
+		return x.Reputation
+	}
+	return 0
+}
+
+func (x *CurrentUserProfile) GetFollowerCount() int32 {
+	if x != nil {
+		return x.FollowerCount
+	}
+	return 0
+}
+
+func (x *CurrentUserProfile) GetFollowingCount() int32 {
+	if x != nil {
+		return x.FollowingCount
+	}
+	return 0
+}
+
+func (x *CurrentUserProfile) GetJoinedCommunitiesCount() int32 {
+	if x != nil {
+		return x.JoinedCommunitiesCount
+	}
+	return 0
+}
+
+func (x *CurrentUserProfile) GetActiveSessionsCount() int32 {
+	if x != nil {
+		return x.ActiveSessionsCount
+	}
+	return 0
+}
+
+func (x *CurrentUserProfile) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type UserStatistics struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	TotalPosts         int32                  `protobuf:"varint,1,opt,name=total_posts,json=totalPosts,proto3" json:"total_posts,omitempty"`
+	TotalComments      int32                  `protobuf:"varint,2,opt,name=total_comments,json=totalComments,proto3" json:"total_comments,omitempty"`
+	TotalLikesReceived int32                  `protobuf:"varint,3,opt,name=total_likes_received,json=totalLikesReceived,proto3" json:"total_likes_received,omitempty"`
+	PostLikes          int32                  `protobuf:"varint,4,opt,name=post_likes,json=postLikes,proto3" json:"post_likes,omitempty"`
+	CommentLikes       int32                  `protobuf:"varint,5,opt,name=comment_likes,json=commentLikes,proto3" json:"comment_likes,omitempty"`
+	CommunitiesCreated int32                  `protobuf:"varint,6,opt,name=communities_created,json=communitiesCreated,proto3" json:"communities_created,omitempty"`
+	CommunitiesJoined  int32                  `protobuf:"varint,7,opt,name=communities_joined,json=communitiesJoined,proto3" json:"communities_joined,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *UserStatistics) Reset() {
+	*x = UserStatistics{}
+	mi := &file_entity_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserStatistics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserStatistics) ProtoMessage() {}
+
+func (x *UserStatistics) ProtoReflect() protoreflect.Message {
+	mi := &file_entity_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserStatistics.ProtoReflect.Descriptor instead.
+func (*UserStatistics) Descriptor() ([]byte, []int) {
+	return file_entity_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UserStatistics) GetTotalPosts() int32 {
+	if x != nil {
+		return x.TotalPosts
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetTotalComments() int32 {
+	if x != nil {
+		return x.TotalComments
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetTotalLikesReceived() int32 {
+	if x != nil {
+		return x.TotalLikesReceived
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetPostLikes() int32 {
+	if x != nil {
+		return x.PostLikes
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetCommentLikes() int32 {
+	if x != nil {
+		return x.CommentLikes
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetCommunitiesCreated() int32 {
+	if x != nil {
+		return x.CommunitiesCreated
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetCommunitiesJoined() int32 {
+	if x != nil {
+		return x.CommunitiesJoined
+	}
+	return 0
+}
+
 var File_entity_proto protoreflect.FileDescriptor
 
 const file_entity_proto_rawDesc = "" +
@@ -744,7 +1108,56 @@ const file_entity_proto_rawDesc = "" +
 	"\n" +
 	"event_type\x18\x01 \x01(\x0e2\x17.proto.CommentEventTypeR\teventType\x12(\n" +
 	"\acomment\x18\x02 \x01(\v2\x0e.proto.CommentR\acomment\x128\n" +
-	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp*[\n" +
+	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xa1\x03\n" +
+	"\vUserProfile\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\x12\x1d\n" +
+	"\n" +
+	"banner_url\x18\x04 \x01(\tR\tbannerUrl\x12 \n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x1e\n" +
+	"\n" +
+	"reputation\x18\x06 \x01(\x05R\n" +
+	"reputation\x12%\n" +
+	"\x0efollower_count\x18\a \x01(\x05R\rfollowerCount\x12'\n" +
+	"\x0ffollowing_count\x18\b \x01(\x05R\x0efollowingCount\x12\x1b\n" +
+	"\tis_banned\x18\t \x01(\bR\bisBanned\x12!\n" +
+	"\fis_following\x18\n" +
+	" \x01(\bR\visFollowing\x12\x1b\n" +
+	"\tis_online\x18\v \x01(\bR\bisOnline\x129\n" +
+	"\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xf6\x03\n" +
+	"\x12CurrentUserProfile\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12%\n" +
+	"\x0eemail_verified\x18\x04 \x01(\bR\remailVerified\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x05 \x01(\tR\tavatarUrl\x12\x1d\n" +
+	"\n" +
+	"banner_url\x18\x06 \x01(\tR\tbannerUrl\x12 \n" +
+	"\vdescription\x18\a \x01(\tR\vdescription\x12\x1e\n" +
+	"\n" +
+	"reputation\x18\b \x01(\x05R\n" +
+	"reputation\x12%\n" +
+	"\x0efollower_count\x18\t \x01(\x05R\rfollowerCount\x12'\n" +
+	"\x0ffollowing_count\x18\n" +
+	" \x01(\x05R\x0efollowingCount\x128\n" +
+	"\x18joined_communities_count\x18\v \x01(\x05R\x16joinedCommunitiesCount\x122\n" +
+	"\x15active_sessions_count\x18\f \x01(\x05R\x13activeSessionsCount\x129\n" +
+	"\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xae\x02\n" +
+	"\x0eUserStatistics\x12\x1f\n" +
+	"\vtotal_posts\x18\x01 \x01(\x05R\n" +
+	"totalPosts\x12%\n" +
+	"\x0etotal_comments\x18\x02 \x01(\x05R\rtotalComments\x120\n" +
+	"\x14total_likes_received\x18\x03 \x01(\x05R\x12totalLikesReceived\x12\x1d\n" +
+	"\n" +
+	"post_likes\x18\x04 \x01(\x05R\tpostLikes\x12#\n" +
+	"\rcomment_likes\x18\x05 \x01(\x05R\fcommentLikes\x12/\n" +
+	"\x13communities_created\x18\x06 \x01(\x05R\x12communitiesCreated\x12-\n" +
+	"\x12communities_joined\x18\a \x01(\x05R\x11communitiesJoined*[\n" +
 	"\n" +
 	"PostStatus\x12\x1b\n" +
 	"\x17POST_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -769,7 +1182,7 @@ func file_entity_proto_rawDescGZIP() []byte {
 }
 
 var file_entity_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_entity_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_entity_proto_goTypes = []any{
 	(PostStatus)(0),               // 0: proto.PostStatus
 	(CommentEventType)(0),         // 1: proto.CommentEventType
@@ -778,28 +1191,33 @@ var file_entity_proto_goTypes = []any{
 	(*MediaAttachment)(nil),       // 4: proto.MediaAttachment
 	(*Comment)(nil),               // 5: proto.Comment
 	(*CommentEvent)(nil),          // 6: proto.CommentEvent
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),       // 8: google.protobuf.Struct
+	(*UserProfile)(nil),           // 7: proto.UserProfile
+	(*CurrentUserProfile)(nil),    // 8: proto.CurrentUserProfile
+	(*UserStatistics)(nil),        // 9: proto.UserStatistics
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),       // 11: google.protobuf.Struct
 }
 var file_entity_proto_depIdxs = []int32{
-	7,  // 0: proto.Community.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 1: proto.Community.updated_at:type_name -> google.protobuf.Timestamp
-	8,  // 2: proto.Post.content:type_name -> google.protobuf.Struct
+	10, // 0: proto.Community.created_at:type_name -> google.protobuf.Timestamp
+	10, // 1: proto.Community.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 2: proto.Post.content:type_name -> google.protobuf.Struct
 	0,  // 3: proto.Post.status:type_name -> proto.PostStatus
-	7,  // 4: proto.Post.published_at:type_name -> google.protobuf.Timestamp
-	7,  // 5: proto.Post.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 6: proto.Post.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 4: proto.Post.published_at:type_name -> google.protobuf.Timestamp
+	10, // 5: proto.Post.created_at:type_name -> google.protobuf.Timestamp
+	10, // 6: proto.Post.updated_at:type_name -> google.protobuf.Timestamp
 	4,  // 7: proto.Comment.attachments:type_name -> proto.MediaAttachment
-	7,  // 8: proto.Comment.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 9: proto.Comment.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 8: proto.Comment.created_at:type_name -> google.protobuf.Timestamp
+	10, // 9: proto.Comment.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 10: proto.CommentEvent.event_type:type_name -> proto.CommentEventType
 	5,  // 11: proto.CommentEvent.comment:type_name -> proto.Comment
-	7,  // 12: proto.CommentEvent.timestamp:type_name -> google.protobuf.Timestamp
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	10, // 12: proto.CommentEvent.timestamp:type_name -> google.protobuf.Timestamp
+	10, // 13: proto.UserProfile.created_at:type_name -> google.protobuf.Timestamp
+	10, // 14: proto.CurrentUserProfile.created_at:type_name -> google.protobuf.Timestamp
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_entity_proto_init() }
@@ -814,7 +1232,7 @@ func file_entity_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_entity_proto_rawDesc), len(file_entity_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

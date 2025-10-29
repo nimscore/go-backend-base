@@ -5,25 +5,18 @@ import (
 	"errors"
 )
 
-var ErrUserIDNotSet = errors.New("user_id not set")
+var ErrSessionIDNotSet = errors.New("session_id not set")
 
-// Исключает коллизии ключей в контексте
-type typedKey struct{ name string }
-
-var (
-	userIDKey = typedKey{name: "userID"}
-)
-
-func SetUserID(context contextpkg.Context, id string) contextpkg.Context {
-	return contextpkg.WithValue(context, userIDKey, id)
+func SetSessionID(context contextpkg.Context, id string) contextpkg.Context {
+	return contextpkg.WithValue(context, "sessionID", id)
 }
 
-func GetUserID(context contextpkg.Context) (string, error) {
-	if val := context.Value(userIDKey); val != nil {
+func GetSessionID(context contextpkg.Context) (string, error) {
+	if val := context.Value("sessionID"); val != nil {
 		if id, ok := val.(string); ok {
 			return id, nil
 		}
 	}
 
-	return "", ErrUserIDNotSet
+	return "", ErrSessionIDNotSet
 }
