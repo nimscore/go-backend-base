@@ -102,3 +102,11 @@ func (c *PostgresClient) DeleteSession(session *Session) error {
 	tx := c.database.Delete(session)
 	return tx.Error
 }
+
+func (c *PostgresClient) DeleteSessions() error {
+	tx := c.database.
+		Where("updated_at < NOW() - interval '15 min'").
+		Delete(&Session{})
+
+	return tx.Error
+}
