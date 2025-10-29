@@ -29,9 +29,9 @@ func (c *User) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (c *PostgresClient) SelectUserByUsername(username string) (*User, error) {
+func (c *PostgresClient) SelectUserByName(name string) (*User, error) {
 	var user User
-	transaction := c.database.
+	tx := c.database.
 		Select(
 			[]string{
 				"id",
@@ -43,11 +43,11 @@ func (c *PostgresClient) SelectUserByUsername(username string) (*User, error) {
 				"is_verified",
 			},
 		).
-		Where("name = ?", username).
+		Where("name = ?", name).
 		First(&user)
 
-	if transaction.Error != nil {
-		return nil, transaction.Error
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
 	return &user, nil
@@ -55,7 +55,7 @@ func (c *PostgresClient) SelectUserByUsername(username string) (*User, error) {
 
 func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 	var user User
-	transaction := c.database.
+	tx := c.database.
 		Select(
 			[]string{
 				"id",
@@ -70,14 +70,14 @@ func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 		Where("email = ?", email).
 		First(&user)
 
-	if transaction.Error != nil {
-		return nil, transaction.Error
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
 	return &user, nil
 }
 
 func (c *PostgresClient) InsertUser(user *User) error {
-	transaction := c.database.Create(user)
-	return transaction.Error
+	tx := c.database.Create(user)
+	return tx.Error
 }

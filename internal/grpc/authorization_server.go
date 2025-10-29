@@ -2,8 +2,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
-	"regexp"
 	"strings"
 
 	"go.uber.org/zap"
@@ -22,31 +20,7 @@ import (
 	securitypkg "github.com/stormhead-org/backend/internal/security"
 )
 
-var ErrUserExist = errors.New("user exist")
-var ErrInvalid = errors.New("invalid")
-
 const SESSIONS_PER_PAGE = 10
-
-func ValidateUserName(name string) error {
-	if len(name) < 5 {
-		return ErrInvalid
-	}
-
-	return nil
-}
-
-func ValidateUserEmail(email string) error {
-	regex, err := regexp.Compile(`[a-z\-\_\.]+@[a-z\-\_\.]+`)
-	if err != nil {
-		return ErrInvalid
-	}
-
-	if !regex.MatchString(email) {
-		return ErrInvalid
-	}
-
-	return nil
-}
 
 type AuthorizationServer struct {
 	protopkg.UnimplementedAuthorizationServiceServer
@@ -66,7 +40,7 @@ func NewAuthorizationServer(log *zap.Logger, jwt *jwtpkg.JWT, database *ormpkg.P
 }
 
 func (s *AuthorizationServer) ValidateName(ctx context.Context, request *protopkg.ValidateNameRequest) (*protopkg.ValidateNameResponse, error) {
-	_, err := s.database.SelectUserByUsername(
+	_, err := s.database.SelectUserByName(
 		request.Name,
 	)
 	if err != gorm.ErrRecordNotFound {
@@ -88,6 +62,7 @@ func (s *AuthorizationServer) ValidateEmail(ctx context.Context, request *protop
 }
 
 func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
+	// Validate request
 	err := ValidateUserName(request.Name)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "name not match conditions")
@@ -98,13 +73,15 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		return nil, status.Errorf(codes.InvalidArgument, "email not match conditions")
 	}
 
-	_, err = s.database.SelectUserByUsername(
+	// Validate name
+	_, err = s.database.SelectUserByName(
 		request.Name,
 	)
 	if err != gorm.ErrRecordNotFound {
 		return nil, status.Errorf(codes.InvalidArgument, "name already exist")
 	}
 
+	// Validate email
 	_, err = s.database.SelectUserByEmail(
 		request.Email,
 	)
@@ -112,6 +89,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		return nil, status.Errorf(codes.InvalidArgument, "email already exist")
 	}
 
+	// Salt password
 	salt := securitypkg.GenerateSalt()
 
 	hash, err := securitypkg.HashPassword(
@@ -123,6 +101,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
+	// Create user
 	user := &ormpkg.User{
 		Name:       request.Name,
 		Email:      request.Email,
@@ -130,13 +109,13 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		Salt:       salt,
 		IsVerified: false,
 	}
-
 	err = s.database.InsertUser(user)
 	if err != nil {
 		s.log.Error("can't insert user", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
+	// Write message to broker
 	err = s.broker.WriteMessage(
 		ctx,
 		eventpkg.AUTHORIZATION_REGISTER,
@@ -218,7 +197,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	// Write event to broker
+	// Write message to broker
 	err = s.broker.WriteMessage(
 		ctx,
 		eventpkg.AUTHORIZATION_LOGIN,
@@ -265,7 +244,7 @@ func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.Logo
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
-	// Send message to broker
+	// Write message to broker
 	err = s.broker.WriteMessage(
 		ctx,
 		eventpkg.AUTHORIZATION_LOGOUT,
@@ -287,7 +266,7 @@ func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopk
 		request.RefreshToken,
 	)
 	if err != nil {
-		s.log.Debug("can't parse refresh token", zap.Error(err))
+		s.log.Error("can't parse refresh token", zap.Error(err))
 		return nil, status.Errorf(codes.InvalidArgument, "refresh token invalid")
 	}
 
