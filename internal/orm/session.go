@@ -110,6 +110,7 @@ func (c *PostgresClient) DeleteSession(session *Session) error {
 }
 
 func (c *PostgresClient) DeleteSessions() error {
+	// TODO: not working, debug this
 	tx := c.database.
 		Where("updated_at < NOW() - interval '15 min'").
 		Delete(&Session{})

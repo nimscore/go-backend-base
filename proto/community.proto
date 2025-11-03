@@ -53,12 +53,9 @@ message UpdateCommunityResponse {
 
 message DeleteCommunityRequest {
   string community_id = 1;
-  bool confirm        = 2;  // must be true
 }
 
-message DeleteCommunityResponse {
-  string message = 1;
-}
+message DeleteCommunityResponse {}
 
 // ============================================================================
 // ListCommunities (FR-226, FR-231)
@@ -83,9 +80,7 @@ message JoinCommunityRequest {
   string community_id = 1;
 }
 
-message JoinCommunityResponse {
-  string message = 1;
-}
+message JoinCommunityResponse {}
 
 // ============================================================================
 // Leave (FR-180, FR-182, FR-184, FR-185)
@@ -95,9 +90,7 @@ message LeaveCommunityRequest {
   string community_id = 1;
 }
 
-message LeaveCommunityResponse {
-  string message = 1;
-}
+message LeaveCommunityResponse {}
 
 // ============================================================================
 // Ban (FR-228, FR-233-235)
@@ -108,9 +101,7 @@ message BanCommunityRequest {
   string reason       = 2;
 }
 
-message BanCommunityResponse {
-  string message = 1;
-}
+message BanCommunityResponse {}
 
 // ============================================================================
 // Unban (FR-229)
@@ -120,9 +111,7 @@ message UnbanCommunityRequest {
   string community_id = 1;
 }
 
-message UnbanCommunityResponse {
-  string message = 1;
-}
+message UnbanCommunityResponse {}
 
 // ============================================================================
 // TransferOwnership
@@ -133,9 +122,7 @@ message TransferCommunityOwnershipRequest {
   string new_owner_id = 2;
 }
 
-message TransferCommunityOwnershipResponse {
-  string message = 1;
-}
+message TransferCommunityOwnershipResponse {}
 
 // ============================================================================
 // Service Definition

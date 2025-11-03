@@ -8,24 +8,35 @@ CREATE TABLE IF NOT EXISTS "users" (
     verification_token TEXT NOT NULL,
     reset_token TEXT NOT NULL,
     is_verified BOOLEAN,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "sessions" (
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users,
+    user_id UUID NOT NULL,
     user_agent TEXT NOT NULL,
     ip_address TEXT NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "communities" (
     id UUID PRIMARY KEY,
-    owner_id UUID REFERENCES users,
+    owner_id UUID NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    rules TEXT NOT NULL,
+    is_banned BOOLEAN,
+    ban_reason TEXT,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "community_user" (
+    id UUID PRIMARY KEY,
+    community_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
 );

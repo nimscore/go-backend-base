@@ -329,7 +329,6 @@ func (x *UpdateCommunityResponse) GetCommunity() *Community {
 type DeleteCommunityRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommunityId   string                 `protobuf:"bytes,1,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
-	Confirm       bool                   `protobuf:"varint,2,opt,name=confirm,proto3" json:"confirm,omitempty"` // must be true
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -371,16 +370,8 @@ func (x *DeleteCommunityRequest) GetCommunityId() string {
 	return ""
 }
 
-func (x *DeleteCommunityRequest) GetConfirm() bool {
-	if x != nil {
-		return x.Confirm
-	}
-	return false
-}
-
 type DeleteCommunityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -413,13 +404,6 @@ func (x *DeleteCommunityResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeleteCommunityResponse.ProtoReflect.Descriptor instead.
 func (*DeleteCommunityResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *DeleteCommunityResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type ListCommunitiesRequest struct {
@@ -580,7 +564,6 @@ func (x *JoinCommunityRequest) GetCommunityId() string {
 
 type JoinCommunityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -613,13 +596,6 @@ func (x *JoinCommunityResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use JoinCommunityResponse.ProtoReflect.Descriptor instead.
 func (*JoinCommunityResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *JoinCommunityResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type LeaveCommunityRequest struct {
@@ -668,7 +644,6 @@ func (x *LeaveCommunityRequest) GetCommunityId() string {
 
 type LeaveCommunityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -701,13 +676,6 @@ func (x *LeaveCommunityResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use LeaveCommunityResponse.ProtoReflect.Descriptor instead.
 func (*LeaveCommunityResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *LeaveCommunityResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type BanCommunityRequest struct {
@@ -764,7 +732,6 @@ func (x *BanCommunityRequest) GetReason() string {
 
 type BanCommunityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -797,13 +764,6 @@ func (x *BanCommunityResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use BanCommunityResponse.ProtoReflect.Descriptor instead.
 func (*BanCommunityResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *BanCommunityResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type UnbanCommunityRequest struct {
@@ -852,7 +812,6 @@ func (x *UnbanCommunityRequest) GetCommunityId() string {
 
 type UnbanCommunityResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -885,13 +844,6 @@ func (x *UnbanCommunityResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UnbanCommunityResponse.ProtoReflect.Descriptor instead.
 func (*UnbanCommunityResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *UnbanCommunityResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type TransferCommunityOwnershipRequest struct {
@@ -948,7 +900,6 @@ func (x *TransferCommunityOwnershipRequest) GetNewOwnerId() string {
 
 type TransferCommunityOwnershipResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -983,13 +934,6 @@ func (*TransferCommunityOwnershipResponse) Descriptor() ([]byte, []int) {
 	return file_community_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *TransferCommunityOwnershipResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 var File_community_proto protoreflect.FileDescriptor
 
 const file_community_proto_rawDesc = "" +
@@ -1014,12 +958,10 @@ const file_community_proto_rawDesc = "" +
 	"\f_descriptionB\b\n" +
 	"\x06_rules\"I\n" +
 	"\x17UpdateCommunityResponse\x12.\n" +
-	"\tcommunity\x18\x01 \x01(\v2\x10.proto.CommunityR\tcommunity\"U\n" +
+	"\tcommunity\x18\x01 \x01(\v2\x10.proto.CommunityR\tcommunity\";\n" +
 	"\x16DeleteCommunityRequest\x12!\n" +
-	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\x12\x18\n" +
-	"\aconfirm\x18\x02 \x01(\bR\aconfirm\"3\n" +
-	"\x17DeleteCommunityResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"F\n" +
+	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"\x19\n" +
+	"\x17DeleteCommunityResponse\"F\n" +
 	"\x16ListCommunitiesRequest\x12\x16\n" +
 	"\x06cursor\x18\x01 \x01(\tR\x06cursor\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\"\x89\x01\n" +
@@ -1029,28 +971,23 @@ const file_community_proto_rawDesc = "" +
 	"nextCursor\x12\x19\n" +
 	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"9\n" +
 	"\x14JoinCommunityRequest\x12!\n" +
-	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"1\n" +
-	"\x15JoinCommunityResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\":\n" +
+	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"\x17\n" +
+	"\x15JoinCommunityResponse\":\n" +
 	"\x15LeaveCommunityRequest\x12!\n" +
-	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"2\n" +
-	"\x16LeaveCommunityResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"P\n" +
+	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"\x18\n" +
+	"\x16LeaveCommunityResponse\"P\n" +
 	"\x13BanCommunityRequest\x12!\n" +
 	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\"0\n" +
-	"\x14BanCommunityResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\":\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\"\x16\n" +
+	"\x14BanCommunityResponse\":\n" +
 	"\x15UnbanCommunityRequest\x12!\n" +
-	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"2\n" +
-	"\x16UnbanCommunityResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"h\n" +
+	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\"\x18\n" +
+	"\x16UnbanCommunityResponse\"h\n" +
 	"!TransferCommunityOwnershipRequest\x12!\n" +
 	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\x12 \n" +
 	"\fnew_owner_id\x18\x02 \x01(\tR\n" +
-	"newOwnerId\">\n" +
-	"\"TransferCommunityOwnershipResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\x81\t\n" +
+	"newOwnerId\"$\n" +
+	"\"TransferCommunityOwnershipResponse2\x81\t\n" +
 	"\x10CommunityService\x12`\n" +
 	"\x06Create\x12\x1d.proto.CreateCommunityRequest\x1a\x1e.proto.CreateCommunityResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/communities\x12c\n" +
 	"\x03Get\x12\x1a.proto.GetCommunityRequest\x1a\x1b.proto.GetCommunityResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/communities/{community_id}\x12o\n" +

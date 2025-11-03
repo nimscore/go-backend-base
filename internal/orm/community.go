@@ -13,6 +13,9 @@ type Community struct {
 	Owner       User
 	Name        string
 	Description string
+	Rules       string
+	IsBanned    bool
+	BanReason   string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -39,6 +42,9 @@ func (c *PostgresClient) SelectCommunityByID(id string) (*Community, error) {
 			"owner_id",
 			"name",
 			"description",
+			"rules",
+			"is_banned",
+			"ban_reason",
 			"created_at",
 			"updated_at",
 		}).
@@ -52,7 +58,7 @@ func (c *PostgresClient) SelectCommunityByID(id string) (*Community, error) {
 	return &community, nil
 }
 
-func (c *PostgresClient) SelectCommunityBySlug(slug string) (*Community, error) {
+func (c *PostgresClient) SelectCommunityByName(name string) (*Community, error) {
 	var community Community
 	tx := c.database.
 		Select([]string{
@@ -60,10 +66,13 @@ func (c *PostgresClient) SelectCommunityBySlug(slug string) (*Community, error) 
 			"owner_id",
 			"name",
 			"description",
+			"rules",
+			"is_banned",
+			"ban_reason",
 			"created_at",
 			"updated_at",
 		}).
-		Where("slug = ?", slug).
+		Where("name = ?", name).
 		First(&community)
 
 	if tx.Error != nil {
@@ -81,6 +90,9 @@ func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor strin
 			"owner_id",
 			"name",
 			"description",
+			"rules",
+			"is_banned",
+			"ban_reason",
 			"created_at",
 			"updated_at",
 		}).
@@ -110,4 +122,14 @@ func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor strin
 	}
 
 	return communities, nil
+}
+
+func (c *PostgresClient) UpdateCommunity(community *Community) error {
+	tx := c.database.Model(community).Updates(community)
+	return tx.Error
+}
+
+func (c *PostgresClient) DeleteCommunity(community *Community) error {
+	tx := c.database.Delete(community)
+	return tx.Error
 }

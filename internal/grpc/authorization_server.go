@@ -97,7 +97,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		salt,
 	)
 	if err != nil {
-		s.log.Error("can't hash password", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -112,7 +112,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 	}
 	err = s.database.InsertUser(user)
 	if err != nil {
-		s.log.Error("can't insert user", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -125,7 +125,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 		},
 	)
 	if err != nil {
-		s.log.Error("can't write to broker", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -170,14 +170,14 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	}
 
 	if userAgent == "unknown" || ipAddress == "unknown" {
-		s.log.Error("can't obtainin user agent or ip address")
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Check existing sessions
 	sessions, err := s.database.SelectSessionsByUserID(user.ID.String(), "", 0)
 	if err != nil {
-		s.log.Error("can't obtainin sessions from database")
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -202,20 +202,20 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	}
 	err = s.database.InsertSession(&session)
 	if err != nil {
-		s.log.Error("can't insert session", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Generate tokens
 	accessToken, err := s.jwt.GenerateAccessToken(session.ID.String())
 	if err != nil {
-		s.log.Error("can't generate access token", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := s.jwt.GenerateRefreshToken(session.ID.String())
 	if err != nil {
-		s.log.Error("can't generate refresh token", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -228,7 +228,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 		},
 	)
 	if err != nil {
-		s.log.Error("can't write to broker", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -249,20 +249,20 @@ func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.Logo
 	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
-		s.log.Error("can't get session from middleware", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	session, err := s.database.SelectSessionByID(sessionID)
 	if err != nil {
-		s.log.Error("can't get session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Delete session from database
 	err = s.database.DeleteSession(session)
 	if err != nil {
-		s.log.Error("can't delete session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -275,7 +275,7 @@ func (s *AuthorizationServer) Logout(ctx context.Context, request *protopkg.Logo
 		},
 	)
 	if err != nil {
-		s.log.Error("can't write to broker", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -295,13 +295,13 @@ func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopk
 	// Recreate tokens
 	accessToken, err := s.jwt.GenerateAccessToken(id)
 	if err != nil {
-		s.log.Error("can't generate access token", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	refreshToken, err := s.jwt.GenerateRefreshToken(id)
 	if err != nil {
-		s.log.Error("can't generate refresh token", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -314,7 +314,7 @@ func (s *AuthorizationServer) RefreshToken(ctx context.Context, request *protopk
 		},
 	)
 	if err != nil {
-		s.log.Error("can't write to broker", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -336,7 +336,7 @@ func (s *AuthorizationServer) VerifyEmail(ctx context.Context, request *protopkg
 
 	err = s.database.UpdateUser(user)
 	if err != nil {
-		s.log.Error("can't update user", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -360,7 +360,7 @@ func (s *AuthorizationServer) RequestPasswordReset(ctx context.Context, request 
 
 	err = s.database.UpdateUser(user)
 	if err != nil {
-		s.log.Error("can't update user", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -373,7 +373,7 @@ func (s *AuthorizationServer) RequestPasswordReset(ctx context.Context, request 
 		},
 	)
 	if err != nil {
-		s.log.Error("can't write to broker", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -395,7 +395,7 @@ func (s *AuthorizationServer) ConfirmPasswordReset(ctx context.Context, request 
 		salt,
 	)
 	if err != nil {
-		s.log.Error("can't hash password", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -405,7 +405,7 @@ func (s *AuthorizationServer) ConfirmPasswordReset(ctx context.Context, request 
 
 	err = s.database.UpdateUser(user)
 	if err != nil {
-		s.log.Error("can't update user", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -416,13 +416,13 @@ func (s *AuthorizationServer) ChangePassword(ctx context.Context, request *proto
 	// Get current user
 	userID, err := middlewarepkg.GetUserID(ctx)
 	if err != nil {
-		s.log.Error("can't get user from middleware", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	user, err := s.database.SelectUserByID(userID)
 	if err != nil {
-		s.log.Error("can't get user from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -444,7 +444,7 @@ func (s *AuthorizationServer) ChangePassword(ctx context.Context, request *proto
 		salt,
 	)
 	if err != nil {
-		s.log.Error("can't hash password", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -454,7 +454,7 @@ func (s *AuthorizationServer) ChangePassword(ctx context.Context, request *proto
 
 	err = s.database.UpdateUser(user)
 	if err != nil {
-		s.log.Error("can't update user in database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -465,13 +465,13 @@ func (s *AuthorizationServer) GetCurrentSession(ctx context.Context, request *pr
 	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
-		s.log.Error("can't get session from middleware", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	session, err := s.database.SelectSessionByID(sessionID)
 	if err != nil {
-		s.log.Error("can't get session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -490,20 +490,20 @@ func (s *AuthorizationServer) ListActiveSessions(ctx context.Context, request *p
 	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
-		s.log.Error("can't get session from middleware", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	session, err := s.database.SelectSessionByID(sessionID)
 	if err != nil {
-		s.log.Error("can't get session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Get user sessions
 	sessions, err := s.database.SelectSessionsByUserID(session.UserID.String(), request.Cursor, SESSIONS_PER_PAGE+1)
 	if err != nil {
-		s.log.Error("can't get sessions from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
@@ -544,32 +544,32 @@ func (s *AuthorizationServer) RevokeSession(ctx context.Context, request *protop
 	// Get current session
 	sessionID, err := middlewarepkg.GetSessionID(ctx)
 	if err != nil {
-		s.log.Error("can't get session from middleware", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	userSession, err := s.database.SelectSessionByID(sessionID)
 	if err != nil {
-		s.log.Error("can't get session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 
 	// Get requested session
 	requestedSession, err := s.database.SelectSessionByID(request.SessionId)
 	if err != nil {
-		s.log.Error("can't get session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.InvalidArgument, "internal error")
 	}
 
 	if userSession.UserID != requestedSession.UserID {
-		s.log.Error("can't validate session ownership", zap.Error(err))
-		return nil, status.Errorf(codes.PermissionDenied, "internal error")
+		s.log.Error("wrong session ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
 	}
 
 	// Delete session from database
 	err = s.database.DeleteSession(requestedSession)
 	if err != nil {
-		s.log.Error("can't delete session from database", zap.Error(err))
+		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "internal error")
 	}
 

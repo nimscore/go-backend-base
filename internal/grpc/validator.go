@@ -27,3 +27,11 @@ func ValidateUserEmail(email string) error {
 
 	return nil
 }
+
+func ValidateCommunityName(name string) error {
+	if len(name) < 5 {
+		return ErrInvalid
+	}
+
+	return nil
+}

@@ -1193,13 +1193,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "confirm",
-            "description": "must be true",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -4091,12 +4084,7 @@
       "default": "BADGE_TYPE_UNSPECIFIED"
     },
     "protoBanCommunityResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoBanUserInCommunityResponse": {
       "type": "object",
@@ -4644,12 +4632,7 @@
       }
     },
     "protoDeleteCommunityResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoDeletePostResponse": {
       "type": "object",
@@ -4885,20 +4868,10 @@
       }
     },
     "protoJoinCommunityResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoLeaveCommunityResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoLikeCommentResponse": {
       "type": "object",
@@ -6163,12 +6136,7 @@
       "default": "TIME_PERIOD_UNSPECIFIED"
     },
     "protoTransferCommunityOwnershipResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoTransferPlatformOwnershipRequest": {
       "type": "object",
@@ -6187,12 +6155,7 @@
       }
     },
     "protoUnbanCommunityResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoUnbanUserInCommunityResponse": {
       "type": "object",
