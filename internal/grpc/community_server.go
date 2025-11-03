@@ -31,17 +31,33 @@ func NewCommunityServer(log *zap.Logger, database *ormpkg.PostgresClient, broker
 	}
 }
 
+func (s *CommunityServer) ValidateCommunitySlug(ctx context.Context, request *protopkg.ValidateCommunitySlugRequest) (*protopkg.ValidateCommunitySlugResponse, error) {
+	_, err := s.database.SelectCommunityBySlug(
+		request.Slug,
+	)
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
+	}
+
+	return &protopkg.ValidateCommunitySlugResponse{}, nil
+}
+
 func (s *CommunityServer) Create(ctx context.Context, request *protopkg.CreateCommunityRequest) (*protopkg.CreateCommunityResponse, error) {
-	err := ValidateCommunityName(request.Name)
+	err := ValidateCommunitySlug(request.Slug)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "slug not match conditions")
+	}
+
+	err = ValidateCommunityName(request.Name)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "name not match conditions")
 	}
 
-	_, err = s.database.SelectCommunityByName(
-		request.Name,
+	_, err = s.database.SelectCommunityBySlug(
+		request.Slug,
 	)
 	if err != gorm.ErrRecordNotFound {
-		return nil, status.Errorf(codes.InvalidArgument, "name already exist")
+		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
 	}
 
 	userUUID, err := middlewarepkg.GetUserUUID(ctx)
@@ -52,6 +68,7 @@ func (s *CommunityServer) Create(ctx context.Context, request *protopkg.CreateCo
 
 	community := &ormpkg.Community{
 		OwnerID:     userUUID,
+		Slug:        request.Slug,
 		Name:        request.Name,
 		Description: request.Description,
 		Rules:       request.Rules,
@@ -73,6 +90,7 @@ func (s *CommunityServer) Create(ctx context.Context, request *protopkg.CreateCo
 		Community: &protopkg.Community{
 			Id:          community.ID.String(),
 			OwnerId:     community.OwnerID.String(),
+			Slug:        community.Slug,
 			Name:        community.Name,
 			Description: community.Description,
 			Rules:       community.Rules,
@@ -97,6 +115,7 @@ func (s *CommunityServer) Get(ctx context.Context, request *protopkg.GetCommunit
 		Community: &protopkg.Community{
 			Id:          community.ID.String(),
 			OwnerId:     community.OwnerID.String(),
+			Slug:        community.Slug,
 			Name:        community.Name,
 			Description: community.Description,
 			Rules:       community.Rules,
@@ -124,10 +143,11 @@ func (s *CommunityServer) Update(ctx context.Context, request *protopkg.UpdateCo
 	}
 
 	if community.OwnerID != userUUID {
-		s.log.Error("wrong session ownership")
-		return nil, status.Errorf(codes.PermissionDenied, "wrong session ownership")
+		s.log.Error("wrong community ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
 
+	community.Name = *request.Name
 	community.Description = *request.Description
 	community.Rules = *request.Rules
 
@@ -141,6 +161,7 @@ func (s *CommunityServer) Update(ctx context.Context, request *protopkg.UpdateCo
 		Community: &protopkg.Community{
 			Id:          community.ID.String(),
 			OwnerId:     community.OwnerID.String(),
+			Slug:        community.Slug,
 			Name:        community.Name,
 			Description: community.Description,
 			Rules:       community.Rules,
@@ -168,8 +189,8 @@ func (s *CommunityServer) Delete(ctx context.Context, request *protopkg.DeleteCo
 	}
 
 	if community.OwnerID != userUUID {
-		s.log.Error("wrong session ownership")
-		return nil, status.Errorf(codes.PermissionDenied, "wrong session ownership")
+		s.log.Error("wrong community ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
 
 	err = s.database.DeleteCommunity(community)
@@ -207,6 +228,7 @@ func (s *CommunityServer) ListCommunities(ctx context.Context, request *protopkg
 		protoCommunities[i] = &protopkg.Community{
 			Id:          community.ID.String(),
 			OwnerId:     community.OwnerID.String(),
+			Slug:        community.Slug,
 			Name:        community.Name,
 			Description: community.Description,
 			CreatedAt:   timestamppb.New(community.CreatedAt),
@@ -385,7 +407,7 @@ func (s *CommunityServer) TransferOwnership(ctx context.Context, request *protop
 	}
 
 	if community.OwnerID != userUUID {
-		s.log.Error("wrong session ownership")
+		s.log.Error("wrong community ownership")
 		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
 

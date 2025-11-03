@@ -11,6 +11,7 @@ type Community struct {
 	ID          uuid.UUID `gorm:"primaryKey"`
 	OwnerID     uuid.UUID
 	Owner       User
+	Slug        string
 	Name        string
 	Description string
 	Rules       string
@@ -40,6 +41,7 @@ func (c *PostgresClient) SelectCommunityByID(id string) (*Community, error) {
 		Select([]string{
 			"id",
 			"owner_id",
+			"slug",
 			"name",
 			"description",
 			"rules",
@@ -58,12 +60,38 @@ func (c *PostgresClient) SelectCommunityByID(id string) (*Community, error) {
 	return &community, nil
 }
 
+func (c *PostgresClient) SelectCommunityBySlug(slug string) (*Community, error) {
+	var community Community
+	tx := c.database.
+		Select([]string{
+			"id",
+			"owner_id",
+			"slug",
+			"name",
+			"description",
+			"rules",
+			"is_banned",
+			"ban_reason",
+			"created_at",
+			"updated_at",
+		}).
+		Where("slug = ?", slug).
+		First(&community)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &community, nil
+}
+
 func (c *PostgresClient) SelectCommunityByName(name string) (*Community, error) {
 	var community Community
 	tx := c.database.
 		Select([]string{
 			"id",
 			"owner_id",
+			"slug",
 			"name",
 			"description",
 			"rules",
@@ -88,6 +116,7 @@ func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor strin
 		Select([]string{
 			"id",
 			"owner_id",
+			"slug",
 			"name",
 			"description",
 			"rules",

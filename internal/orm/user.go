@@ -9,6 +9,7 @@ import (
 
 type User struct {
 	ID                uuid.UUID `gorm:"primaryKey"`
+	Slug              string
 	Name              string
 	Description       string
 	Email             string
@@ -37,6 +38,7 @@ func (c *PostgresClient) SelectUserByID(ID string) (*User, error) {
 		Select(
 			[]string{
 				"id",
+				"slug",
 				"name",
 				"description",
 				"email",
@@ -48,6 +50,33 @@ func (c *PostgresClient) SelectUserByID(ID string) (*User, error) {
 			},
 		).
 		Where("id = ?", ID).
+		First(&user)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &user, nil
+}
+
+func (c *PostgresClient) SelectUserBySlug(slug string) (*User, error) {
+	var user User
+	tx := c.database.
+		Select(
+			[]string{
+				"id",
+				"slug",
+				"name",
+				"description",
+				"email",
+				"password",
+				"salt",
+				"verification_token",
+				"reset_token",
+				"is_verified",
+			},
+		).
+		Where("slug = ?", slug).
 		First(&user)
 
 	if tx.Error != nil {
@@ -89,6 +118,7 @@ func (c *PostgresClient) SelectUserByEmail(email string) (*User, error) {
 		Select(
 			[]string{
 				"id",
+				"slug",
 				"name",
 				"description",
 				"email",
@@ -115,6 +145,7 @@ func (c *PostgresClient) SelectUserByVerificationToken(verificationToken string)
 		Select(
 			[]string{
 				"id",
+				"slug",
 				"name",
 				"description",
 				"email",
@@ -141,6 +172,7 @@ func (c *PostgresClient) SelectUserByResetToken(resetToken string) (*User, error
 		Select(
 			[]string{
 				"id",
+				"slug",
 				"name",
 				"description",
 				"email",

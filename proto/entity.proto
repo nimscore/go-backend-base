@@ -8,7 +8,7 @@ import "google/protobuf/struct.proto";
 message Community {
   string id                            = 1;
   string owner_id                      = 2;
-  string owner_username                = 3;
+  string slug                          = 3;
   string name                          = 4;
   string description                   = 5;
   string rules                         = 6;
@@ -29,19 +29,17 @@ enum PostStatus {
 message Post {
   string id                              = 1;
   string author_id                       = 2;
-  string author_username                 = 3;
-  string community_id                    = 4;
-  string community_name                  = 5;
-  string title                           = 6;
-  google.protobuf.Struct content         = 7;  // JSON content
-  PostStatus status                      = 8;
-  int32 like_count                       = 9;
-  int32 comment_count                    = 10;
-  bool is_liked_by_me                    = 11;
-  bool is_bookmarked_by_me               = 12;
-  google.protobuf.Timestamp published_at = 13;
-  google.protobuf.Timestamp created_at   = 14;
-  google.protobuf.Timestamp updated_at   = 15;
+  string community_id                    = 3;
+  string title                           = 4;
+  google.protobuf.Struct content         = 5;  // JSON content
+  PostStatus status                      = 6;
+  int32 like_count                       = 7;
+  int32 comment_count                    = 8;
+  bool is_liked_by_me                    = 9;
+  bool is_bookmarked_by_me               = 10;
+  google.protobuf.Timestamp published_at = 11;
+  google.protobuf.Timestamp created_at   = 12;
+  google.protobuf.Timestamp updated_at   = 13;
 }
 
 message MediaAttachment {
@@ -54,16 +52,14 @@ message Comment {
   string id                            = 1;
   string post_id                       = 2;
   string author_id                     = 3;
-  string author_username               = 4;
-  string author_avatar                 = 5;
-  string text                          = 6;
-  optional string parent_comment_id    = 7;
-  repeated MediaAttachment attachments = 8;
-  int32 like_count                     = 9;
-  bool is_liked_by_me                  = 10;
-  bool is_edited                       = 11;
-  google.protobuf.Timestamp created_at = 12;
-  google.protobuf.Timestamp updated_at = 13;
+  string text                          = 4;
+  optional string parent_comment_id    = 5;
+  repeated MediaAttachment attachments = 6;
+  int32 like_count                     = 7;
+  bool is_liked_by_me                  = 8;
+  bool is_edited                       = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
 enum CommentEventType {

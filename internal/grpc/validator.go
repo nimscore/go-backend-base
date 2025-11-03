@@ -7,6 +7,14 @@ import (
 
 var ErrInvalid = errors.New("invalid")
 
+func ValidateUserSlug(name string) error {
+	if len(name) < 5 {
+		return ErrInvalid
+	}
+
+	return nil
+}
+
 func ValidateUserName(name string) error {
 	if len(name) < 5 {
 		return ErrInvalid
@@ -22,6 +30,14 @@ func ValidateUserEmail(email string) error {
 	}
 
 	if !regex.MatchString(email) {
+		return ErrInvalid
+	}
+
+	return nil
+}
+
+func ValidateCommunitySlug(slug string) error {
+	if len(slug) < 5 {
 		return ErrInvalid
 	}
 

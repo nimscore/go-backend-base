@@ -365,12 +365,12 @@
     },
     "/auth/validate-email": {
       "post": {
-        "operationId": "AuthorizationService_ValidateEmail",
+        "operationId": "AuthorizationService_ValidateUserEmail",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoValidateEmailResponse"
+              "$ref": "#/definitions/protoValidateUserEmailResponse"
             }
           },
           "default": {
@@ -386,7 +386,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoValidateEmailRequest"
+              "$ref": "#/definitions/protoValidateUserEmailRequest"
             }
           }
         ],
@@ -397,13 +397,12 @@
     },
     "/auth/validate-name": {
       "post": {
-        "summary": "Registration and Login",
-        "operationId": "AuthorizationService_ValidateName",
+        "operationId": "AuthorizationService_ValidateUserName",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/protoValidateNameResponse"
+              "$ref": "#/definitions/protoValidateUserNameResponse"
             }
           },
           "default": {
@@ -419,7 +418,40 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/protoValidateNameRequest"
+              "$ref": "#/definitions/protoValidateUserNameRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationService"
+        ]
+      }
+    },
+    "/auth/validate-slug": {
+      "post": {
+        "summary": "Registration and Login",
+        "operationId": "AuthorizationService_ValidateUserSlug",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoValidateUserSlugResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoValidateUserSlugRequest"
             }
           }
         ],
@@ -1111,7 +1143,6 @@
         ]
       },
       "post": {
-        "summary": "CRUD Operations",
         "operationId": "CommunityService_Create",
         "responses": {
           "200": {
@@ -1134,6 +1165,39 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/protoCreateCommunityRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CommunityService"
+        ]
+      }
+    },
+    "/communities/validate-slug": {
+      "post": {
+        "summary": "CRUD Operations",
+        "operationId": "CommunityService_ValidateCommunitySlug",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/protoValidateCommunitySlugResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protoValidateCommunitySlugRequest"
             }
           }
         ],
@@ -4134,12 +4198,6 @@
         "authorId": {
           "type": "string"
         },
-        "authorUsername": {
-          "type": "string"
-        },
-        "authorAvatar": {
-          "type": "string"
-        },
         "text": {
           "type": "string"
         },
@@ -4229,7 +4287,7 @@
         "ownerId": {
           "type": "string"
         },
-        "ownerUsername": {
+        "slug": {
           "type": "string"
         },
         "name": {
@@ -4423,6 +4481,9 @@
     "protoCreateCommunityRequest": {
       "type": "object",
       "properties": {
+        "slug": {
+          "type": "string"
+        },
         "name": {
           "type": "string",
           "title": "3-50 chars"
@@ -5719,13 +5780,7 @@
         "authorId": {
           "type": "string"
         },
-        "authorUsername": {
-          "type": "string"
-        },
         "communityId": {
-          "type": "string"
-        },
-        "communityName": {
           "type": "string"
         },
         "title": {
@@ -5838,6 +5893,9 @@
     "protoRegisterRequest": {
       "type": "object",
       "properties": {
+        "slug": {
+          "type": "string"
+        },
         "name": {
           "type": "string"
         },
@@ -6381,6 +6439,9 @@
         "id": {
           "type": "string"
         },
+        "slug": {
+          "type": "string"
+        },
         "name": {
           "type": "string"
         },
@@ -6513,7 +6574,18 @@
         }
       }
     },
-    "protoValidateEmailRequest": {
+    "protoValidateCommunitySlugRequest": {
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "protoValidateCommunitySlugResponse": {
+      "type": "object"
+    },
+    "protoValidateUserEmailRequest": {
       "type": "object",
       "properties": {
         "email": {
@@ -6521,10 +6593,10 @@
         }
       }
     },
-    "protoValidateEmailResponse": {
+    "protoValidateUserEmailResponse": {
       "type": "object"
     },
-    "protoValidateNameRequest": {
+    "protoValidateUserNameRequest": {
       "type": "object",
       "properties": {
         "name": {
@@ -6532,7 +6604,18 @@
         }
       }
     },
-    "protoValidateNameResponse": {
+    "protoValidateUserNameResponse": {
+      "type": "object"
+    },
+    "protoValidateUserSlugRequest": {
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "protoValidateUserSlugResponse": {
       "type": "object"
     },
     "protoVerifyEmailRequest": {

@@ -39,9 +39,9 @@ message GetPostResponse {
 // ============================================================================
 
 message UpdatePostRequest {
-  string post_id                          = 1;
-  optional string title                   = 2;
-  optional google.protobuf.Struct content = 3;
+  string post_id                 = 1;
+  string title                   = 2;
+  google.protobuf.Struct content = 3;
 }
 
 message UpdatePostResponse {

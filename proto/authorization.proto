@@ -11,10 +11,11 @@ import "google/api/annotations.proto";
 
 message User {
   string id          = 1;
-  string name        = 2;
-  string description = 3;
-  string email       = 4;
-  bool is_verified   = 5;
+  string slug        = 2;
+  string name        = 3;
+  string description = 4;
+  string email       = 5;
+  bool is_verified   = 6;
 }
 
 message Session {
@@ -26,33 +27,44 @@ message Session {
 }
 
 // ============================================================================
-// ValidateName
+// ValidateUserSlug
 // ============================================================================
 
-message ValidateNameRequest {
+message ValidateUserSlugRequest {
+  string slug = 1;
+}
+
+message ValidateUserSlugResponse {}
+
+// ============================================================================
+// ValidateUserName
+// ============================================================================
+
+message ValidateUserNameRequest {
   string name = 1;
 }
 
-message ValidateNameResponse {}
+message ValidateUserNameResponse {}
 
 // ============================================================================
-// ValidateEmail
+// ValidateUserEmail
 // ============================================================================
 
-message ValidateEmailRequest {
+message ValidateUserEmailRequest {
   string email = 1;
 }
 
-message ValidateEmailResponse {}
+message ValidateUserEmailResponse {}
 
 // ============================================================================
 // Register (FR-280, FR-291, FR-292)
 // ============================================================================
 
 message RegisterRequest {
-  string name     = 1;
-  string email    = 2;
-  string password = 3;  // min 12 chars, checked against Have I Been Pwned
+  string slug     = 1;
+  string name     = 2;
+  string email    = 3;
+  string password = 4;  // min 12 chars, checked against Have I Been Pwned
 }
 
 message RegisterResponse {
@@ -179,14 +191,21 @@ message RevokeSessionResponse {}
 
 service AuthorizationService {
   // Registration and Login
-  rpc ValidateName(ValidateNameRequest) returns (ValidateNameResponse) {
+  rpc ValidateUserSlug(ValidateUserSlugRequest) returns (ValidateUserSlugResponse) {
+    option (google.api.http) = {
+      post: "/auth/validate-slug"
+      body: "*"
+    };
+  }
+
+  rpc ValidateUserName(ValidateUserNameRequest) returns (ValidateUserNameResponse) {
     option (google.api.http) = {
       post: "/auth/validate-name"
       body: "*"
     };
   }
 
-  rpc ValidateEmail(ValidateEmailRequest) returns (ValidateEmailResponse) {
+  rpc ValidateUserEmail(ValidateUserEmailRequest) returns (ValidateUserEmailResponse) {
     option (google.api.http) = {
       post: "/auth/validate-email"
       body: "*"

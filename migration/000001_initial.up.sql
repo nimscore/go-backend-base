@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS "users" (
     id UUID PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
+    slug TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
     description TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS "sessions" (
 CREATE TABLE IF NOT EXISTS "communities" (
     id UUID PRIMARY KEY,
     owner_id UUID NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     rules TEXT NOT NULL,

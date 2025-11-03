@@ -7,13 +7,24 @@ import "entity.proto";
 import "google/api/annotations.proto";
 
 // ============================================================================
+// ValidateCommunitySlug
+// ============================================================================
+
+message ValidateCommunitySlugRequest {
+  string slug = 1;
+}
+
+message ValidateCommunitySlugResponse {}
+
+// ============================================================================
 // Create (FR-345-354)
 // ============================================================================
 
 message CreateCommunityRequest {
-  string name        = 1;  // 3-50 chars
-  string description = 2;  // max 500 chars
-  string rules       = 3;
+  string slug        = 1;
+  string name        = 2;  // 3-50 chars
+  string description = 3;  // max 500 chars
+  string rules       = 4;
 }
 
 message CreateCommunityResponse {
@@ -130,6 +141,13 @@ message TransferCommunityOwnershipResponse {}
 
 service CommunityService {
   // CRUD Operations
+  rpc ValidateCommunitySlug(ValidateCommunitySlugRequest) returns (ValidateCommunitySlugResponse) {
+    option (google.api.http) = {
+      post: "/communities/validate-slug"
+      body: "*"
+    };
+  }
+
   rpc Create(CreateCommunityRequest) returns (CreateCommunityResponse) {
     option (google.api.http) = {
       post: "/communities"

@@ -22,8 +22,9 @@ func NewAuthorizationMiddleware(logger *zap.Logger, jwt *jwtpkg.JWT, database *o
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		bypassCheck := map[string]bool{
-			"/proto.AuthorizationService/ValidateName":         true,
-			"/proto.AuthorizationService/ValidateEmail":        true,
+			"/proto.AuthorizationService/ValidateUserSlug":     true,
+			"/proto.AuthorizationService/ValidateUserName":     true,
+			"/proto.AuthorizationService/ValidateUserEmail":    true,
 			"/proto.AuthorizationService/Register":             true,
 			"/proto.AuthorizationService/Login":                true,
 			"/proto.AuthorizationService/VerifyEmail":          true,

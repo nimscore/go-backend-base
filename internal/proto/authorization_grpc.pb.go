@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthorizationService_ValidateName_FullMethodName         = "/proto.AuthorizationService/ValidateName"
-	AuthorizationService_ValidateEmail_FullMethodName        = "/proto.AuthorizationService/ValidateEmail"
+	AuthorizationService_ValidateUserSlug_FullMethodName     = "/proto.AuthorizationService/ValidateUserSlug"
+	AuthorizationService_ValidateUserName_FullMethodName     = "/proto.AuthorizationService/ValidateUserName"
+	AuthorizationService_ValidateUserEmail_FullMethodName    = "/proto.AuthorizationService/ValidateUserEmail"
 	AuthorizationService_Register_FullMethodName             = "/proto.AuthorizationService/Register"
 	AuthorizationService_Login_FullMethodName                = "/proto.AuthorizationService/Login"
 	AuthorizationService_Logout_FullMethodName               = "/proto.AuthorizationService/Logout"
@@ -39,8 +40,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
 	// Registration and Login
-	ValidateName(ctx context.Context, in *ValidateNameRequest, opts ...grpc.CallOption) (*ValidateNameResponse, error)
-	ValidateEmail(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*ValidateEmailResponse, error)
+	ValidateUserSlug(ctx context.Context, in *ValidateUserSlugRequest, opts ...grpc.CallOption) (*ValidateUserSlugResponse, error)
+	ValidateUserName(ctx context.Context, in *ValidateUserNameRequest, opts ...grpc.CallOption) (*ValidateUserNameResponse, error)
+	ValidateUserEmail(ctx context.Context, in *ValidateUserEmailRequest, opts ...grpc.CallOption) (*ValidateUserEmailResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
@@ -65,20 +67,30 @@ func NewAuthorizationServiceClient(cc grpc.ClientConnInterface) AuthorizationSer
 	return &authorizationServiceClient{cc}
 }
 
-func (c *authorizationServiceClient) ValidateName(ctx context.Context, in *ValidateNameRequest, opts ...grpc.CallOption) (*ValidateNameResponse, error) {
+func (c *authorizationServiceClient) ValidateUserSlug(ctx context.Context, in *ValidateUserSlugRequest, opts ...grpc.CallOption) (*ValidateUserSlugResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateNameResponse)
-	err := c.cc.Invoke(ctx, AuthorizationService_ValidateName_FullMethodName, in, out, cOpts...)
+	out := new(ValidateUserSlugResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ValidateUserSlug_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authorizationServiceClient) ValidateEmail(ctx context.Context, in *ValidateEmailRequest, opts ...grpc.CallOption) (*ValidateEmailResponse, error) {
+func (c *authorizationServiceClient) ValidateUserName(ctx context.Context, in *ValidateUserNameRequest, opts ...grpc.CallOption) (*ValidateUserNameResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ValidateEmailResponse)
-	err := c.cc.Invoke(ctx, AuthorizationService_ValidateEmail_FullMethodName, in, out, cOpts...)
+	out := new(ValidateUserNameResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ValidateUserName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorizationServiceClient) ValidateUserEmail(ctx context.Context, in *ValidateUserEmailRequest, opts ...grpc.CallOption) (*ValidateUserEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateUserEmailResponse)
+	err := c.cc.Invoke(ctx, AuthorizationService_ValidateUserEmail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,8 +212,9 @@ func (c *authorizationServiceClient) RevokeSession(ctx context.Context, in *Revo
 // for forward compatibility.
 type AuthorizationServiceServer interface {
 	// Registration and Login
-	ValidateName(context.Context, *ValidateNameRequest) (*ValidateNameResponse, error)
-	ValidateEmail(context.Context, *ValidateEmailRequest) (*ValidateEmailResponse, error)
+	ValidateUserSlug(context.Context, *ValidateUserSlugRequest) (*ValidateUserSlugResponse, error)
+	ValidateUserName(context.Context, *ValidateUserNameRequest) (*ValidateUserNameResponse, error)
+	ValidateUserEmail(context.Context, *ValidateUserEmailRequest) (*ValidateUserEmailResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
@@ -226,11 +239,14 @@ type AuthorizationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthorizationServiceServer struct{}
 
-func (UnimplementedAuthorizationServiceServer) ValidateName(context.Context, *ValidateNameRequest) (*ValidateNameResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateName not implemented")
+func (UnimplementedAuthorizationServiceServer) ValidateUserSlug(context.Context, *ValidateUserSlugRequest) (*ValidateUserSlugResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUserSlug not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) ValidateEmail(context.Context, *ValidateEmailRequest) (*ValidateEmailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ValidateEmail not implemented")
+func (UnimplementedAuthorizationServiceServer) ValidateUserName(context.Context, *ValidateUserNameRequest) (*ValidateUserNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUserName not implemented")
+}
+func (UnimplementedAuthorizationServiceServer) ValidateUserEmail(context.Context, *ValidateUserEmailRequest) (*ValidateUserEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUserEmail not implemented")
 }
 func (UnimplementedAuthorizationServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
@@ -286,38 +302,56 @@ func RegisterAuthorizationServiceServer(s grpc.ServiceRegistrar, srv Authorizati
 	s.RegisterService(&AuthorizationService_ServiceDesc, srv)
 }
 
-func _AuthorizationService_ValidateName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateNameRequest)
+func _AuthorizationService_ValidateUserSlug_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateUserSlugRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizationServiceServer).ValidateName(ctx, in)
+		return srv.(AuthorizationServiceServer).ValidateUserSlug(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthorizationService_ValidateName_FullMethodName,
+		FullMethod: AuthorizationService_ValidateUserSlug_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).ValidateName(ctx, req.(*ValidateNameRequest))
+		return srv.(AuthorizationServiceServer).ValidateUserSlug(ctx, req.(*ValidateUserSlugRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthorizationService_ValidateEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateEmailRequest)
+func _AuthorizationService_ValidateUserName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateUserNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizationServiceServer).ValidateEmail(ctx, in)
+		return srv.(AuthorizationServiceServer).ValidateUserName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthorizationService_ValidateEmail_FullMethodName,
+		FullMethod: AuthorizationService_ValidateUserName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).ValidateEmail(ctx, req.(*ValidateEmailRequest))
+		return srv.(AuthorizationServiceServer).ValidateUserName(ctx, req.(*ValidateUserNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorizationService_ValidateUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateUserEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServiceServer).ValidateUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorizationService_ValidateUserEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServiceServer).ValidateUserEmail(ctx, req.(*ValidateUserEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -528,12 +562,16 @@ var AuthorizationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthorizationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ValidateName",
-			Handler:    _AuthorizationService_ValidateName_Handler,
+			MethodName: "ValidateUserSlug",
+			Handler:    _AuthorizationService_ValidateUserSlug_Handler,
 		},
 		{
-			MethodName: "ValidateEmail",
-			Handler:    _AuthorizationService_ValidateEmail_Handler,
+			MethodName: "ValidateUserName",
+			Handler:    _AuthorizationService_ValidateUserName_Handler,
+		},
+		{
+			MethodName: "ValidateUserEmail",
+			Handler:    _AuthorizationService_ValidateUserEmail_Handler,
 		},
 		{
 			MethodName: "Register",

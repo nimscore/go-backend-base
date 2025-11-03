@@ -19,16 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CommunityService_Create_FullMethodName            = "/proto.CommunityService/Create"
-	CommunityService_Get_FullMethodName               = "/proto.CommunityService/Get"
-	CommunityService_Update_FullMethodName            = "/proto.CommunityService/Update"
-	CommunityService_Delete_FullMethodName            = "/proto.CommunityService/Delete"
-	CommunityService_ListCommunities_FullMethodName   = "/proto.CommunityService/ListCommunities"
-	CommunityService_Join_FullMethodName              = "/proto.CommunityService/Join"
-	CommunityService_Leave_FullMethodName             = "/proto.CommunityService/Leave"
-	CommunityService_Ban_FullMethodName               = "/proto.CommunityService/Ban"
-	CommunityService_Unban_FullMethodName             = "/proto.CommunityService/Unban"
-	CommunityService_TransferOwnership_FullMethodName = "/proto.CommunityService/TransferOwnership"
+	CommunityService_ValidateCommunitySlug_FullMethodName = "/proto.CommunityService/ValidateCommunitySlug"
+	CommunityService_Create_FullMethodName                = "/proto.CommunityService/Create"
+	CommunityService_Get_FullMethodName                   = "/proto.CommunityService/Get"
+	CommunityService_Update_FullMethodName                = "/proto.CommunityService/Update"
+	CommunityService_Delete_FullMethodName                = "/proto.CommunityService/Delete"
+	CommunityService_ListCommunities_FullMethodName       = "/proto.CommunityService/ListCommunities"
+	CommunityService_Join_FullMethodName                  = "/proto.CommunityService/Join"
+	CommunityService_Leave_FullMethodName                 = "/proto.CommunityService/Leave"
+	CommunityService_Ban_FullMethodName                   = "/proto.CommunityService/Ban"
+	CommunityService_Unban_FullMethodName                 = "/proto.CommunityService/Unban"
+	CommunityService_TransferOwnership_FullMethodName     = "/proto.CommunityService/TransferOwnership"
 )
 
 // CommunityServiceClient is the client API for CommunityService service.
@@ -36,6 +37,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommunityServiceClient interface {
 	// CRUD Operations
+	ValidateCommunitySlug(ctx context.Context, in *ValidateCommunitySlugRequest, opts ...grpc.CallOption) (*ValidateCommunitySlugResponse, error)
 	Create(ctx context.Context, in *CreateCommunityRequest, opts ...grpc.CallOption) (*CreateCommunityResponse, error)
 	Get(ctx context.Context, in *GetCommunityRequest, opts ...grpc.CallOption) (*GetCommunityResponse, error)
 	Update(ctx context.Context, in *UpdateCommunityRequest, opts ...grpc.CallOption) (*UpdateCommunityResponse, error)
@@ -58,6 +60,16 @@ type communityServiceClient struct {
 
 func NewCommunityServiceClient(cc grpc.ClientConnInterface) CommunityServiceClient {
 	return &communityServiceClient{cc}
+}
+
+func (c *communityServiceClient) ValidateCommunitySlug(ctx context.Context, in *ValidateCommunitySlugRequest, opts ...grpc.CallOption) (*ValidateCommunitySlugResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateCommunitySlugResponse)
+	err := c.cc.Invoke(ctx, CommunityService_ValidateCommunitySlug_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *communityServiceClient) Create(ctx context.Context, in *CreateCommunityRequest, opts ...grpc.CallOption) (*CreateCommunityResponse, error) {
@@ -165,6 +177,7 @@ func (c *communityServiceClient) TransferOwnership(ctx context.Context, in *Tran
 // for forward compatibility.
 type CommunityServiceServer interface {
 	// CRUD Operations
+	ValidateCommunitySlug(context.Context, *ValidateCommunitySlugRequest) (*ValidateCommunitySlugResponse, error)
 	Create(context.Context, *CreateCommunityRequest) (*CreateCommunityResponse, error)
 	Get(context.Context, *GetCommunityRequest) (*GetCommunityResponse, error)
 	Update(context.Context, *UpdateCommunityRequest) (*UpdateCommunityResponse, error)
@@ -189,6 +202,9 @@ type CommunityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCommunityServiceServer struct{}
 
+func (UnimplementedCommunityServiceServer) ValidateCommunitySlug(context.Context, *ValidateCommunitySlugRequest) (*ValidateCommunitySlugResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateCommunitySlug not implemented")
+}
 func (UnimplementedCommunityServiceServer) Create(context.Context, *CreateCommunityRequest) (*CreateCommunityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
@@ -238,6 +254,24 @@ func RegisterCommunityServiceServer(s grpc.ServiceRegistrar, srv CommunityServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&CommunityService_ServiceDesc, srv)
+}
+
+func _CommunityService_ValidateCommunitySlug_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateCommunitySlugRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).ValidateCommunitySlug(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_ValidateCommunitySlug_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).ValidateCommunitySlug(ctx, req.(*ValidateCommunitySlugRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CommunityService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -427,6 +461,10 @@ var CommunityService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.CommunityService",
 	HandlerType: (*CommunityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ValidateCommunitySlug",
+			Handler:    _CommunityService_ValidateCommunitySlug_Handler,
+		},
 		{
 			MethodName: "Create",
 			Handler:    _CommunityService_Create_Handler,

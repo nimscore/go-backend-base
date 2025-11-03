@@ -226,8 +226,8 @@ func (x *GetPostResponse) GetPost() *Post {
 type UpdatePostRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PostId        string                 `protobuf:"bytes,1,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
-	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
-	Content       *structpb.Struct       `protobuf:"bytes,3,opt,name=content,proto3,oneof" json:"content,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Content       *structpb.Struct       `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -270,8 +270,8 @@ func (x *UpdatePostRequest) GetPostId() string {
 }
 
 func (x *UpdatePostRequest) GetTitle() string {
-	if x != nil && x.Title != nil {
-		return *x.Title
+	if x != nil {
+		return x.Title
 	}
 	return ""
 }
@@ -1207,14 +1207,11 @@ const file_post_proto_rawDesc = "" +
 	"\x0eGetPostRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\tR\x06postId\"2\n" +
 	"\x0fGetPostResponse\x12\x1f\n" +
-	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\"\x95\x01\n" +
+	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\"u\n" +
 	"\x11UpdatePostRequest\x12\x17\n" +
-	"\apost_id\x18\x01 \x01(\tR\x06postId\x12\x19\n" +
-	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x126\n" +
-	"\acontent\x18\x03 \x01(\v2\x17.google.protobuf.StructH\x01R\acontent\x88\x01\x01B\b\n" +
-	"\x06_titleB\n" +
-	"\n" +
-	"\b_content\"5\n" +
+	"\apost_id\x18\x01 \x01(\tR\x06postId\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x121\n" +
+	"\acontent\x18\x03 \x01(\v2\x17.google.protobuf.StructR\acontent\"5\n" +
 	"\x12UpdatePostResponse\x12\x1f\n" +
 	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\",\n" +
 	"\x11DeletePostRequest\x12\x17\n" +
@@ -1369,7 +1366,6 @@ func file_post_proto_init() {
 		return
 	}
 	file_entity_proto_init()
-	file_post_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

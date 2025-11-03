@@ -39,7 +39,18 @@ func NewAuthorizationServer(log *zap.Logger, jwt *jwtpkg.JWT, database *ormpkg.P
 	}
 }
 
-func (s *AuthorizationServer) ValidateName(ctx context.Context, request *protopkg.ValidateNameRequest) (*protopkg.ValidateNameResponse, error) {
+func (s *AuthorizationServer) ValidateUserSlug(ctx context.Context, request *protopkg.ValidateUserSlugRequest) (*protopkg.ValidateUserSlugResponse, error) {
+	_, err := s.database.SelectUserBySlug(
+		request.Slug,
+	)
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
+	}
+
+	return &protopkg.ValidateUserSlugResponse{}, nil
+}
+
+func (s *AuthorizationServer) ValidateUserName(ctx context.Context, request *protopkg.ValidateUserNameRequest) (*protopkg.ValidateUserNameResponse, error) {
 	_, err := s.database.SelectUserByName(
 		request.Name,
 	)
@@ -47,10 +58,10 @@ func (s *AuthorizationServer) ValidateName(ctx context.Context, request *protopk
 		return nil, status.Errorf(codes.InvalidArgument, "name already exist")
 	}
 
-	return &protopkg.ValidateNameResponse{}, nil
+	return &protopkg.ValidateUserNameResponse{}, nil
 }
 
-func (s *AuthorizationServer) ValidateEmail(ctx context.Context, request *protopkg.ValidateEmailRequest) (*protopkg.ValidateEmailResponse, error) {
+func (s *AuthorizationServer) ValidateUserEmail(ctx context.Context, request *protopkg.ValidateUserEmailRequest) (*protopkg.ValidateUserEmailResponse, error) {
 	_, err := s.database.SelectUserByEmail(
 		request.Email,
 	)
@@ -58,12 +69,17 @@ func (s *AuthorizationServer) ValidateEmail(ctx context.Context, request *protop
 		return nil, status.Errorf(codes.InvalidArgument, "email already exist")
 	}
 
-	return &protopkg.ValidateEmailResponse{}, nil
+	return &protopkg.ValidateUserEmailResponse{}, nil
 }
 
 func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.RegisterRequest) (*protopkg.RegisterResponse, error) {
 	// Validate request
-	err := ValidateUserName(request.Name)
+	err := ValidateUserSlug(request.Slug)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "name not match conditions")
+	}
+
+	err = ValidateUserName(request.Name)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "name not match conditions")
 	}
@@ -71,6 +87,14 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 	err = ValidateUserEmail(request.Email)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "email not match conditions")
+	}
+
+	// Validate slug
+	_, err = s.database.SelectUserBySlug(
+		request.Slug,
+	)
+	if err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
 	}
 
 	// Validate name
@@ -103,6 +127,7 @@ func (s *AuthorizationServer) Register(ctx context.Context, request *protopkg.Re
 
 	// Create user
 	user := &ormpkg.User{
+		Slug:              request.Slug,
 		Name:              request.Name,
 		Email:             request.Email,
 		Password:          hash,
@@ -235,6 +260,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 	return &protopkg.LoginResponse{
 		User: &protopkg.User{
 			Id:          user.ID.String(),
+			Slug:        user.Slug,
 			Name:        user.Name,
 			Description: user.Description,
 			Email:       user.Email,
