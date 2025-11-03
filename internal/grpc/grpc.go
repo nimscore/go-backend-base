@@ -46,9 +46,13 @@ func NewGRPC(
 	authorizationServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
 	protopkg.RegisterAuthorizationServiceServer(grpcServer, authorizationServer)
 
-	// // Community API
+	// Community API
 	communityServer := NewCommunityServer(logger, databaseClient, brokerClient)
 	protopkg.RegisterCommunityServiceServer(grpcServer, communityServer)
+
+	// Post API
+	postServer := NewPostServer(logger, databaseClient, brokerClient)
+	protopkg.RegisterPostServiceServer(grpcServer, postServer)
 
 	// Health API
 	healthServer := health.NewServer()

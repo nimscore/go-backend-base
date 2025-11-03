@@ -4,7 +4,6 @@ option go_package = "/proto";
 
 import "entity.proto";
 
-import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
 // ============================================================================
@@ -12,15 +11,12 @@ import "google/api/annotations.proto";
 // ============================================================================
 
 message CreatePostRequest {
-  string community_id            = 1;
-  string title                   = 2;  // 3-300 chars
-  google.protobuf.Struct content = 3;  // JSON
-  PostStatus status              = 4;  // draft or published
+  string community_id = 1;
+  string title        = 2;  // 3-300 chars
+  string content      = 3;  // JSON
 }
 
-message CreatePostResponse {
-  Post post = 1;
-}
+message CreatePostResponse {}
 
 // ============================================================================
 // Get (FR-208, FR-213)
@@ -39,14 +35,12 @@ message GetPostResponse {
 // ============================================================================
 
 message UpdatePostRequest {
-  string post_id                 = 1;
-  string title                   = 2;
-  google.protobuf.Struct content = 3;
+  string post_id = 1;
+  string title   = 2;
+  string content = 3;
 }
 
-message UpdatePostResponse {
-  Post post = 1;
-}
+message UpdatePostResponse {}
 
 // ============================================================================
 // Delete (FR-209)
@@ -56,9 +50,7 @@ message DeletePostRequest {
   string post_id = 1;
 }
 
-message DeletePostResponse {
-  string message = 1;
-}
+message DeletePostResponse {}
 
 // ============================================================================
 // ListComments (FR-217, FR-220, FR-221)

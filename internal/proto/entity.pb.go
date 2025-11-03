@@ -9,7 +9,6 @@ package proto
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -128,16 +127,17 @@ type Community struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	Slug          string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	Rules         string                 `protobuf:"bytes,6,opt,name=rules,proto3" json:"rules,omitempty"`
-	MemberCount   int32                  `protobuf:"varint,7,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
-	PostCount     int32                  `protobuf:"varint,8,opt,name=post_count,json=postCount,proto3" json:"post_count,omitempty"`
-	Reputation    int32                  `protobuf:"varint,9,opt,name=reputation,proto3" json:"reputation,omitempty"` // FR-455-458: sum(post_likes) + (sum(comments) × 0.1)
-	IsBanned      bool                   `protobuf:"varint,10,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	OwnerName     string                 `protobuf:"bytes,3,opt,name=owner_name,json=ownerName,proto3" json:"owner_name,omitempty"`
+	Slug          string                 `protobuf:"bytes,4,opt,name=slug,proto3" json:"slug,omitempty"`
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	Rules         string                 `protobuf:"bytes,7,opt,name=rules,proto3" json:"rules,omitempty"`
+	MemberCount   int32                  `protobuf:"varint,8,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
+	PostCount     int32                  `protobuf:"varint,9,opt,name=post_count,json=postCount,proto3" json:"post_count,omitempty"`
+	Reputation    int32                  `protobuf:"varint,10,opt,name=reputation,proto3" json:"reputation,omitempty"` // FR-455-458: sum(post_likes) + (sum(comments) × 0.1)
+	IsBanned      bool                   `protobuf:"varint,11,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -182,6 +182,13 @@ func (x *Community) GetId() string {
 func (x *Community) GetOwnerId() string {
 	if x != nil {
 		return x.OwnerId
+	}
+	return ""
+}
+
+func (x *Community) GetOwnerName() string {
+	if x != nil {
+		return x.OwnerName
 	}
 	return ""
 }
@@ -259,18 +266,20 @@ func (x *Community) GetUpdatedAt() *timestamppb.Timestamp {
 type Post struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AuthorId         string                 `protobuf:"bytes,2,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
-	CommunityId      string                 `protobuf:"bytes,3,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
-	Title            string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
-	Content          *structpb.Struct       `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"` // JSON content
-	Status           PostStatus             `protobuf:"varint,6,opt,name=status,proto3,enum=proto.PostStatus" json:"status,omitempty"`
-	LikeCount        int32                  `protobuf:"varint,7,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
-	CommentCount     int32                  `protobuf:"varint,8,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
-	IsLikedByMe      bool                   `protobuf:"varint,9,opt,name=is_liked_by_me,json=isLikedByMe,proto3" json:"is_liked_by_me,omitempty"`
-	IsBookmarkedByMe bool                   `protobuf:"varint,10,opt,name=is_bookmarked_by_me,json=isBookmarkedByMe,proto3" json:"is_bookmarked_by_me,omitempty"`
-	PublishedAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
-	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CommunityId      string                 `protobuf:"bytes,2,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
+	CommunityName    string                 `protobuf:"bytes,3,opt,name=community_name,json=communityName,proto3" json:"community_name,omitempty"`
+	AuthorId         string                 `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	AuthorName       string                 `protobuf:"bytes,5,opt,name=author_name,json=authorName,proto3" json:"author_name,omitempty"`
+	Title            string                 `protobuf:"bytes,6,opt,name=title,proto3" json:"title,omitempty"`
+	Content          string                 `protobuf:"bytes,7,opt,name=content,proto3" json:"content,omitempty"` // JSON content
+	Status           PostStatus             `protobuf:"varint,8,opt,name=status,proto3,enum=proto.PostStatus" json:"status,omitempty"`
+	LikeCount        int32                  `protobuf:"varint,9,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	CommentCount     int32                  `protobuf:"varint,10,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
+	IsLikedByMe      bool                   `protobuf:"varint,11,opt,name=is_liked_by_me,json=isLikedByMe,proto3" json:"is_liked_by_me,omitempty"`
+	IsBookmarkedByMe bool                   `protobuf:"varint,12,opt,name=is_bookmarked_by_me,json=isBookmarkedByMe,proto3" json:"is_bookmarked_by_me,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	PublishedAt      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -312,6 +321,20 @@ func (x *Post) GetId() string {
 	return ""
 }
 
+func (x *Post) GetCommunityId() string {
+	if x != nil {
+		return x.CommunityId
+	}
+	return ""
+}
+
+func (x *Post) GetCommunityName() string {
+	if x != nil {
+		return x.CommunityName
+	}
+	return ""
+}
+
 func (x *Post) GetAuthorId() string {
 	if x != nil {
 		return x.AuthorId
@@ -319,9 +342,9 @@ func (x *Post) GetAuthorId() string {
 	return ""
 }
 
-func (x *Post) GetCommunityId() string {
+func (x *Post) GetAuthorName() string {
 	if x != nil {
-		return x.CommunityId
+		return x.AuthorName
 	}
 	return ""
 }
@@ -333,11 +356,11 @@ func (x *Post) GetTitle() string {
 	return ""
 }
 
-func (x *Post) GetContent() *structpb.Struct {
+func (x *Post) GetContent() string {
 	if x != nil {
 		return x.Content
 	}
-	return nil
+	return ""
 }
 
 func (x *Post) GetStatus() PostStatus {
@@ -375,13 +398,6 @@ func (x *Post) GetIsBookmarkedByMe() bool {
 	return false
 }
 
-func (x *Post) GetPublishedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.PublishedAt
-	}
-	return nil
-}
-
 func (x *Post) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -392,6 +408,13 @@ func (x *Post) GetCreatedAt() *timestamppb.Timestamp {
 func (x *Post) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Post) GetPublishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PublishedAt
 	}
 	return nil
 }
@@ -461,14 +484,16 @@ type Comment struct {
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	PostId          string                 `protobuf:"bytes,2,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
 	AuthorId        string                 `protobuf:"bytes,3,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
-	Text            string                 `protobuf:"bytes,4,opt,name=text,proto3" json:"text,omitempty"`
-	ParentCommentId *string                `protobuf:"bytes,5,opt,name=parent_comment_id,json=parentCommentId,proto3,oneof" json:"parent_comment_id,omitempty"`
-	Attachments     []*MediaAttachment     `protobuf:"bytes,6,rep,name=attachments,proto3" json:"attachments,omitempty"`
-	LikeCount       int32                  `protobuf:"varint,7,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
-	IsLikedByMe     bool                   `protobuf:"varint,8,opt,name=is_liked_by_me,json=isLikedByMe,proto3" json:"is_liked_by_me,omitempty"`
-	IsEdited        bool                   `protobuf:"varint,9,opt,name=is_edited,json=isEdited,proto3" json:"is_edited,omitempty"`
-	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	AuthorUsername  string                 `protobuf:"bytes,4,opt,name=author_username,json=authorUsername,proto3" json:"author_username,omitempty"`
+	AuthorAvatar    string                 `protobuf:"bytes,5,opt,name=author_avatar,json=authorAvatar,proto3" json:"author_avatar,omitempty"`
+	Text            string                 `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
+	ParentCommentId *string                `protobuf:"bytes,7,opt,name=parent_comment_id,json=parentCommentId,proto3,oneof" json:"parent_comment_id,omitempty"`
+	Attachments     []*MediaAttachment     `protobuf:"bytes,8,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	LikeCount       int32                  `protobuf:"varint,9,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	IsLikedByMe     bool                   `protobuf:"varint,10,opt,name=is_liked_by_me,json=isLikedByMe,proto3" json:"is_liked_by_me,omitempty"`
+	IsEdited        bool                   `protobuf:"varint,11,opt,name=is_edited,json=isEdited,proto3" json:"is_edited,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -520,6 +545,20 @@ func (x *Comment) GetPostId() string {
 func (x *Comment) GetAuthorId() string {
 	if x != nil {
 		return x.AuthorId
+	}
+	return ""
+}
+
+func (x *Comment) GetAuthorUsername() string {
+	if x != nil {
+		return x.AuthorUsername
+	}
+	return ""
+}
+
+func (x *Comment) GetAuthorAvatar() string {
+	if x != nil {
+		return x.AuthorAvatar
 	}
 	return ""
 }
@@ -1008,65 +1047,72 @@ var File_entity_proto protoreflect.FileDescriptor
 
 const file_entity_proto_rawDesc = "" +
 	"\n" +
-	"\fentity.proto\x12\x05proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x8b\x03\n" +
+	"\fentity.proto\x12\x05proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xaa\x03\n" +
 	"\tCommunity\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12\x12\n" +
-	"\x04slug\x18\x03 \x01(\tR\x04slug\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x14\n" +
-	"\x05rules\x18\x06 \x01(\tR\x05rules\x12!\n" +
-	"\fmember_count\x18\a \x01(\x05R\vmemberCount\x12\x1d\n" +
+	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12\x1d\n" +
 	"\n" +
-	"post_count\x18\b \x01(\x05R\tpostCount\x12\x1e\n" +
+	"owner_name\x18\x03 \x01(\tR\townerName\x12\x12\n" +
+	"\x04slug\x18\x04 \x01(\tR\x04slug\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x14\n" +
+	"\x05rules\x18\a \x01(\tR\x05rules\x12!\n" +
+	"\fmember_count\x18\b \x01(\x05R\vmemberCount\x12\x1d\n" +
 	"\n" +
-	"reputation\x18\t \x01(\x05R\n" +
+	"post_count\x18\t \x01(\x05R\tpostCount\x12\x1e\n" +
+	"\n" +
+	"reputation\x18\n" +
+	" \x01(\x05R\n" +
 	"reputation\x12\x1b\n" +
-	"\tis_banned\x18\n" +
-	" \x01(\bR\bisBanned\x129\n" +
-	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
-	"\n" +
-	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x97\x04\n" +
-	"\x04Post\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
-	"\tauthor_id\x18\x02 \x01(\tR\bauthorId\x12!\n" +
-	"\fcommunity_id\x18\x03 \x01(\tR\vcommunityId\x12\x14\n" +
-	"\x05title\x18\x04 \x01(\tR\x05title\x121\n" +
-	"\acontent\x18\x05 \x01(\v2\x17.google.protobuf.StructR\acontent\x12)\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x11.proto.PostStatusR\x06status\x12\x1d\n" +
-	"\n" +
-	"like_count\x18\a \x01(\x05R\tlikeCount\x12#\n" +
-	"\rcomment_count\x18\b \x01(\x05R\fcommentCount\x12#\n" +
-	"\x0eis_liked_by_me\x18\t \x01(\bR\visLikedByMe\x12-\n" +
-	"\x13is_bookmarked_by_me\x18\n" +
-	" \x01(\bR\x10isBookmarkedByMe\x12=\n" +
-	"\fpublished_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vpublishedAt\x129\n" +
+	"\tis_banned\x18\v \x01(\bR\bisBanned\x129\n" +
 	"\n" +
 	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"V\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc6\x04\n" +
+	"\x04Post\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\fcommunity_id\x18\x02 \x01(\tR\vcommunityId\x12%\n" +
+	"\x0ecommunity_name\x18\x03 \x01(\tR\rcommunityName\x12\x1b\n" +
+	"\tauthor_id\x18\x04 \x01(\tR\bauthorId\x12\x1f\n" +
+	"\vauthor_name\x18\x05 \x01(\tR\n" +
+	"authorName\x12\x14\n" +
+	"\x05title\x18\x06 \x01(\tR\x05title\x12\x18\n" +
+	"\acontent\x18\a \x01(\tR\acontent\x12)\n" +
+	"\x06status\x18\b \x01(\x0e2\x11.proto.PostStatusR\x06status\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\t \x01(\x05R\tlikeCount\x12#\n" +
+	"\rcomment_count\x18\n" +
+	" \x01(\x05R\fcommentCount\x12#\n" +
+	"\x0eis_liked_by_me\x18\v \x01(\bR\visLikedByMe\x12-\n" +
+	"\x13is_bookmarked_by_me\x18\f \x01(\bR\x10isBookmarkedByMe\x129\n" +
+	"\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12=\n" +
+	"\fpublished_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vpublishedAt\"V\n" +
 	"\x0fMediaAttachment\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
-	"size_bytes\x18\x03 \x01(\x03R\tsizeBytes\"\xbb\x03\n" +
+	"size_bytes\x18\x03 \x01(\x03R\tsizeBytes\"\x89\x04\n" +
 	"\aComment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\apost_id\x18\x02 \x01(\tR\x06postId\x12\x1b\n" +
-	"\tauthor_id\x18\x03 \x01(\tR\bauthorId\x12\x12\n" +
-	"\x04text\x18\x04 \x01(\tR\x04text\x12/\n" +
-	"\x11parent_comment_id\x18\x05 \x01(\tH\x00R\x0fparentCommentId\x88\x01\x01\x128\n" +
-	"\vattachments\x18\x06 \x03(\v2\x16.proto.MediaAttachmentR\vattachments\x12\x1d\n" +
+	"\tauthor_id\x18\x03 \x01(\tR\bauthorId\x12'\n" +
+	"\x0fauthor_username\x18\x04 \x01(\tR\x0eauthorUsername\x12#\n" +
+	"\rauthor_avatar\x18\x05 \x01(\tR\fauthorAvatar\x12\x12\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\x12/\n" +
+	"\x11parent_comment_id\x18\a \x01(\tH\x00R\x0fparentCommentId\x88\x01\x01\x128\n" +
+	"\vattachments\x18\b \x03(\v2\x16.proto.MediaAttachmentR\vattachments\x12\x1d\n" +
 	"\n" +
-	"like_count\x18\a \x01(\x05R\tlikeCount\x12#\n" +
-	"\x0eis_liked_by_me\x18\b \x01(\bR\visLikedByMe\x12\x1b\n" +
-	"\tis_edited\x18\t \x01(\bR\bisEdited\x129\n" +
+	"like_count\x18\t \x01(\x05R\tlikeCount\x12#\n" +
+	"\x0eis_liked_by_me\x18\n" +
+	" \x01(\bR\visLikedByMe\x12\x1b\n" +
+	"\tis_edited\x18\v \x01(\bR\bisEdited\x129\n" +
 	"\n" +
-	"created_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x14\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x14\n" +
 	"\x12_parent_comment_id\"\xaa\x01\n" +
 	"\fCommentEvent\x126\n" +
 	"\n" +
@@ -1159,29 +1205,27 @@ var file_entity_proto_goTypes = []any{
 	(*CurrentUserProfile)(nil),    // 8: proto.CurrentUserProfile
 	(*UserStatistics)(nil),        // 9: proto.UserStatistics
 	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),       // 11: google.protobuf.Struct
 }
 var file_entity_proto_depIdxs = []int32{
 	10, // 0: proto.Community.created_at:type_name -> google.protobuf.Timestamp
 	10, // 1: proto.Community.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 2: proto.Post.content:type_name -> google.protobuf.Struct
-	0,  // 3: proto.Post.status:type_name -> proto.PostStatus
-	10, // 4: proto.Post.published_at:type_name -> google.protobuf.Timestamp
-	10, // 5: proto.Post.created_at:type_name -> google.protobuf.Timestamp
-	10, // 6: proto.Post.updated_at:type_name -> google.protobuf.Timestamp
-	4,  // 7: proto.Comment.attachments:type_name -> proto.MediaAttachment
-	10, // 8: proto.Comment.created_at:type_name -> google.protobuf.Timestamp
-	10, // 9: proto.Comment.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 10: proto.CommentEvent.event_type:type_name -> proto.CommentEventType
-	5,  // 11: proto.CommentEvent.comment:type_name -> proto.Comment
-	10, // 12: proto.CommentEvent.timestamp:type_name -> google.protobuf.Timestamp
-	10, // 13: proto.UserProfile.created_at:type_name -> google.protobuf.Timestamp
-	10, // 14: proto.CurrentUserProfile.created_at:type_name -> google.protobuf.Timestamp
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	0,  // 2: proto.Post.status:type_name -> proto.PostStatus
+	10, // 3: proto.Post.created_at:type_name -> google.protobuf.Timestamp
+	10, // 4: proto.Post.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 5: proto.Post.published_at:type_name -> google.protobuf.Timestamp
+	4,  // 6: proto.Comment.attachments:type_name -> proto.MediaAttachment
+	10, // 7: proto.Comment.created_at:type_name -> google.protobuf.Timestamp
+	10, // 8: proto.Comment.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 9: proto.CommentEvent.event_type:type_name -> proto.CommentEventType
+	5,  // 10: proto.CommentEvent.comment:type_name -> proto.Comment
+	10, // 11: proto.CommentEvent.timestamp:type_name -> google.protobuf.Timestamp
+	10, // 12: proto.UserProfile.created_at:type_name -> google.protobuf.Timestamp
+	10, // 13: proto.CurrentUserProfile.created_at:type_name -> google.protobuf.Timestamp
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_entity_proto_init() }

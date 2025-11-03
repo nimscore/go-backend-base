@@ -60,14 +60,14 @@ func (s *CommunityServer) Create(ctx context.Context, request *protopkg.CreateCo
 		return nil, status.Errorf(codes.InvalidArgument, "slug already exist")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
 	community := &ormpkg.Community{
-		OwnerID:     userUUID,
+		OwnerID:     userID,
 		Slug:        request.Slug,
 		Name:        request.Name,
 		Description: request.Description,
@@ -136,13 +136,13 @@ func (s *CommunityServer) Update(ctx context.Context, request *protopkg.UpdateCo
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	if community.OwnerID != userUUID {
+	if community.OwnerID != userID {
 		s.log.Error("wrong community ownership")
 		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
@@ -182,13 +182,13 @@ func (s *CommunityServer) Delete(ctx context.Context, request *protopkg.DeleteCo
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	if community.OwnerID != userUUID {
+	if community.OwnerID != userID {
 		s.log.Error("wrong community ownership")
 		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
@@ -267,7 +267,7 @@ func (s *CommunityServer) Join(ctx context.Context, request *protopkg.JoinCommun
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
@@ -275,20 +275,23 @@ func (s *CommunityServer) Join(ctx context.Context, request *protopkg.JoinCommun
 
 	_, err = s.database.SelectCommunityUser(
 		community.ID.String(),
-		userUUID.String(),
+		userID.String(),
 	)
-	if err != gorm.ErrRecordNotFound {
+	if err == nil {
 		s.log.Debug(
 			"user already in community",
 			zap.String("community_id", community.ID.String()),
-			zap.String("user_id", userUUID.String()),
+			zap.String("user_id", userID.String()),
 		)
 		return nil, status.Errorf(codes.InvalidArgument, "")
+	} else if err != gorm.ErrRecordNotFound {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
 	}
 
 	communityUser := ormpkg.CommunityUser{
 		CommunityID: community.ID,
-		UserID:      userUUID,
+		UserID:      userID,
 	}
 
 	err = s.database.InsertCommunityUser(&communityUser)
@@ -311,7 +314,7 @@ func (s *CommunityServer) Leave(ctx context.Context, request *protopkg.LeaveComm
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
@@ -319,13 +322,13 @@ func (s *CommunityServer) Leave(ctx context.Context, request *protopkg.LeaveComm
 
 	communityUser, err := s.database.SelectCommunityUser(
 		community.ID.String(),
-		userUUID.String(),
+		userID.String(),
 	)
 	if err == gorm.ErrRecordNotFound {
 		s.log.Debug(
 			"user not found in community",
 			zap.String("community_id", community.ID.String()),
-			zap.String("user_id", userUUID.String()),
+			zap.String("user_id", userID.String()),
 		)
 		return nil, status.Errorf(codes.InvalidArgument, "")
 	}
@@ -400,13 +403,13 @@ func (s *CommunityServer) TransferOwnership(ctx context.Context, request *protop
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	userUUID, err := middlewarepkg.GetUserUUID(ctx)
+	userID, err := middlewarepkg.GetUserUUID(ctx)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	if community.OwnerID != userUUID {
+	if community.OwnerID != userID {
 		s.log.Error("wrong community ownership")
 		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
