@@ -42,3 +42,25 @@ CREATE TABLE IF NOT EXISTS "community_user" (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS "post" (
+    id UUID PRIMARY KEY,
+    community_id UUID NOT NULL,
+    author_id UUID NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status INTEGER,
+    like_count INTEGER,
+    comment_count INTEGER,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    published_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "post_like" (
+    id UUID PRIMARY KEY,
+    post_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);

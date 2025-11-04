@@ -10,7 +10,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -26,9 +25,8 @@ const (
 type CreatePostRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommunityId   string                 `protobuf:"bytes,1,opt,name=community_id,json=communityId,proto3" json:"community_id,omitempty"`
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                          // 3-300 chars
-	Content       *structpb.Struct       `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                      // JSON
-	Status        PostStatus             `protobuf:"varint,4,opt,name=status,proto3,enum=proto.PostStatus" json:"status,omitempty"` // draft or published
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`     // 3-300 chars
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"` // JSON
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -77,23 +75,15 @@ func (x *CreatePostRequest) GetTitle() string {
 	return ""
 }
 
-func (x *CreatePostRequest) GetContent() *structpb.Struct {
+func (x *CreatePostRequest) GetContent() string {
 	if x != nil {
 		return x.Content
 	}
-	return nil
-}
-
-func (x *CreatePostRequest) GetStatus() PostStatus {
-	if x != nil {
-		return x.Status
-	}
-	return PostStatus_POST_STATUS_UNSPECIFIED
+	return ""
 }
 
 type CreatePostResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Post          *Post                  `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,13 +116,6 @@ func (x *CreatePostResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreatePostResponse.ProtoReflect.Descriptor instead.
 func (*CreatePostResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *CreatePostResponse) GetPost() *Post {
-	if x != nil {
-		return x.Post
-	}
-	return nil
 }
 
 type GetPostRequest struct {
@@ -227,7 +210,7 @@ type UpdatePostRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PostId        string                 `protobuf:"bytes,1,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Content       *structpb.Struct       `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -276,16 +259,15 @@ func (x *UpdatePostRequest) GetTitle() string {
 	return ""
 }
 
-func (x *UpdatePostRequest) GetContent() *structpb.Struct {
+func (x *UpdatePostRequest) GetContent() string {
 	if x != nil {
 		return x.Content
 	}
-	return nil
+	return ""
 }
 
 type UpdatePostResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Post          *Post                  `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -318,13 +300,6 @@ func (x *UpdatePostResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdatePostResponse.ProtoReflect.Descriptor instead.
 func (*UpdatePostResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UpdatePostResponse) GetPost() *Post {
-	if x != nil {
-		return x.Post
-	}
-	return nil
 }
 
 type DeletePostRequest struct {
@@ -373,7 +348,6 @@ func (x *DeletePostRequest) GetPostId() string {
 
 type DeletePostResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -406,13 +380,6 @@ func (x *DeletePostResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeletePostResponse.ProtoReflect.Descriptor instead.
 func (*DeletePostResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *DeletePostResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type ListPostCommentsRequest struct {
@@ -1196,28 +1163,24 @@ var File_post_proto protoreflect.FileDescriptor
 const file_post_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"post.proto\x12\x05proto\x1a\fentity.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1cgoogle/api/annotations.proto\"\xaa\x01\n" +
+	"post.proto\x12\x05proto\x1a\fentity.proto\x1a\x1cgoogle/api/annotations.proto\"f\n" +
 	"\x11CreatePostRequest\x12!\n" +
 	"\fcommunity_id\x18\x01 \x01(\tR\vcommunityId\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x121\n" +
-	"\acontent\x18\x03 \x01(\v2\x17.google.protobuf.StructR\acontent\x12)\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x11.proto.PostStatusR\x06status\"5\n" +
-	"\x12CreatePostResponse\x12\x1f\n" +
-	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\")\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\"\x14\n" +
+	"\x12CreatePostResponse\")\n" +
 	"\x0eGetPostRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\tR\x06postId\"2\n" +
 	"\x0fGetPostResponse\x12\x1f\n" +
-	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\"u\n" +
+	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\"\\\n" +
 	"\x11UpdatePostRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\tR\x06postId\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x121\n" +
-	"\acontent\x18\x03 \x01(\v2\x17.google.protobuf.StructR\acontent\"5\n" +
-	"\x12UpdatePostResponse\x12\x1f\n" +
-	"\x04post\x18\x01 \x01(\v2\v.proto.PostR\x04post\",\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\"\x14\n" +
+	"\x12UpdatePostResponse\",\n" +
 	"\x11DeletePostRequest\x12\x17\n" +
-	"\apost_id\x18\x01 \x01(\tR\x06postId\".\n" +
-	"\x12DeletePostResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"`\n" +
+	"\apost_id\x18\x01 \x01(\tR\x06postId\"\x14\n" +
+	"\x12DeletePostResponse\"`\n" +
 	"\x17ListPostCommentsRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\tR\x06postId\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x14\n" +
@@ -1313,51 +1276,44 @@ var file_post_proto_goTypes = []any{
 	(*DeleteBookmarkResponse)(nil),   // 21: proto.DeleteBookmarkResponse
 	(*ListBookmarksRequest)(nil),     // 22: proto.ListBookmarksRequest
 	(*ListBookmarksResponse)(nil),    // 23: proto.ListBookmarksResponse
-	(*structpb.Struct)(nil),          // 24: google.protobuf.Struct
-	(PostStatus)(0),                  // 25: proto.PostStatus
-	(*Post)(nil),                     // 26: proto.Post
-	(*Comment)(nil),                  // 27: proto.Comment
+	(*Post)(nil),                     // 24: proto.Post
+	(*Comment)(nil),                  // 25: proto.Comment
 }
 var file_post_proto_depIdxs = []int32{
-	24, // 0: proto.CreatePostRequest.content:type_name -> google.protobuf.Struct
-	25, // 1: proto.CreatePostRequest.status:type_name -> proto.PostStatus
-	26, // 2: proto.CreatePostResponse.post:type_name -> proto.Post
-	26, // 3: proto.GetPostResponse.post:type_name -> proto.Post
-	24, // 4: proto.UpdatePostRequest.content:type_name -> google.protobuf.Struct
-	26, // 5: proto.UpdatePostResponse.post:type_name -> proto.Post
-	27, // 6: proto.ListPostCommentsResponse.comments:type_name -> proto.Comment
-	26, // 7: proto.PublishPostResponse.post:type_name -> proto.Post
-	26, // 8: proto.UnpublishPostResponse.post:type_name -> proto.Post
-	26, // 9: proto.ListBookmarksResponse.posts:type_name -> proto.Post
-	0,  // 10: proto.PostService.Create:input_type -> proto.CreatePostRequest
-	2,  // 11: proto.PostService.Get:input_type -> proto.GetPostRequest
-	4,  // 12: proto.PostService.Update:input_type -> proto.UpdatePostRequest
-	6,  // 13: proto.PostService.Delete:input_type -> proto.DeletePostRequest
-	8,  // 14: proto.PostService.ListComments:input_type -> proto.ListPostCommentsRequest
-	10, // 15: proto.PostService.Publish:input_type -> proto.PublishPostRequest
-	12, // 16: proto.PostService.Unpublish:input_type -> proto.UnpublishPostRequest
-	14, // 17: proto.PostService.Like:input_type -> proto.LikePostRequest
-	16, // 18: proto.PostService.Unlike:input_type -> proto.UnlikePostRequest
-	18, // 19: proto.PostService.CreateBookmark:input_type -> proto.CreateBookmarkRequest
-	20, // 20: proto.PostService.DeleteBookmark:input_type -> proto.DeleteBookmarkRequest
-	22, // 21: proto.PostService.ListBookmarks:input_type -> proto.ListBookmarksRequest
-	1,  // 22: proto.PostService.Create:output_type -> proto.CreatePostResponse
-	3,  // 23: proto.PostService.Get:output_type -> proto.GetPostResponse
-	5,  // 24: proto.PostService.Update:output_type -> proto.UpdatePostResponse
-	7,  // 25: proto.PostService.Delete:output_type -> proto.DeletePostResponse
-	9,  // 26: proto.PostService.ListComments:output_type -> proto.ListPostCommentsResponse
-	11, // 27: proto.PostService.Publish:output_type -> proto.PublishPostResponse
-	13, // 28: proto.PostService.Unpublish:output_type -> proto.UnpublishPostResponse
-	15, // 29: proto.PostService.Like:output_type -> proto.LikePostResponse
-	17, // 30: proto.PostService.Unlike:output_type -> proto.UnlikePostResponse
-	19, // 31: proto.PostService.CreateBookmark:output_type -> proto.CreateBookmarkResponse
-	21, // 32: proto.PostService.DeleteBookmark:output_type -> proto.DeleteBookmarkResponse
-	23, // 33: proto.PostService.ListBookmarks:output_type -> proto.ListBookmarksResponse
-	22, // [22:34] is the sub-list for method output_type
-	10, // [10:22] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	24, // 0: proto.GetPostResponse.post:type_name -> proto.Post
+	25, // 1: proto.ListPostCommentsResponse.comments:type_name -> proto.Comment
+	24, // 2: proto.PublishPostResponse.post:type_name -> proto.Post
+	24, // 3: proto.UnpublishPostResponse.post:type_name -> proto.Post
+	24, // 4: proto.ListBookmarksResponse.posts:type_name -> proto.Post
+	0,  // 5: proto.PostService.Create:input_type -> proto.CreatePostRequest
+	2,  // 6: proto.PostService.Get:input_type -> proto.GetPostRequest
+	4,  // 7: proto.PostService.Update:input_type -> proto.UpdatePostRequest
+	6,  // 8: proto.PostService.Delete:input_type -> proto.DeletePostRequest
+	8,  // 9: proto.PostService.ListComments:input_type -> proto.ListPostCommentsRequest
+	10, // 10: proto.PostService.Publish:input_type -> proto.PublishPostRequest
+	12, // 11: proto.PostService.Unpublish:input_type -> proto.UnpublishPostRequest
+	14, // 12: proto.PostService.Like:input_type -> proto.LikePostRequest
+	16, // 13: proto.PostService.Unlike:input_type -> proto.UnlikePostRequest
+	18, // 14: proto.PostService.CreateBookmark:input_type -> proto.CreateBookmarkRequest
+	20, // 15: proto.PostService.DeleteBookmark:input_type -> proto.DeleteBookmarkRequest
+	22, // 16: proto.PostService.ListBookmarks:input_type -> proto.ListBookmarksRequest
+	1,  // 17: proto.PostService.Create:output_type -> proto.CreatePostResponse
+	3,  // 18: proto.PostService.Get:output_type -> proto.GetPostResponse
+	5,  // 19: proto.PostService.Update:output_type -> proto.UpdatePostResponse
+	7,  // 20: proto.PostService.Delete:output_type -> proto.DeletePostResponse
+	9,  // 21: proto.PostService.ListComments:output_type -> proto.ListPostCommentsResponse
+	11, // 22: proto.PostService.Publish:output_type -> proto.PublishPostResponse
+	13, // 23: proto.PostService.Unpublish:output_type -> proto.UnpublishPostResponse
+	15, // 24: proto.PostService.Like:output_type -> proto.LikePostResponse
+	17, // 25: proto.PostService.Unlike:output_type -> proto.UnlikePostResponse
+	19, // 26: proto.PostService.CreateBookmark:output_type -> proto.CreateBookmarkResponse
+	21, // 27: proto.PostService.DeleteBookmark:output_type -> proto.DeleteBookmarkResponse
+	23, // 28: proto.PostService.ListBookmarks:output_type -> proto.ListBookmarksResponse
+	17, // [17:29] is the sub-list for method output_type
+	5,  // [5:17] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_post_proto_init() }

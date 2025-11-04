@@ -30,11 +30,6 @@ func (c *Community) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (c *PostgresClient) InsertCommunity(community *Community) error {
-	transaction := c.database.Create(community)
-	return transaction.Error
-}
-
 func (c *PostgresClient) SelectCommunityByID(id string) (*Community, error) {
 	var community Community
 	tx := c.database.
@@ -151,6 +146,11 @@ func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor strin
 	}
 
 	return communities, nil
+}
+
+func (c *PostgresClient) InsertCommunity(community *Community) error {
+	transaction := c.database.Create(community)
+	return transaction.Error
 }
 
 func (c *PostgresClient) UpdateCommunity(community *Community) error {

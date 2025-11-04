@@ -216,7 +216,7 @@ func (s *AuthorizationServer) Login(ctx context.Context, request *protopkg.Login
 		}
 
 		s.log.Error("multiple login attempt from same client")
-		return nil, status.Errorf(codes.Internal, "multiple login attempt from same client")
+		// return nil, status.Errorf(codes.Internal, "multiple login attempt from same client")
 	}
 
 	// Create session

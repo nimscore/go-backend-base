@@ -1,0 +1,310 @@
+package grpc
+
+import (
+	"context"
+	"time"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
+
+	"github.com/google/uuid"
+	eventpkg "github.com/stormhead-org/backend/internal/event"
+	middlewarepkg "github.com/stormhead-org/backend/internal/middleware"
+	ormpkg "github.com/stormhead-org/backend/internal/orm"
+	protopkg "github.com/stormhead-org/backend/internal/proto"
+)
+
+type PostServer struct {
+	protopkg.UnimplementedPostServiceServer
+	log      *zap.Logger
+	database *ormpkg.PostgresClient
+	broker   *eventpkg.KafkaClient
+}
+
+func NewPostServer(log *zap.Logger, database *ormpkg.PostgresClient, broker *eventpkg.KafkaClient) *PostServer {
+	return &PostServer{
+		log:      log,
+		database: database,
+		broker:   broker,
+	}
+}
+
+func (s *PostServer) Create(ctx context.Context, request *protopkg.CreatePostRequest) (*protopkg.CreatePostResponse, error) {
+	communityUUID, err := uuid.Parse(request.CommunityId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid community_id")
+	}
+
+	_, err = s.database.SelectCommunityByID(request.CommunityId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("community not found", zap.String("community_id", request.CommunityId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post := &ormpkg.Post{
+		CommunityID: communityUUID,
+		AuthorID:    userID,
+		Title:       request.Title,
+		Content:     request.Content,
+		Status:      0,
+	}
+
+	err = s.database.InsertPost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.CreatePostResponse{}, nil
+}
+
+func (s *PostServer) Get(ctx context.Context, request *protopkg.GetPostRequest) (*protopkg.GetPostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.GetPostResponse{
+		Post: &protopkg.Post{
+			Id:            post.ID.String(),
+			CommunityId:   post.CommunityID.String(),
+			CommunityName: post.Community.Name,
+			AuthorId:      post.AuthorID.String(),
+			AuthorName:    post.Author.Name,
+			Title:         post.Title,
+			Content:       post.Content,
+			Status:        protopkg.PostStatus(post.Status),
+			CreatedAt:     timestamppb.New(post.CreatedAt),
+			UpdatedAt:     timestamppb.New(post.UpdatedAt),
+			PublishedAt:   timestamppb.New(post.PublishedAt),
+		},
+	}, nil
+}
+
+func (s *PostServer) Update(ctx context.Context, request *protopkg.UpdatePostRequest) (*protopkg.UpdatePostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post.Title = request.Title
+	post.Content = request.Content
+
+	err = s.database.UpdatePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.UpdatePostResponse{}, nil
+}
+
+func (s *PostServer) Delete(ctx context.Context, request *protopkg.DeletePostRequest) (*protopkg.DeletePostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	err = s.database.DeletePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.DeletePostResponse{}, nil
+}
+
+func (s *PostServer) ListComments(ctx context.Context, request *protopkg.ListPostCommentsRequest) (*protopkg.ListPostCommentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListComments not implemented")
+}
+
+func (s *PostServer) Publish(ctx context.Context, request *protopkg.PublishPostRequest) (*protopkg.PublishPostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post.Status = int(protopkg.PostStatus_POST_STATUS_PUBLISHED)
+	post.PublishedAt = time.Now()
+
+	err = s.database.UpdatePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.PublishPostResponse{}, nil
+}
+
+func (s *PostServer) Unpublish(ctx context.Context, request *protopkg.UnpublishPostRequest) (*protopkg.UnpublishPostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post.Status = int(protopkg.PostStatus_POST_STATUS_DRAFT)
+
+	err = s.database.UpdatePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.UnpublishPostResponse{}, nil
+}
+
+func (s *PostServer) Like(ctx context.Context, request *protopkg.LikePostRequest) (*protopkg.LikePostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	_, err = s.database.SelectPostLike(
+		post.ID.String(),
+		userID.String(),
+	)
+	if err == nil {
+		s.log.Debug(
+			"post already liked",
+			zap.String("post_id", post.ID.String()),
+			zap.String("user_id", userID.String()),
+		)
+		return nil, status.Errorf(codes.InvalidArgument, "already liked")
+	} else if err != gorm.ErrRecordNotFound {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	postLike := &ormpkg.PostLike{
+		PostID: post.ID,
+		UserID: userID,
+	}
+
+	err = s.database.InsertPostLike(postLike)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post.LikeCount += 1
+
+	err = s.database.UpdatePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.LikePostResponse{}, nil
+}
+
+func (s *PostServer) Unlike(ctx context.Context, request *protopkg.UnlikePostRequest) (*protopkg.UnlikePostResponse, error) {
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	postLike, err := s.database.SelectPostLike(
+		post.ID.String(),
+		userID.String(),
+	)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug(
+			"post not liked",
+			zap.String("post_id", post.ID.String()),
+			zap.String("user_id", userID.String()),
+		)
+		return nil, status.Errorf(codes.InvalidArgument, "not liked")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	err = s.database.DeletePostLike(postLike)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	post.LikeCount -= 1
+
+	err = s.database.UpdatePost(post)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.UnlikePostResponse{}, nil
+}
+
+func (s *PostServer) CreateBookmark(ctx context.Context, request *protopkg.CreateBookmarkRequest) (*protopkg.CreateBookmarkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBookmark not implemented")
+}
+
+func (s *PostServer) DeleteBookmark(ctx context.Context, request *protopkg.DeleteBookmarkRequest) (*protopkg.DeleteBookmarkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBookmark not implemented")
+}
+
+func (s *PostServer) ListBookmarks(ctx context.Context, request *protopkg.ListBookmarksRequest) (*protopkg.ListBookmarksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListBookmarks not implemented")
+}

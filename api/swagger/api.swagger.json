@@ -4198,6 +4198,12 @@
         "authorId": {
           "type": "string"
         },
+        "authorUsername": {
+          "type": "string"
+        },
+        "authorAvatar": {
+          "type": "string"
+        },
         "text": {
           "type": "string"
         },
@@ -4285,6 +4291,9 @@
           "type": "string"
         },
         "ownerId": {
+          "type": "string"
+        },
+        "ownerName": {
           "type": "string"
         },
         "slug": {
@@ -4575,22 +4584,13 @@
           "title": "3-300 chars"
         },
         "content": {
-          "type": "object",
+          "type": "string",
           "title": "JSON"
-        },
-        "status": {
-          "$ref": "#/definitions/protoPostStatus",
-          "title": "draft or published"
         }
       }
     },
     "protoCreatePostResponse": {
-      "type": "object",
-      "properties": {
-        "post": {
-          "$ref": "#/definitions/protoPost"
-        }
-      }
+      "type": "object"
     },
     "protoCreateRequest": {
       "type": "object",
@@ -4696,12 +4696,7 @@
       "type": "object"
     },
     "protoDeletePostResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoDeleteRoleResponse": {
       "type": "object",
@@ -5777,17 +5772,23 @@
         "id": {
           "type": "string"
         },
+        "communityId": {
+          "type": "string"
+        },
+        "communityName": {
+          "type": "string"
+        },
         "authorId": {
           "type": "string"
         },
-        "communityId": {
+        "authorName": {
           "type": "string"
         },
         "title": {
           "type": "string"
         },
         "content": {
-          "type": "object",
+          "type": "string",
           "title": "JSON content"
         },
         "status": {
@@ -5807,15 +5808,15 @@
         "isBookmarkedByMe": {
           "type": "boolean"
         },
-        "publishedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -5828,7 +5829,7 @@
           "type": "string"
         },
         "content": {
-          "type": "object"
+          "type": "string"
         }
       }
     },
@@ -6313,12 +6314,7 @@
       }
     },
     "protoUpdatePostResponse": {
-      "type": "object",
-      "properties": {
-        "post": {
-          "$ref": "#/definitions/protoPost"
-        }
-      }
+      "type": "object"
     },
     "protoUpdatePreferencesRequest": {
       "type": "object",
@@ -6637,14 +6633,6 @@
         }
       },
       "additionalProperties": {}
-    },
-    "protobufNullValue": {
-      "type": "string",
-      "enum": [
-        "NULL_VALUE"
-      ],
-      "default": "NULL_VALUE",
-      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",
