@@ -8,6 +8,7 @@ import (
 )
 
 type PostLike struct {
+	ID        uuid.UUID `gorm:"primaryKey"`
 	PostID    uuid.UUID
 	Post      Post
 	UserID    uuid.UUID
@@ -21,6 +22,7 @@ func (c *PostLike) TableName() string {
 }
 
 func (c *PostLike) BeforeCreate(transaction *gorm.DB) error {
+	c.ID = uuid.New()
 	return nil
 }
 
@@ -28,9 +30,7 @@ func (c *PostgresClient) SelectPostLikeByID(postID string, userID string) (*Post
 	var PostLike PostLike
 	tx := c.database.
 		Select(
-			[]string{
-				"id",
-			},
+			[]string{},
 		).
 		Where("post_id = ? AND user_id = ?", postID, userID).
 		First(&PostLike)

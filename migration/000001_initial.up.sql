@@ -48,15 +48,16 @@ CREATE TABLE IF NOT EXISTS "post" (
     author_id UUID NOT NULL,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
-    status INTEGER,
-    like_count INTEGER,
-    comment_count INTEGER,
+    status INTEGER NOT NULL,
+    like_count INTEGER NOT NULL,
+    comment_count INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     published_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "post_like" (
+    id UUID PRIMARY KEY,
     post_id UUID NOT NULL,
     user_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -64,7 +65,27 @@ CREATE TABLE IF NOT EXISTS "post_like" (
 );
 
 CREATE TABLE IF NOT EXISTS "bookmark" (
+    id UUID PRIMARY KEY,
     post_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "comment" (
+    id UUID PRIMARY KEY,
+    parent_comment_id UUID,
+    post_id UUID NOT NULL,
+    author_id UUID NOT NULL,
+    content TEXT NOT NULL,
+    like_count INTEGER,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "comment_like" (
+    id UUID PRIMARY KEY,
+    comment_id UUID NOT NULL,
     user_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL

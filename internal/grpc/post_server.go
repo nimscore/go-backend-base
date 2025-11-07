@@ -82,6 +82,17 @@ func (s *PostServer) Get(ctx context.Context, request *protopkg.GetPostRequest) 
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	if post.AuthorID != userID {
+		s.log.Error("wrong post ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
+	}
+
 	return &protopkg.GetPostResponse{
 		Post: &protopkg.Post{
 			Id:            post.ID.String(),
@@ -110,6 +121,17 @@ func (s *PostServer) Update(ctx context.Context, request *protopkg.UpdatePostReq
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	if post.AuthorID != userID {
+		s.log.Error("wrong post ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
+	}
+
 	post.Title = request.Title
 	post.Content = request.Content
 
@@ -131,6 +153,17 @@ func (s *PostServer) Delete(ctx context.Context, request *protopkg.DeletePostReq
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	if post.AuthorID != userID {
+		s.log.Error("wrong post ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
 
 	err = s.database.DeletePost(post)
@@ -157,6 +190,17 @@ func (s *PostServer) Publish(ctx context.Context, request *protopkg.PublishPostR
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	if post.AuthorID != userID {
+		s.log.Error("wrong post ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
+	}
+
 	post.Status = int(protopkg.PostStatus_POST_STATUS_PUBLISHED)
 	post.PublishedAt = time.Now()
 
@@ -178,6 +222,17 @@ func (s *PostServer) Unpublish(ctx context.Context, request *protopkg.UnpublishP
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	if post.AuthorID != userID {
+		s.log.Error("wrong post ownership")
+		return nil, status.Errorf(codes.PermissionDenied, "not an owner")
 	}
 
 	post.Status = int(protopkg.PostStatus_POST_STATUS_DRAFT)

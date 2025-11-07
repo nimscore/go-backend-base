@@ -66,7 +66,7 @@ func (c *PostgresClient) InsertPost(post *Post) error {
 }
 
 func (c *PostgresClient) UpdatePost(post *Post) error {
-	tx := c.database.Model(post).Updates(post)
+	tx := c.database.Model(post).Omit("Community").Omit("Author").Updates(post)
 	return tx.Error
 }
 

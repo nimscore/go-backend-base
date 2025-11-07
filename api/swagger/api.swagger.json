@@ -4192,22 +4192,22 @@
         "id": {
           "type": "string"
         },
+        "parentCommentId": {
+          "type": "string"
+        },
         "postId": {
           "type": "string"
         },
         "authorId": {
           "type": "string"
         },
-        "authorUsername": {
+        "authorName": {
           "type": "string"
         },
         "authorAvatar": {
           "type": "string"
         },
-        "text": {
-          "type": "string"
-        },
-        "parentCommentId": {
+        "content": {
           "type": "string"
         },
         "attachments": {
@@ -4265,7 +4265,7 @@
     "protoCommentServiceUpdateBody": {
       "type": "object",
       "properties": {
-        "text": {
+        "content": {
           "type": "string"
         }
       }
@@ -4432,7 +4432,7 @@
         "postId": {
           "type": "string"
         },
-        "text": {
+        "content": {
           "type": "string",
           "title": "1-10000 chars"
         },
@@ -4450,12 +4450,7 @@
       }
     },
     "protoCreateCommentResponse": {
-      "type": "object",
-      "properties": {
-        "comment": {
-          "$ref": "#/definitions/protoComment"
-        }
-      }
+      "type": "object"
     },
     "protoCreateCommunityBadgeRequest": {
       "type": "object",
@@ -4685,12 +4680,7 @@
       }
     },
     "protoDeleteCommentResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoDeleteCommunityResponse": {
       "type": "object"
@@ -4932,9 +4922,6 @@
     "protoLikeCommentResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "newLikeCount": {
           "type": "integer",
           "format": "int32"
@@ -6249,9 +6236,6 @@
     "protoUnlikeCommentResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "newLikeCount": {
           "type": "integer",
           "format": "int32"
@@ -6298,12 +6282,7 @@
       }
     },
     "protoUpdateCommentResponse": {
-      "type": "object",
-      "properties": {
-        "comment": {
-          "$ref": "#/definitions/protoComment"
-        }
-      }
+      "type": "object"
     },
     "protoUpdateCommunityResponse": {
       "type": "object",

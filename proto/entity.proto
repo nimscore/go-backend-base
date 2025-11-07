@@ -52,12 +52,12 @@ message MediaAttachment {
 
 message Comment {
   string id                            = 1;
-  string post_id                       = 2;
-  string author_id                     = 3;
-  string author_username               = 4;
-  string author_avatar                 = 5;
-  string text                          = 6;
-  optional string parent_comment_id    = 7;
+  string parent_comment_id             = 2;
+  string post_id                       = 3;
+  string author_id                     = 4;
+  string author_name                   = 5;
+  string author_avatar                 = 6;
+  string content                       = 7;
   repeated MediaAttachment attachments = 8;
   int32 like_count                     = 9;
   bool is_liked_by_me                  = 10;
