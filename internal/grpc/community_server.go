@@ -203,26 +203,27 @@ func (s *CommunityServer) Delete(ctx context.Context, request *protopkg.DeleteCo
 }
 
 func (s *CommunityServer) ListCommunities(ctx context.Context, request *protopkg.ListCommunitiesRequest) (*protopkg.ListCommunitiesResponse, error) {
-	// Установка лимита по умолчанию
 	limit := int(request.Limit)
-	if limit <= 0 || limit > 40 {
-		limit = 40
+	if limit <= 0 || limit > 50 {
+		limit = 50
 	}
 
-	// Запрашиваем limit+1 элементов, чтобы определить, есть ли ещё данные
 	communities, err := s.database.SelectCommunitiesWithPagination(limit+1, request.Cursor)
 	if err != nil {
-		s.log.Error("error fetching communities", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "failed to list communities")
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	// Определяем, есть ли ещё элементы
 	hasMore := len(communities) > limit
 	if hasMore {
 		communities = communities[:limit]
 	}
 
-	// Формирование ответа
+	var nextCursor string
+	if hasMore && len(communities) > 0 {
+		nextCursor = communities[len(communities)-1].ID.String()
+	}
+
 	protoCommunities := make([]*protopkg.Community, len(communities))
 	for i, community := range communities {
 		protoCommunities[i] = &protopkg.Community{
@@ -235,19 +236,6 @@ func (s *CommunityServer) ListCommunities(ctx context.Context, request *protopkg
 			UpdatedAt:   timestamppb.New(community.UpdatedAt),
 		}
 	}
-
-	// Определение next_cursor
-	var nextCursor string
-	if hasMore && len(communities) > 0 {
-		nextCursor = communities[len(communities)-1].ID.String()
-	}
-
-	s.log.Debug("listed communities",
-		zap.Int("count", len(protoCommunities)),
-		zap.Bool("has_more", hasMore),
-		zap.String("cursor", request.Cursor),
-		zap.String("next_cursor", nextCursor),
-	)
 
 	return &protopkg.ListCommunitiesResponse{
 		Communities: protoCommunities,

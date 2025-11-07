@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "users" (
+CREATE TABLE IF NOT EXISTS "user" (
     id UUID PRIMARY KEY,
     slug TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     updated_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "sessions" (
+CREATE TABLE IF NOT EXISTS "session" (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     user_agent TEXT NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS "sessions" (
     updated_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "communities" (
+CREATE TABLE IF NOT EXISTS "community" (
     id UUID PRIMARY KEY,
     owner_id UUID NOT NULL,
     slug TEXT NOT NULL UNIQUE,
@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS "communities" (
 );
 
 CREATE TABLE IF NOT EXISTS "community_user" (
-    id UUID PRIMARY KEY,
     community_id UUID NOT NULL,
     user_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -58,7 +57,13 @@ CREATE TABLE IF NOT EXISTS "post" (
 );
 
 CREATE TABLE IF NOT EXISTS "post_like" (
-    id UUID PRIMARY KEY,
+    post_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "bookmark" (
     post_id UUID NOT NULL,
     user_id UUID NOT NULL,
     created_at TIMESTAMP NOT NULL,

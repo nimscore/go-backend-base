@@ -8,7 +8,6 @@ import (
 )
 
 type CommunityUser struct {
-	ID          uuid.UUID `gorm:"primaryKey"`
 	CommunityID uuid.UUID
 	Community   Community
 	UserID      uuid.UUID
@@ -22,7 +21,6 @@ func (c *CommunityUser) TableName() string {
 }
 
 func (c *CommunityUser) BeforeCreate(transaction *gorm.DB) error {
-	c.ID = uuid.New()
 	return nil
 }
 

@@ -208,7 +208,7 @@ func (s *PostServer) Like(ctx context.Context, request *protopkg.LikePostRequest
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	_, err = s.database.SelectPostLike(
+	_, err = s.database.SelectPostLikeByID(
 		post.ID.String(),
 		userID.String(),
 	)
@@ -263,7 +263,7 @@ func (s *PostServer) Unlike(ctx context.Context, request *protopkg.UnlikePostReq
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	postLike, err := s.database.SelectPostLike(
+	postLike, err := s.database.SelectPostLikeByID(
 		post.ID.String(),
 		userID.String(),
 	)
@@ -298,13 +298,137 @@ func (s *PostServer) Unlike(ctx context.Context, request *protopkg.UnlikePostReq
 }
 
 func (s *PostServer) CreateBookmark(ctx context.Context, request *protopkg.CreateBookmarkRequest) (*protopkg.CreateBookmarkResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBookmark not implemented")
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	_, err = s.database.SelectBookmarkByID(
+		post.ID.String(),
+		userID.String(),
+	)
+	if err == nil {
+		s.log.Debug(
+			"post already bookmarked",
+			zap.String("post_id", post.ID.String()),
+			zap.String("user_id", userID.String()),
+		)
+		return nil, status.Errorf(codes.InvalidArgument, "already bookmarked")
+	} else if err != gorm.ErrRecordNotFound {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	bookmark := &ormpkg.Bookmark{
+		PostID: post.ID,
+		UserID: userID,
+	}
+
+	err = s.database.InsertBookmark(bookmark)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.CreateBookmarkResponse{}, nil
 }
 
 func (s *PostServer) DeleteBookmark(ctx context.Context, request *protopkg.DeleteBookmarkRequest) (*protopkg.DeleteBookmarkResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBookmark not implemented")
+	post, err := s.database.SelectPostByID(request.PostId)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug("post not found", zap.String("post_id", request.PostId))
+		return nil, status.Errorf(codes.NotFound, "")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	userID, err := middlewarepkg.GetUserUUID(ctx)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	postLike, err := s.database.SelectBookmarkByID(
+		post.ID.String(),
+		userID.String(),
+	)
+	if err == gorm.ErrRecordNotFound {
+		s.log.Debug(
+			"post not bookmarked",
+			zap.String("post_id", post.ID.String()),
+			zap.String("user_id", userID.String()),
+		)
+		return nil, status.Errorf(codes.InvalidArgument, "not bookmarked")
+	}
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	err = s.database.DeleteBookmark(postLike)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	return &protopkg.DeleteBookmarkResponse{}, nil
 }
 
 func (s *PostServer) ListBookmarks(ctx context.Context, request *protopkg.ListBookmarksRequest) (*protopkg.ListBookmarksResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListBookmarks not implemented")
+	limit := int(request.Limit)
+	if limit <= 0 || limit > 50 {
+		limit = 50
+	}
+
+	bookmarks, err := s.database.SelectBookmarksWithPagination(limit+1, request.Cursor)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	hasMore := len(bookmarks) > limit
+	if hasMore {
+		bookmarks = bookmarks[:limit]
+	}
+
+	var nextCursor string
+	if hasMore && len(bookmarks) > 0 {
+		nextCursor = bookmarks[len(bookmarks)-1].UserID.String()
+	}
+
+	posts := make([]*protopkg.Post, len(bookmarks))
+	for i, bookmark := range bookmarks {
+		posts[i] = &protopkg.Post{
+			Id:            bookmark.Post.ID.String(),
+			CommunityId:   bookmark.Post.CommunityID.String(),
+			CommunityName: bookmark.Post.Community.Name,
+			AuthorId:      bookmark.Post.AuthorID.String(),
+			AuthorName:    bookmark.Post.Author.Name,
+			Title:         bookmark.Post.Title,
+			Content:       bookmark.Post.Content,
+			Status:        protopkg.PostStatus(bookmark.Post.Status),
+			CreatedAt:     timestamppb.New(bookmark.Post.CreatedAt),
+			UpdatedAt:     timestamppb.New(bookmark.Post.UpdatedAt),
+			PublishedAt:   timestamppb.New(bookmark.Post.PublishedAt),
+		}
+	}
+
+	return &protopkg.ListBookmarksResponse{
+		Posts:      posts,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
 }
