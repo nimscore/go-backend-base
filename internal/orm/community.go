@@ -22,7 +22,7 @@ type Community struct {
 }
 
 func (c *Community) TableName() string {
-	return "communities"
+	return "community"
 }
 
 func (c *Community) BeforeCreate(transaction *gorm.DB) error {

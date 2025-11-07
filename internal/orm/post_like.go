@@ -8,7 +8,6 @@ import (
 )
 
 type PostLike struct {
-	ID        uuid.UUID `gorm:"primaryKey"`
 	PostID    uuid.UUID
 	Post      Post
 	UserID    uuid.UUID
@@ -22,11 +21,10 @@ func (c *PostLike) TableName() string {
 }
 
 func (c *PostLike) BeforeCreate(transaction *gorm.DB) error {
-	c.ID = uuid.New()
 	return nil
 }
 
-func (c *PostgresClient) SelectPostLike(postID string, userID string) (*PostLike, error) {
+func (c *PostgresClient) SelectPostLikeByID(postID string, userID string) (*PostLike, error) {
 	var PostLike PostLike
 	tx := c.database.
 		Select(
@@ -44,12 +42,12 @@ func (c *PostgresClient) SelectPostLike(postID string, userID string) (*PostLike
 	return &PostLike, nil
 }
 
-func (c *PostgresClient) InsertPostLike(PostLike *PostLike) error {
-	tx := c.database.Create(PostLike)
+func (c *PostgresClient) InsertPostLike(postLike *PostLike) error {
+	tx := c.database.Create(postLike)
 	return tx.Error
 }
 
-func (c *PostgresClient) DeletePostLike(PostLike *PostLike) error {
-	tx := c.database.Delete(PostLike)
+func (c *PostgresClient) DeletePostLike(postLike *PostLike) error {
+	tx := c.database.Delete(postLike)
 	return tx.Error
 }
