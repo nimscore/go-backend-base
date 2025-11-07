@@ -176,7 +176,51 @@ func (s *PostServer) Delete(ctx context.Context, request *protopkg.DeletePostReq
 }
 
 func (s *PostServer) ListComments(ctx context.Context, request *protopkg.ListPostCommentsRequest) (*protopkg.ListPostCommentsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListComments not implemented")
+	limit := int(request.Limit)
+	if limit <= 0 || limit > 50 {
+		limit = 50
+	}
+
+	comments, err := s.database.SelectCommentsWithPagination(request.PostId, "", limit+1, request.Cursor)
+	if err != nil {
+		s.log.Error("internal error", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "")
+	}
+
+	hasMore := len(comments) > limit
+	if hasMore {
+		comments = comments[:limit]
+	}
+
+	var nextCursor string
+	if hasMore && len(comments) > 0 {
+		nextCursor = comments[len(comments)-1].ID.String()
+	}
+
+	result := make([]*protopkg.Comment, len(comments))
+	for i, comment := range comments {
+		parentCommentID := ""
+		if comment.ParentCommentID != nil {
+			parentCommentID = comment.ParentCommentID.String()
+		}
+
+		result[i] = &protopkg.Comment{
+			Id:              comment.ID.String(),
+			ParentCommentId: parentCommentID,
+			PostId:          comment.PostID.String(),
+			AuthorId:        comment.AuthorID.String(),
+			AuthorName:      comment.Author.Name,
+			Content:         comment.Content,
+			CreatedAt:       timestamppb.New(comment.CreatedAt),
+			UpdatedAt:       timestamppb.New(comment.UpdatedAt),
+		}
+	}
+
+	return &protopkg.ListPostCommentsResponse{
+		Comments:   result,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
 }
 
 func (s *PostServer) Publish(ctx context.Context, request *protopkg.PublishPostRequest) (*protopkg.PublishPostResponse, error) {

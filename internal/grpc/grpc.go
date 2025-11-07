@@ -58,6 +58,10 @@ func NewGRPC(
 	commentServer := NewCommentServer(logger, database, broker)
 	protopkg.RegisterCommentServiceServer(grpcServer, commentServer)
 
+	// User API
+	userServer := NewUserServer(logger, database, broker)
+	protopkg.RegisterUserServiceServer(grpcServer, userServer)
+
 	// Health API
 	healthServer := health.NewServer()
 	healthServer.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
