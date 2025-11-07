@@ -60,6 +60,56 @@ func (c *PostgresClient) SelectPostByID(id string) (*Post, error) {
 	return &post, nil
 }
 
+func (c *PostgresClient) SelectPostsWithPagination(author_id string, limit int, cursor string) ([]*Post, error) {
+	var posts []*Post
+	query := c.database.
+		Select([]string{
+			"id",
+			"community_id",
+			"author_id",
+			"title",
+			"content",
+			"status",
+			"like_count",
+			"comment_count",
+			"created_at",
+			"updated_at",
+			"published_at",
+		}).
+		Preload("Community").
+		Preload("Author").
+		Order("created_at DESC")
+
+	if author_id != "" {
+		query = query.Where("author_id = ?", author_id)
+	}
+
+	if cursor != "" {
+		var cursorPost Post
+		tx := c.database.
+			Where("id = ?", cursor).
+			First(&cursorPost)
+
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+
+		query = query.Where(
+			"(created_at < ?) OR (created_at = ? AND id < ?)",
+			cursorPost.CreatedAt,
+			cursorPost.CreatedAt,
+			cursorPost.ID,
+		)
+	}
+
+	tx := query.Limit(limit).Find(&posts)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return posts, nil
+}
+
 func (c *PostgresClient) InsertPost(post *Post) error {
 	transaction := c.database.Create(post)
 	return transaction.Error

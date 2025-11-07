@@ -208,7 +208,7 @@ func (s *CommunityServer) ListCommunities(ctx context.Context, request *protopkg
 		limit = 50
 	}
 
-	communities, err := s.database.SelectCommunitiesWithPagination(limit+1, request.Cursor)
+	communities, err := s.database.SelectCommunitiesWithPagination("", limit+1, request.Cursor)
 	if err != nil {
 		s.log.Error("internal error", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "")

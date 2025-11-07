@@ -54,6 +54,56 @@ func (c *PostgresClient) SelectCommentByID(id string) (*Comment, error) {
 	return &comment, nil
 }
 
+func (c *PostgresClient) SelectCommentsWithPagination(post_id string, author_id string, limit int, cursor string) ([]*Comment, error) {
+	var comments []*Comment
+	query := c.database.
+		Select([]string{
+			"id",
+			"parent_comment_id",
+			"post_id",
+			"author_id",
+			"content",
+			"created_at",
+			"updated_at",
+		}).
+		Preload("Post").
+		Preload("Author").
+		Order("created_at DESC")
+
+	if post_id != "" {
+		query = query.Where("post_id = ?", post_id)
+	}
+
+	if author_id != "" {
+		query = query.Where("author_id = ?", author_id)
+	}
+
+	if cursor != "" {
+		var cursorComment Comment
+		tx := c.database.
+			Where("id = ?", cursor).
+			First(&cursorComment)
+
+		if tx.Error != nil {
+			return nil, tx.Error
+		}
+
+		query = query.Where(
+			"(created_at < ?) OR (created_at = ? AND id < ?)",
+			cursorComment.CreatedAt,
+			cursorComment.CreatedAt,
+			cursorComment.ID,
+		)
+	}
+
+	tx := query.Limit(limit).Find(&comments)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return comments, nil
+}
+
 func (c *PostgresClient) InsertComment(comment *Comment) error {
 	transaction := c.database.Create(comment)
 	return transaction.Error

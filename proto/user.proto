@@ -34,9 +34,9 @@ message GetCurrentUserResponse {
 // ============================================================================
 
 message UpdateProfileRequest {
-  optional string avatar_url  = 1;  // S3 URL from presigned upload
-  optional string banner_url  = 2;  // S3 URL from presigned upload
-  optional string description = 3;  // max 500 chars
+  string avatar_url  = 1;  // S3 URL from presigned upload
+  string banner_url  = 2;  // S3 URL from presigned upload
+  string description = 3;  // max 500 chars
 }
 
 message UpdateProfileResponse {
@@ -118,9 +118,7 @@ message FollowRequest {
   string user_id = 1;
 }
 
-message FollowResponse {
-  string message = 1;
-}
+message FollowResponse {}
 
 // ============================================================================
 // Unfollow (FR-188, FR-192, FR-204)
@@ -130,9 +128,7 @@ message UnfollowRequest {
   string user_id = 1;
 }
 
-message UnfollowResponse {
-  string message = 1;
-}
+message UnfollowResponse {}
 
 // ============================================================================
 // ListFollowers (FR-189, FR-193)
@@ -175,8 +171,7 @@ message HeartbeatRequest {
 }
 
 message HeartbeatResponse {
-  string message                          = 1;
-  google.protobuf.Timestamp last_activity = 2;
+  google.protobuf.Timestamp last_activity = 1;
 }
 
 // ============================================================================
