@@ -8,6 +8,7 @@ import (
 )
 
 type Bookmark struct {
+	ID        uuid.UUID `gorm:"primaryKey"`
 	PostID    uuid.UUID
 	Post      Post
 	UserID    uuid.UUID
@@ -21,6 +22,7 @@ func (c *Bookmark) TableName() string {
 }
 
 func (c *Bookmark) BeforeCreate(transaction *gorm.DB) error {
+	c.ID = uuid.New()
 	return nil
 }
 
@@ -28,9 +30,7 @@ func (c *PostgresClient) SelectBookmarkByID(postID string, userID string) (*Book
 	var Bookmark Bookmark
 	tx := c.database.
 		Select(
-			[]string{
-				"id",
-			},
+			[]string{},
 		).
 		Where("post_id = ? AND user_id = ?", postID, userID).
 		First(&Bookmark)
