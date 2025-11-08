@@ -81,7 +81,7 @@ message CommentEvent {
 
 message UserProfile {
   string id                            = 1;
-  string username                      = 2;
+  string name                          = 2;
   string avatar_url                    = 3;
   string banner_url                    = 4;
   string description                   = 5;
@@ -96,7 +96,7 @@ message UserProfile {
 
 message CurrentUserProfile {
   string id                            = 1;
-  string username                      = 2;
+  string name                          = 2;
   string email                         = 3;
   bool email_verified                  = 4;
   string avatar_url                    = 5;
@@ -111,11 +111,10 @@ message CurrentUserProfile {
 }
 
 message UserStatistics {
-  int32 total_posts          = 1;
-  int32 total_comments       = 2;
-  int32 total_likes_received = 3;
-  int32 post_likes           = 4;
-  int32 comment_likes        = 5;
-  int32 communities_created  = 6;
-  int32 communities_joined   = 7;
+  int32 communities_joined  = 1;
+  int32 communities_created = 2;
+  int32 posts_created       = 3;
+  int32 comments_created    = 4;
+  int32 post_likes          = 5;
+  int32 comment_likes       = 6;
 }

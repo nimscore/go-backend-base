@@ -53,10 +53,10 @@ func (c *PostgresClient) SelectBookmarksWithPagination(limit int, cursor string)
 		Order("created_at DESC")
 
 	if cursor != "" {
-		var cursorCommunity Community
+		var cursorBookmark Bookmark
 		tx := c.database.
 			Where("user_id = ?", cursor).
-			First(&cursorCommunity)
+			First(&cursorBookmark)
 
 		if tx.Error != nil {
 			return nil, tx.Error
@@ -64,9 +64,9 @@ func (c *PostgresClient) SelectBookmarksWithPagination(limit int, cursor string)
 
 		query = query.Where(
 			"(created_at < ?) OR (created_at = ? AND id < ?)",
-			cursorCommunity.CreatedAt,
-			cursorCommunity.CreatedAt,
-			cursorCommunity.ID,
+			cursorBookmark.CreatedAt,
+			cursorBookmark.CreatedAt,
+			cursorBookmark.ID,
 		)
 	}
 

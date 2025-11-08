@@ -40,7 +40,6 @@ message UpdateProfileRequest {
 }
 
 message UpdateProfileResponse {
-  CurrentUserProfile user = 1;
 }
 
 // ============================================================================

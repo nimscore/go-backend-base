@@ -682,7 +682,7 @@ func (x *CommentEvent) GetTimestamp() *timestamppb.Timestamp {
 type UserProfile struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Username       string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	AvatarUrl      string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
 	BannerUrl      string                 `protobuf:"bytes,4,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"`
 	Description    string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
@@ -734,9 +734,9 @@ func (x *UserProfile) GetId() string {
 	return ""
 }
 
-func (x *UserProfile) GetUsername() string {
+func (x *UserProfile) GetName() string {
 	if x != nil {
-		return x.Username
+		return x.Name
 	}
 	return ""
 }
@@ -814,7 +814,7 @@ func (x *UserProfile) GetCreatedAt() *timestamppb.Timestamp {
 type CurrentUserProfile struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Id                     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Username               string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Name                   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Email                  string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	EmailVerified          bool                   `protobuf:"varint,4,opt,name=email_verified,json=emailVerified,proto3" json:"email_verified,omitempty"`
 	AvatarUrl              string                 `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
@@ -867,9 +867,9 @@ func (x *CurrentUserProfile) GetId() string {
 	return ""
 }
 
-func (x *CurrentUserProfile) GetUsername() string {
+func (x *CurrentUserProfile) GetName() string {
 	if x != nil {
-		return x.Username
+		return x.Name
 	}
 	return ""
 }
@@ -953,13 +953,12 @@ func (x *CurrentUserProfile) GetCreatedAt() *timestamppb.Timestamp {
 
 type UserStatistics struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	TotalPosts         int32                  `protobuf:"varint,1,opt,name=total_posts,json=totalPosts,proto3" json:"total_posts,omitempty"`
-	TotalComments      int32                  `protobuf:"varint,2,opt,name=total_comments,json=totalComments,proto3" json:"total_comments,omitempty"`
-	TotalLikesReceived int32                  `protobuf:"varint,3,opt,name=total_likes_received,json=totalLikesReceived,proto3" json:"total_likes_received,omitempty"`
-	PostLikes          int32                  `protobuf:"varint,4,opt,name=post_likes,json=postLikes,proto3" json:"post_likes,omitempty"`
-	CommentLikes       int32                  `protobuf:"varint,5,opt,name=comment_likes,json=commentLikes,proto3" json:"comment_likes,omitempty"`
-	CommunitiesCreated int32                  `protobuf:"varint,6,opt,name=communities_created,json=communitiesCreated,proto3" json:"communities_created,omitempty"`
-	CommunitiesJoined  int32                  `protobuf:"varint,7,opt,name=communities_joined,json=communitiesJoined,proto3" json:"communities_joined,omitempty"`
+	CommunitiesJoined  int32                  `protobuf:"varint,1,opt,name=communities_joined,json=communitiesJoined,proto3" json:"communities_joined,omitempty"`
+	CommunitiesCreated int32                  `protobuf:"varint,2,opt,name=communities_created,json=communitiesCreated,proto3" json:"communities_created,omitempty"`
+	PostsCreated       int32                  `protobuf:"varint,3,opt,name=posts_created,json=postsCreated,proto3" json:"posts_created,omitempty"`
+	CommentsCreated    int32                  `protobuf:"varint,4,opt,name=comments_created,json=commentsCreated,proto3" json:"comments_created,omitempty"`
+	PostLikes          int32                  `protobuf:"varint,5,opt,name=post_likes,json=postLikes,proto3" json:"post_likes,omitempty"`
+	CommentLikes       int32                  `protobuf:"varint,6,opt,name=comment_likes,json=commentLikes,proto3" json:"comment_likes,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -994,23 +993,30 @@ func (*UserStatistics) Descriptor() ([]byte, []int) {
 	return file_entity_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *UserStatistics) GetTotalPosts() int32 {
+func (x *UserStatistics) GetCommunitiesJoined() int32 {
 	if x != nil {
-		return x.TotalPosts
+		return x.CommunitiesJoined
 	}
 	return 0
 }
 
-func (x *UserStatistics) GetTotalComments() int32 {
+func (x *UserStatistics) GetCommunitiesCreated() int32 {
 	if x != nil {
-		return x.TotalComments
+		return x.CommunitiesCreated
 	}
 	return 0
 }
 
-func (x *UserStatistics) GetTotalLikesReceived() int32 {
+func (x *UserStatistics) GetPostsCreated() int32 {
 	if x != nil {
-		return x.TotalLikesReceived
+		return x.PostsCreated
+	}
+	return 0
+}
+
+func (x *UserStatistics) GetCommentsCreated() int32 {
+	if x != nil {
+		return x.CommentsCreated
 	}
 	return 0
 }
@@ -1025,20 +1031,6 @@ func (x *UserStatistics) GetPostLikes() int32 {
 func (x *UserStatistics) GetCommentLikes() int32 {
 	if x != nil {
 		return x.CommentLikes
-	}
-	return 0
-}
-
-func (x *UserStatistics) GetCommunitiesCreated() int32 {
-	if x != nil {
-		return x.CommunitiesCreated
-	}
-	return 0
-}
-
-func (x *UserStatistics) GetCommunitiesJoined() int32 {
-	if x != nil {
-		return x.CommunitiesJoined
 	}
 	return 0
 }
@@ -1118,10 +1110,10 @@ const file_entity_proto_rawDesc = "" +
 	"\n" +
 	"event_type\x18\x01 \x01(\x0e2\x17.proto.CommentEventTypeR\teventType\x12(\n" +
 	"\acomment\x18\x02 \x01(\v2\x0e.proto.CommentR\acomment\x128\n" +
-	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xa1\x03\n" +
+	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x99\x03\n" +
 	"\vUserProfile\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\x12\x1d\n" +
 	"\n" +
@@ -1137,10 +1129,10 @@ const file_entity_proto_rawDesc = "" +
 	" \x01(\bR\visFollowing\x12\x1b\n" +
 	"\tis_online\x18\v \x01(\bR\bisOnline\x129\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xf6\x03\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xee\x03\n" +
 	"\x12CurrentUserProfile\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12%\n" +
 	"\x0eemail_verified\x18\x04 \x01(\bR\remailVerified\x12\x1d\n" +
 	"\n" +
@@ -1157,17 +1149,15 @@ const file_entity_proto_rawDesc = "" +
 	"\x18joined_communities_count\x18\v \x01(\x05R\x16joinedCommunitiesCount\x122\n" +
 	"\x15active_sessions_count\x18\f \x01(\x05R\x13activeSessionsCount\x129\n" +
 	"\n" +
-	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xae\x02\n" +
-	"\x0eUserStatistics\x12\x1f\n" +
-	"\vtotal_posts\x18\x01 \x01(\x05R\n" +
-	"totalPosts\x12%\n" +
-	"\x0etotal_comments\x18\x02 \x01(\x05R\rtotalComments\x120\n" +
-	"\x14total_likes_received\x18\x03 \x01(\x05R\x12totalLikesReceived\x12\x1d\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x84\x02\n" +
+	"\x0eUserStatistics\x12-\n" +
+	"\x12communities_joined\x18\x01 \x01(\x05R\x11communitiesJoined\x12/\n" +
+	"\x13communities_created\x18\x02 \x01(\x05R\x12communitiesCreated\x12#\n" +
+	"\rposts_created\x18\x03 \x01(\x05R\fpostsCreated\x12)\n" +
+	"\x10comments_created\x18\x04 \x01(\x05R\x0fcommentsCreated\x12\x1d\n" +
 	"\n" +
-	"post_likes\x18\x04 \x01(\x05R\tpostLikes\x12#\n" +
-	"\rcomment_likes\x18\x05 \x01(\x05R\fcommentLikes\x12/\n" +
-	"\x13communities_created\x18\x06 \x01(\x05R\x12communitiesCreated\x12-\n" +
-	"\x12communities_joined\x18\a \x01(\x05R\x11communitiesJoined*[\n" +
+	"post_likes\x18\x05 \x01(\x05R\tpostLikes\x12#\n" +
+	"\rcomment_likes\x18\x06 \x01(\x05R\fcommentLikes*[\n" +
 	"\n" +
 	"PostStatus\x12\x1b\n" +
 	"\x17POST_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +

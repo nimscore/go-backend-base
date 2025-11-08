@@ -4619,7 +4619,7 @@
         "id": {
           "type": "string"
         },
-        "username": {
+        "name": {
           "type": "string"
         },
         "email": {
@@ -4705,12 +4705,7 @@
       }
     },
     "protoFollowResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoGetBadgeResponse": {
       "type": "object",
@@ -4904,9 +4899,6 @@
     "protoHeartbeatResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "lastActivity": {
           "type": "string",
           "format": "date-time"
@@ -6226,12 +6218,7 @@
       }
     },
     "protoUnfollowResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoUnlikeCommentResponse": {
       "type": "object",
@@ -6329,12 +6316,7 @@
       }
     },
     "protoUpdateProfileResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/protoCurrentUserProfile"
-        }
-      }
+      "type": "object"
     },
     "protoUpdateRoleResponse": {
       "type": "object",
@@ -6458,7 +6440,7 @@
         "id": {
           "type": "string"
         },
-        "username": {
+        "name": {
           "type": "string"
         },
         "avatarUrl": {
@@ -6519,15 +6501,19 @@
     "protoUserStatistics": {
       "type": "object",
       "properties": {
-        "totalPosts": {
+        "communitiesJoined": {
           "type": "integer",
           "format": "int32"
         },
-        "totalComments": {
+        "communitiesCreated": {
           "type": "integer",
           "format": "int32"
         },
-        "totalLikesReceived": {
+        "postsCreated": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "commentsCreated": {
           "type": "integer",
           "format": "int32"
         },
@@ -6536,14 +6522,6 @@
           "format": "int32"
         },
         "commentLikes": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "communitiesCreated": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "communitiesJoined": {
           "type": "integer",
           "format": "int32"
         }
