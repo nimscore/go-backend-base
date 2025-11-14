@@ -4192,22 +4192,22 @@
         "id": {
           "type": "string"
         },
+        "parentCommentId": {
+          "type": "string"
+        },
         "postId": {
           "type": "string"
         },
         "authorId": {
           "type": "string"
         },
-        "authorUsername": {
+        "authorName": {
           "type": "string"
         },
         "authorAvatar": {
           "type": "string"
         },
-        "text": {
-          "type": "string"
-        },
-        "parentCommentId": {
+        "content": {
           "type": "string"
         },
         "attachments": {
@@ -4265,7 +4265,7 @@
     "protoCommentServiceUpdateBody": {
       "type": "object",
       "properties": {
-        "text": {
+        "content": {
           "type": "string"
         }
       }
@@ -4432,7 +4432,7 @@
         "postId": {
           "type": "string"
         },
-        "text": {
+        "content": {
           "type": "string",
           "title": "1-10000 chars"
         },
@@ -4450,12 +4450,7 @@
       }
     },
     "protoCreateCommentResponse": {
-      "type": "object",
-      "properties": {
-        "comment": {
-          "$ref": "#/definitions/protoComment"
-        }
-      }
+      "type": "object"
     },
     "protoCreateCommunityBadgeRequest": {
       "type": "object",
@@ -4624,7 +4619,7 @@
         "id": {
           "type": "string"
         },
-        "username": {
+        "name": {
           "type": "string"
         },
         "email": {
@@ -4685,12 +4680,7 @@
       }
     },
     "protoDeleteCommentResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoDeleteCommunityResponse": {
       "type": "object"
@@ -4715,12 +4705,7 @@
       }
     },
     "protoFollowResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoGetBadgeResponse": {
       "type": "object",
@@ -4914,9 +4899,6 @@
     "protoHeartbeatResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "lastActivity": {
           "type": "string",
           "format": "date-time"
@@ -4932,9 +4914,6 @@
     "protoLikeCommentResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "newLikeCount": {
           "type": "integer",
           "format": "int32"
@@ -6239,19 +6218,11 @@
       }
     },
     "protoUnfollowResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "protoUnlikeCommentResponse": {
       "type": "object",
       "properties": {
-        "message": {
-          "type": "string"
-        },
         "newLikeCount": {
           "type": "integer",
           "format": "int32"
@@ -6298,12 +6269,7 @@
       }
     },
     "protoUpdateCommentResponse": {
-      "type": "object",
-      "properties": {
-        "comment": {
-          "$ref": "#/definitions/protoComment"
-        }
-      }
+      "type": "object"
     },
     "protoUpdateCommunityResponse": {
       "type": "object",
@@ -6350,12 +6316,7 @@
       }
     },
     "protoUpdateProfileResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/protoCurrentUserProfile"
-        }
-      }
+      "type": "object"
     },
     "protoUpdateRoleResponse": {
       "type": "object",
@@ -6479,7 +6440,7 @@
         "id": {
           "type": "string"
         },
-        "username": {
+        "name": {
           "type": "string"
         },
         "avatarUrl": {
@@ -6540,15 +6501,19 @@
     "protoUserStatistics": {
       "type": "object",
       "properties": {
-        "totalPosts": {
+        "communitiesJoined": {
           "type": "integer",
           "format": "int32"
         },
-        "totalComments": {
+        "communitiesCreated": {
           "type": "integer",
           "format": "int32"
         },
-        "totalLikesReceived": {
+        "postsCreated": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "commentsCreated": {
           "type": "integer",
           "format": "int32"
         },
@@ -6557,14 +6522,6 @@
           "format": "int32"
         },
         "commentLikes": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "communitiesCreated": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "communitiesJoined": {
           "type": "integer",
           "format": "int32"
         }

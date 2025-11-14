@@ -1,4 +1,9 @@
-DROP TABLE IF EXISTS "sessions";
-DROP TABLE IF EXISTS "users";
-DROP TABLE IF EXISTS "communities";
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "session";
+DROP TABLE IF EXISTS "community";
 DROP TABLE IF EXISTS "community_user";
+DROP TABLE IF EXISTS "post";
+DROP TABLE IF EXISTS "post_like";
+DROP TABLE IF EXISTS "bookmark";
+DROP TABLE IF EXISTS "comment";
+DROP TABLE IF EXISTS "comment_like";

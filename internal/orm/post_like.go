@@ -26,13 +26,11 @@ func (c *PostLike) BeforeCreate(transaction *gorm.DB) error {
 	return nil
 }
 
-func (c *PostgresClient) SelectPostLike(postID string, userID string) (*PostLike, error) {
+func (c *PostgresClient) SelectPostLikeByID(postID string, userID string) (*PostLike, error) {
 	var PostLike PostLike
 	tx := c.database.
 		Select(
-			[]string{
-				"id",
-			},
+			[]string{},
 		).
 		Where("post_id = ? AND user_id = ?", postID, userID).
 		First(&PostLike)
@@ -44,12 +42,12 @@ func (c *PostgresClient) SelectPostLike(postID string, userID string) (*PostLike
 	return &PostLike, nil
 }
 
-func (c *PostgresClient) InsertPostLike(PostLike *PostLike) error {
-	tx := c.database.Create(PostLike)
+func (c *PostgresClient) InsertPostLike(postLike *PostLike) error {
+	tx := c.database.Create(postLike)
 	return tx.Error
 }
 
-func (c *PostgresClient) DeletePostLike(PostLike *PostLike) error {
-	tx := c.database.Delete(PostLike)
+func (c *PostgresClient) DeletePostLike(postLike *PostLike) error {
+	tx := c.database.Delete(postLike)
 	return tx.Error
 }

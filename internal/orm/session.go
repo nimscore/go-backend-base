@@ -18,7 +18,7 @@ type Session struct {
 }
 
 func (s *Session) TableName() string {
-	return "sessions"
+	return "session"
 }
 
 func (s *Session) BeforeCreate(transaction *gorm.DB) error {
