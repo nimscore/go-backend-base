@@ -1,10 +1,23 @@
-!.env
+# Env
+.env
+.env.*
+!.env.example
 !.env_production
 /backend
 /backend-*.tgz
 .specify/
 .qwen/
+.gemini/
 specs/
 project.md
 dif.md
-QWEN.md
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
