@@ -25,7 +25,7 @@ type Community struct {
 }
 
 func (c *Community) TableName() string {
-	return "communities"
+	return "community"
 }
 
 func (c *Community) BeforeCreate(transaction *gorm.DB) error {
@@ -117,7 +117,7 @@ func (c *PostgresClient) SelectCommunityByName(name string) (*Community, error) 
 	return &community, nil
 }
 
-func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor string) ([]*Community, error) {
+func (c *PostgresClient) SelectCommunitiesWithPagination(owner_id string, limit int, cursor string) ([]*Community, error) {
 	var communities []*Community
 	query := c.database.
 		Select([]string{
@@ -136,6 +136,10 @@ func (c *PostgresClient) SelectCommunitiesWithPagination(limit int, cursor strin
 			"updated_at",
 		}).
 		Order("created_at DESC")
+
+	if owner_id != "" {
+		query = query.Where("owner_id = ?", owner_id)
+	}
 
 	if cursor != "" {
 		var cursorCommunity Community

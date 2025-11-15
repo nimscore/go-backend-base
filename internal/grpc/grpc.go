@@ -29,30 +29,38 @@ func NewGRPC(
 	host string,
 	port string,
 	jwt *jwtpkg.JWT,
-	databaseClient *ormpkg.PostgresClient,
-	brokerClient *eventpkg.KafkaClient,
+	database *ormpkg.PostgresClient,
+	broker *eventpkg.KafkaClient,
 ) (*GRPC, error) {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			middlewarepkg.NewAuthorizationMiddleware(
 				logger,
 				jwt,
-				databaseClient,
+				database,
 			),
 		),
 	)
 
 	// Authorization API
-	authorizationServer := NewAuthorizationServer(logger, jwt, databaseClient, brokerClient)
+	authorizationServer := NewAuthorizationServer(logger, jwt, database, broker)
 	protopkg.RegisterAuthorizationServiceServer(grpcServer, authorizationServer)
 
 	// Community API
-	communityServer := NewCommunityServer(logger, databaseClient, brokerClient)
+	communityServer := NewCommunityServer(logger, database, broker)
 	protopkg.RegisterCommunityServiceServer(grpcServer, communityServer)
 
 	// Post API
-	postServer := NewPostServer(logger, databaseClient, brokerClient)
+	postServer := NewPostServer(logger, database, broker)
 	protopkg.RegisterPostServiceServer(grpcServer, postServer)
+
+	// Comment API
+	commentServer := NewCommentServer(logger, database, broker)
+	protopkg.RegisterCommentServiceServer(grpcServer, commentServer)
+
+	// User API
+	userServer := NewUserServer(logger, database, broker)
+	protopkg.RegisterUserServiceServer(grpcServer, userServer)
 
 	// Health API
 	healthServer := health.NewServer()

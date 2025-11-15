@@ -193,9 +193,9 @@ func (x *GetCurrentUserResponse) GetUser() *CurrentUserProfile {
 
 type UpdateProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AvatarUrl     *string                `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3,oneof" json:"avatar_url,omitempty"` // S3 URL from presigned upload
-	BannerUrl     *string                `protobuf:"bytes,2,opt,name=banner_url,json=bannerUrl,proto3,oneof" json:"banner_url,omitempty"` // S3 URL from presigned upload
-	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`              // max 500 chars
+	AvatarUrl     string                 `protobuf:"bytes,1,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // S3 URL from presigned upload
+	BannerUrl     string                 `protobuf:"bytes,2,opt,name=banner_url,json=bannerUrl,proto3" json:"banner_url,omitempty"` // S3 URL from presigned upload
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`              // max 500 chars
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,29 +231,28 @@ func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
 }
 
 func (x *UpdateProfileRequest) GetAvatarUrl() string {
-	if x != nil && x.AvatarUrl != nil {
-		return *x.AvatarUrl
+	if x != nil {
+		return x.AvatarUrl
 	}
 	return ""
 }
 
 func (x *UpdateProfileRequest) GetBannerUrl() string {
-	if x != nil && x.BannerUrl != nil {
-		return *x.BannerUrl
+	if x != nil {
+		return x.BannerUrl
 	}
 	return ""
 }
 
 func (x *UpdateProfileRequest) GetDescription() string {
-	if x != nil && x.Description != nil {
-		return *x.Description
+	if x != nil {
+		return x.Description
 	}
 	return ""
 }
 
 type UpdateProfileResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *CurrentUserProfile    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -286,13 +285,6 @@ func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UpdateProfileResponse) GetUser() *CurrentUserProfile {
-	if x != nil {
-		return x.User
-	}
-	return nil
 }
 
 type GetUserStatisticsRequest struct {
@@ -857,7 +849,6 @@ func (x *FollowRequest) GetUserId() string {
 
 type FollowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -890,13 +881,6 @@ func (x *FollowResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use FollowResponse.ProtoReflect.Descriptor instead.
 func (*FollowResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *FollowResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type UnfollowRequest struct {
@@ -945,7 +929,6 @@ func (x *UnfollowRequest) GetUserId() string {
 
 type UnfollowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -978,13 +961,6 @@ func (x *UnfollowResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UnfollowResponse.ProtoReflect.Descriptor instead.
 func (*UnfollowResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *UnfollowResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type ListFollowersRequest struct {
@@ -1265,8 +1241,7 @@ func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
 
 type HeartbeatResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	LastActivity  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=last_activity,json=lastActivity,proto3" json:"last_activity,omitempty"`
+	LastActivity  *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=last_activity,json=lastActivity,proto3" json:"last_activity,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1301,13 +1276,6 @@ func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *HeartbeatResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 func (x *HeartbeatResponse) GetLastActivity() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastActivity
@@ -1327,18 +1295,14 @@ const file_user_proto_rawDesc = "" +
 	"\x04user\x18\x01 \x01(\v2\x12.proto.UserProfileR\x04user\"\x17\n" +
 	"\x15GetCurrentUserRequest\"G\n" +
 	"\x16GetCurrentUserResponse\x12-\n" +
-	"\x04user\x18\x01 \x01(\v2\x19.proto.CurrentUserProfileR\x04user\"\xb3\x01\n" +
-	"\x14UpdateProfileRequest\x12\"\n" +
+	"\x04user\x18\x01 \x01(\v2\x19.proto.CurrentUserProfileR\x04user\"v\n" +
+	"\x14UpdateProfileRequest\x12\x1d\n" +
 	"\n" +
-	"avatar_url\x18\x01 \x01(\tH\x00R\tavatarUrl\x88\x01\x01\x12\"\n" +
+	"avatar_url\x18\x01 \x01(\tR\tavatarUrl\x12\x1d\n" +
 	"\n" +
-	"banner_url\x18\x02 \x01(\tH\x01R\tbannerUrl\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\x03 \x01(\tH\x02R\vdescription\x88\x01\x01B\r\n" +
-	"\v_avatar_urlB\r\n" +
-	"\v_banner_urlB\x0e\n" +
-	"\f_description\"F\n" +
-	"\x15UpdateProfileResponse\x12-\n" +
-	"\x04user\x18\x01 \x01(\v2\x19.proto.CurrentUserProfileR\x04user\"3\n" +
+	"banner_url\x18\x02 \x01(\tR\tbannerUrl\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\"\x17\n" +
+	"\x15UpdateProfileResponse\"3\n" +
 	"\x18GetUserStatisticsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"R\n" +
 	"\x19GetUserStatisticsResponse\x125\n" +
@@ -1380,13 +1344,11 @@ const file_user_proto_rawDesc = "" +
 	"nextCursor\x12\x19\n" +
 	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"(\n" +
 	"\rFollowRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"*\n" +
-	"\x0eFollowResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"*\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x10\n" +
+	"\x0eFollowResponse\"*\n" +
 	"\x0fUnfollowRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\",\n" +
-	"\x10UnfollowResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"]\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x12\n" +
+	"\x10UnfollowResponse\"]\n" +
 	"\x14ListFollowersRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x14\n" +
@@ -1405,10 +1367,9 @@ const file_user_proto_rawDesc = "" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
 	"nextCursor\x12\x19\n" +
 	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"\x12\n" +
-	"\x10HeartbeatRequest\"n\n" +
-	"\x11HeartbeatResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\x12?\n" +
-	"\rlast_activity\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\flastActivity2\xe2\t\n" +
+	"\x10HeartbeatRequest\"T\n" +
+	"\x11HeartbeatResponse\x12?\n" +
+	"\rlast_activity\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\flastActivity2\xe2\t\n" +
 	"\vUserService\x12N\n" +
 	"\x03Get\x12\x15.proto.GetUserRequest\x1a\x16.proto.GetUserResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/users/{user_id}\x12\\\n" +
 	"\n" +
@@ -1475,45 +1436,44 @@ var file_user_proto_goTypes = []any{
 var file_user_proto_depIdxs = []int32{
 	25, // 0: proto.GetUserResponse.user:type_name -> proto.UserProfile
 	26, // 1: proto.GetCurrentUserResponse.user:type_name -> proto.CurrentUserProfile
-	26, // 2: proto.UpdateProfileResponse.user:type_name -> proto.CurrentUserProfile
-	27, // 3: proto.GetUserStatisticsResponse.statistics:type_name -> proto.UserStatistics
-	28, // 4: proto.ListUserCommunitiesResponse.communities:type_name -> proto.Community
-	29, // 5: proto.ListUserPostsRequest.status_filter:type_name -> proto.PostStatus
-	30, // 6: proto.ListUserPostsResponse.posts:type_name -> proto.Post
-	31, // 7: proto.CommentWithPostInfo.comment:type_name -> proto.Comment
-	12, // 8: proto.ListUserCommentsResponse.comments:type_name -> proto.CommentWithPostInfo
-	25, // 9: proto.ListFollowersResponse.users:type_name -> proto.UserProfile
-	25, // 10: proto.ListFollowingResponse.users:type_name -> proto.UserProfile
-	32, // 11: proto.HeartbeatResponse.last_activity:type_name -> google.protobuf.Timestamp
-	0,  // 12: proto.UserService.Get:input_type -> proto.GetUserRequest
-	2,  // 13: proto.UserService.GetCurrent:input_type -> proto.GetCurrentUserRequest
-	4,  // 14: proto.UserService.UpdateProfile:input_type -> proto.UpdateProfileRequest
-	6,  // 15: proto.UserService.GetStatistics:input_type -> proto.GetUserStatisticsRequest
-	8,  // 16: proto.UserService.ListCommunities:input_type -> proto.ListUserCommunitiesRequest
-	10, // 17: proto.UserService.ListPosts:input_type -> proto.ListUserPostsRequest
-	13, // 18: proto.UserService.ListComments:input_type -> proto.ListUserCommentsRequest
-	15, // 19: proto.UserService.Follow:input_type -> proto.FollowRequest
-	17, // 20: proto.UserService.Unfollow:input_type -> proto.UnfollowRequest
-	19, // 21: proto.UserService.ListFollowers:input_type -> proto.ListFollowersRequest
-	21, // 22: proto.UserService.ListFollowing:input_type -> proto.ListFollowingRequest
-	23, // 23: proto.UserService.Heartbeat:input_type -> proto.HeartbeatRequest
-	1,  // 24: proto.UserService.Get:output_type -> proto.GetUserResponse
-	3,  // 25: proto.UserService.GetCurrent:output_type -> proto.GetCurrentUserResponse
-	5,  // 26: proto.UserService.UpdateProfile:output_type -> proto.UpdateProfileResponse
-	7,  // 27: proto.UserService.GetStatistics:output_type -> proto.GetUserStatisticsResponse
-	9,  // 28: proto.UserService.ListCommunities:output_type -> proto.ListUserCommunitiesResponse
-	11, // 29: proto.UserService.ListPosts:output_type -> proto.ListUserPostsResponse
-	14, // 30: proto.UserService.ListComments:output_type -> proto.ListUserCommentsResponse
-	16, // 31: proto.UserService.Follow:output_type -> proto.FollowResponse
-	18, // 32: proto.UserService.Unfollow:output_type -> proto.UnfollowResponse
-	20, // 33: proto.UserService.ListFollowers:output_type -> proto.ListFollowersResponse
-	22, // 34: proto.UserService.ListFollowing:output_type -> proto.ListFollowingResponse
-	24, // 35: proto.UserService.Heartbeat:output_type -> proto.HeartbeatResponse
-	24, // [24:36] is the sub-list for method output_type
-	12, // [12:24] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	27, // 2: proto.GetUserStatisticsResponse.statistics:type_name -> proto.UserStatistics
+	28, // 3: proto.ListUserCommunitiesResponse.communities:type_name -> proto.Community
+	29, // 4: proto.ListUserPostsRequest.status_filter:type_name -> proto.PostStatus
+	30, // 5: proto.ListUserPostsResponse.posts:type_name -> proto.Post
+	31, // 6: proto.CommentWithPostInfo.comment:type_name -> proto.Comment
+	12, // 7: proto.ListUserCommentsResponse.comments:type_name -> proto.CommentWithPostInfo
+	25, // 8: proto.ListFollowersResponse.users:type_name -> proto.UserProfile
+	25, // 9: proto.ListFollowingResponse.users:type_name -> proto.UserProfile
+	32, // 10: proto.HeartbeatResponse.last_activity:type_name -> google.protobuf.Timestamp
+	0,  // 11: proto.UserService.Get:input_type -> proto.GetUserRequest
+	2,  // 12: proto.UserService.GetCurrent:input_type -> proto.GetCurrentUserRequest
+	4,  // 13: proto.UserService.UpdateProfile:input_type -> proto.UpdateProfileRequest
+	6,  // 14: proto.UserService.GetStatistics:input_type -> proto.GetUserStatisticsRequest
+	8,  // 15: proto.UserService.ListCommunities:input_type -> proto.ListUserCommunitiesRequest
+	10, // 16: proto.UserService.ListPosts:input_type -> proto.ListUserPostsRequest
+	13, // 17: proto.UserService.ListComments:input_type -> proto.ListUserCommentsRequest
+	15, // 18: proto.UserService.Follow:input_type -> proto.FollowRequest
+	17, // 19: proto.UserService.Unfollow:input_type -> proto.UnfollowRequest
+	19, // 20: proto.UserService.ListFollowers:input_type -> proto.ListFollowersRequest
+	21, // 21: proto.UserService.ListFollowing:input_type -> proto.ListFollowingRequest
+	23, // 22: proto.UserService.Heartbeat:input_type -> proto.HeartbeatRequest
+	1,  // 23: proto.UserService.Get:output_type -> proto.GetUserResponse
+	3,  // 24: proto.UserService.GetCurrent:output_type -> proto.GetCurrentUserResponse
+	5,  // 25: proto.UserService.UpdateProfile:output_type -> proto.UpdateProfileResponse
+	7,  // 26: proto.UserService.GetStatistics:output_type -> proto.GetUserStatisticsResponse
+	9,  // 27: proto.UserService.ListCommunities:output_type -> proto.ListUserCommunitiesResponse
+	11, // 28: proto.UserService.ListPosts:output_type -> proto.ListUserPostsResponse
+	14, // 29: proto.UserService.ListComments:output_type -> proto.ListUserCommentsResponse
+	16, // 30: proto.UserService.Follow:output_type -> proto.FollowResponse
+	18, // 31: proto.UserService.Unfollow:output_type -> proto.UnfollowResponse
+	20, // 32: proto.UserService.ListFollowers:output_type -> proto.ListFollowersResponse
+	22, // 33: proto.UserService.ListFollowing:output_type -> proto.ListFollowingResponse
+	24, // 34: proto.UserService.Heartbeat:output_type -> proto.HeartbeatResponse
+	23, // [23:35] is the sub-list for method output_type
+	11, // [11:23] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1522,7 +1482,6 @@ func file_user_proto_init() {
 		return
 	}
 	file_entity_proto_init()
-	file_user_proto_msgTypes[4].OneofWrappers = []any{}
 	file_user_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
